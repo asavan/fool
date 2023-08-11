@@ -69,3 +69,26 @@ body {
     background-color: chartreuse;
 }
 
+.qrcode.big {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 450px;
+}
+
+.qrcode {
+    width: 300px;
+    margin: auto;
+}
+
+@media (max-width: 450px) {
+    .hidden2 {
+        display: none;
+    }
+}
+
+.hidden {
+    display: none;
+}
+
+

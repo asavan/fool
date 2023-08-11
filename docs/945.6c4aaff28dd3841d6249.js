@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkfool=self.webpackChunkfool||[]).push([[945],{945:(e,o,n)=>{function s(e,o,n,s){return new Promise(((u,f)=>{const t=s(e,o,n);t.on("move",(e=>{})),u(t)}))}n.r(o),n.d(o,{default:()=>s})}}]);

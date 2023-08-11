@@ -1,0 +1,12 @@
+<svg width="1024" height="1024" xmlns="http://www.w3.org/2000/svg" version="1.1" class="svg-icon">
+
+ <g>
+  <title>Mastermind</title>
+  <path id="svg_1" d="m828.2807,892.63181l-127.48185,0l127.48185,0zm-742.59558,-233.77715l-43.74835,-43.13805l360.03533,-365.13178l33.94662,197.04218l309.90746,-284.53171l41.55187,45.25875l-392.8832,360.71321l-32.76186,-190.16704l-276.04787,279.95444zm548.50035,-460.12999l194.65434,-76.74093l-0.28015,89.02426l-96.04753,-9.15328l-98.32666,-3.13005z"/>
+  <text transform="matrix(1.71989 0 0 1.34737 -187.66 -235.211)" stroke="null" xml:space="preserve" text-anchor="start" font-family="Noto Sans JP" font-size="96" stroke-width="0" fill="#000000" id="svg_13" y="653.5" x="204">astermind</text>
+  <line stroke="null" id="svg_15" y2="603.21737" x2="97.23912" y1="568.43476" x1="86.36955" fill="none"/>
+  <path transform="rotate(-90.2763 800.915 315.217)" stroke="null" id="svg_16" d="m633.70768,286.18222l334.41381,0l0,58.06914l-334.41381,0l0,-58.06914z" opacity="undefined" fill="#000000"/>
+  <path transform="rotate(-90 770.925 265.1)" stroke="null" id="svg_8" d="m630.96211,208.46093l279.92661,113.27794l-279.92661,-113.27794z"/>
+  <path stroke="null" id="svg_10" d="m768.98004,482.91552l0,-142.87963l62.55396,142.87963l-62.55396,0z" fill="#ffffff"/>
+ </g>
+</svg>
