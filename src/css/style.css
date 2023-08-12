@@ -29,6 +29,17 @@ body {
     height: 600px;
 }
 
+.install {
+    background-color: var(--main-color);
+    text-align: center;
+    font: bold 24px/100px Tahoma, sans;
+    height: 100px;
+    width: 100%;
+    cursor: pointer;
+    border: 0;
+    padding: 0;
+}
+
 .grid {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
