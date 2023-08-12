@@ -1,14 +1,17 @@
 * {
-    /*margin: 0;*/
-    /*padding: 0;*/
-    /*box-sizing: border-box;*/
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --main-color: #F0F8FF;
+    --player-color: chartreuse;
+    --field-size: 4;
 }
 
 
 html,
 body {
-    margin: 0;
-    padding: 0;
     height: 100%;
 }
 
@@ -21,10 +24,7 @@ body {
 
 
 .container {
-    /*margin: 0;*/
-    /*padding: 0;*/
     background-color: aquamarine;
-    /*margin: 5px;*/
     width: 375px;
     height: 600px;
 }
@@ -47,7 +47,6 @@ body {
     background-color: blueviolet;
     height: 100%;
     grid-gap: 3px;
-    /*width: 100%;*/
 }
 
 .first, .second {
@@ -100,5 +99,3 @@ body {
 .hidden {
     display: none;
 }
-
-

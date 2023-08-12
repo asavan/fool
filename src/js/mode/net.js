@@ -12,6 +12,16 @@ function toObjJson(v, method) {
     return JSON.stringify(value);
 }
 
+function makeid(length) {
+    let result = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    for ( let i = 0; i < length; i++ ) {
+       result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}
+
 export default function netMode(window, document, settings, gameFunction) {
     return new Promise((resolve, reject) => {
         const connection = connectionFunc(settings, window.location, settings.color);
