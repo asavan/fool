@@ -14,7 +14,7 @@ function starter(window, document) {
         });
     } else if (settings.mode === 'server') {
         import("./js/mode/server.js").then(serverMode => {
-            serverMode.default(window, document, settings);
+            serverMode.default(window, document, settings, gameFunction);
         });
     } else if (settings.mode === 'ai') {
         import("./js/mode/ai.js").then(ai => {

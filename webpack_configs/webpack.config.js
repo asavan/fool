@@ -11,7 +11,7 @@ const getLocalExternalIP = () => [].concat(...Object.values(os.networkInterfaces
 const devConfig = (env, argv) => {
     console.log([].concat(...Object.values(os.networkInterfaces()))
                     .filter(details => (details.family === 'IPv4' || details.family === 4) && !details.internal));
-    const addr = getLocalExternalIP() || '0.0.0.0';
+    const addr = '0.0.0.0';
     return {
 
         entry: {main: ["./src/index.js", "./src/css/style.css"]},

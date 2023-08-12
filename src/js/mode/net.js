@@ -14,7 +14,7 @@ function toObjJson(v, method) {
 
 export default function netMode(window, document, settings, gameFunction) {
     return new Promise((resolve, reject) => {
-        const connection = connectionFunc(settings, window.location);
+        const connection = connectionFunc(settings, window.location, settings.color);
         const logger = document.getElementsByClassName('log')[0];
         connection.on('error', (e) => {
             log(settings, e, logger);

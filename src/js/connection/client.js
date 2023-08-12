@@ -1,12 +1,11 @@
 "use strict";
-const colors = ['blue', 'red'];
 
 function stub(message) {
     console.log("Stub " + message);
 }
 
 let user = "";
-let user2 = "";
+const user2 = "server";
 
 const handlers = {
     'recv': stub,
@@ -31,23 +30,14 @@ function stringifyEvent(e) {
 
 
 function sendNegotiation(type, sdp, ws) {
-    const json = {from: user, to: user2, action: type, data: sdp};
-    console.log("Sending [" + user + "] to [" + user2 + "]: " + JSON.stringify(sdp));
+    const json = {from: user, action: type, data: sdp};
+    console.log("Sending [" + user + "] " + JSON.stringify(sdp));
     return ws.send(JSON.stringify(json));
 }
 
-function getOtherColor(color) {
-    for (const colorOther of colors) {
-        if (color === colorOther) {
-            continue;
-        }
-        return colorOther;
-    }
-    return "";
-}
 
-
-function createSignalingChannel(socketUrl, color, serverOnly) {
+function createSignalingChannel(socketUrl, color) {
+    return new Promise((resolve, reject) => {
     const ws = new WebSocket(socketUrl);
 
     const send = (type, sdp) => {
@@ -65,12 +55,10 @@ function createSignalingChannel(socketUrl, color, serverOnly) {
     ws.onopen = function (e) {
         console.log("Websocket opened");
         handlers['socket_open']();
-        if (!serverOnly) {
-            user = color;
-            user2 = getOtherColor(color);
-            sendNegotiation("connected", {color: user}, ws);
-        }
+        sendNegotiation("connected", {}, ws);
+        resolve(result);
     }
+
     ws.onclose = function (e) {
         console.log("Websocket closed");
         handlers['socket_close']();
@@ -90,13 +78,18 @@ function createSignalingChannel(socketUrl, color, serverOnly) {
     ws.onerror = function (e) {
         console.log(e);
         handlers['error'](stringifyEvent(e));
+        reject(e);
     }
     return result;
+});
 }
 
-const connectionFunc = function (settings, location) {
+const connectionFunc = function (settings, location, id) {
 
-    const serverOnly = settings.currentMode === 'server';
+    user = id;
+
+    let isConnected = false;
+    let dataChannel = null;
 
     function on(name, f) {
         handlers[name] = f;
@@ -114,92 +107,76 @@ const connectionFunc = function (settings, location) {
 
 // inspired by http://udn.realityripple.com/docs/Web/API/WebRTC_API/Perfect_negotiation#Implementing_perfect_negotiation
 // and https://w3c.github.io/webrtc-pc/#perfect-negotiation-example
-    function connect() {
+    async function connect() {
         const socketUrl = getWebSocketUrl();
         if (socketUrl == null) {
             throw "Can't determine ws address";
         }
-        const color = settings.color;
-        const signaling = createSignalingChannel(socketUrl, color, serverOnly);
+        const signaling = await createSignalingChannel(socketUrl);
+        const peerConnection = new RTCPeerConnection(null);
 
-
-        const peerConnection = new RTCPeerConnection();
+        peerConnection.onicecandidate = e => {
+            const message = {
+              type: 'candidate',
+              candidate: null,
+            };
+            if (e.candidate) {
+              message.candidate = e.candidate.candidate;
+              message.sdpMid = e.candidate.sdpMid;
+              message.sdpMLineIndex = e.candidate.sdpMLineIndex;
+            }
+            console.log("candidate", e.candidate);
+            signaling.send("candidate", message);
+          };
         // window.pc = peerConnection;
 
-        peerConnection.onicecandidate = function (e) {
-            if (!e) return;
-            console.log("candidate", e.candidate);
-            signaling.send("candidate", e.candidate);
-        }
         peerConnection.oniceconnectionstatechange = () => {
           if (peerConnection.iceConnectionState === "failed") {
             console.error("failed");
-            peerConnection.restartIce();
+            // peerConnection.restartIce();
           }
         };
-        let makingOffer = false;
-        const polite = color === 'red';
-        console.log({polite});
 
-        let ignoreOffer = false;
-        let isSettingRemoteAnswerPending = false;
+        dataChannel = peerConnection.createDataChannel("gamechannel");
 
-        peerConnection.onnegotiationneeded = async () => {
-          try {
-            makingOffer = true;
-            console.log("make offer");
-            await peerConnection.setLocalDescription();
-            signaling.send("description", peerConnection.localDescription);
-          } catch(err) {
-            console.error(err);
-          } finally {
-            makingOffer = false;
-          }
-        }
+        setupDataChannel(dataChannel, signaling);
 
-        peerConnection.ondatachannel = (ev) => {
-          if (dataChannel == null || polite) {
-              setupDataChannel(ev.channel, signaling);
-          }
-        };
+        const sdpConstraints = {offerToReceiveAudio: false, offerToReceiveVideo: false};
+
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+        signaling.send("offer", {type: 'offer', sdp: offer.sdp});
+
 
         signaling.onmessage = async function(text) {
-            console.log("Websocket message received: " + text);
             const json = JSON.parse(text);
             if (json.from === user) {
                 console.error("same user");
                 return;
             }
 
-            if (serverOnly) {
-                handlers['server_message'](json);
+            if (json.from !== "server") {
+                console.log("not from server");
                 return;
             }
 
+            if (json.to !== user) {
+                console.log("wrong recipient", user, json.to);
+                return;
+            }
+            console.log("Websocket message received: " + text, json);
+
             if (json.action === "candidate") {
-                peerConnection.addIceCandidate(json.data).catch(e => {
-                    console.error(e)
-                });
-            } else if (json.action === "description") {
-                const description = json.data;
-                const readyForOffer =
-                !makingOffer &&
-                (peerConnection.signalingState == "stable" || isSettingRemoteAnswerPending);
-                const offerCollision = description.type == "offer" && !readyForOffer;
-                ignoreOffer = !polite && offerCollision;
-                if (ignoreOffer) {
-                  console.error("ignore");
-                  return;
-                }
-                isSettingRemoteAnswerPending = description.type == "answer";
-                await peerConnection.setRemoteDescription(description);
-                isSettingRemoteAnswerPending = false;
-                if (description.type =="offer") {
-                    await peerConnection.setLocalDescription();
-                    signaling.send("description", peerConnection.localDescription);
-                }
+                console.log("ON CANDIDATE");
+             if (!json.data.candidate) {
+                await peerConnection.addIceCandidate(null);
+              } else {
+                await peerConnection.addIceCandidate(json.data);
+              }
+
+            } else if (json.action === "answer") {
+                peerConnection.setRemoteDescription(json.data);
             } else if (json.action === "connected") {
-                setupDataChannel(peerConnection.createDataChannel("gamechannel"), signaling);
             } else if (json.action === "close") {
                 // need for server
             } else {
@@ -208,11 +185,8 @@ const connectionFunc = function (settings, location) {
         }
     }
 
-    let dataChannel = null;
-    let isConnected = false;
 
-    function setupDataChannel(c, signaling) {
-        dataChannel = c;
+    function setupDataChannel(dataChannel, signaling) {
         dataChannel.onmessage = function (e) {
             handlers['recv'](e.data);
         };
@@ -247,7 +221,7 @@ const connectionFunc = function (settings, location) {
         return isConnected;
     }
 
-    return {connect, sendMessage, on, getOtherColor};
+    return {connect, sendMessage, on};
 };
 
 export default connectionFunc;

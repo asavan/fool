@@ -1,58 +1,86 @@
 "use strict";
 
-import {removeElem} from "../helper.js";
+import {removeElem, log} from "../helper.js";
+import actionsFunc from "../actions.js";
 import qrRender from "../qrcode.js";
 import connectionFunc from "../connection/server.js";
 
-const SERVER_COLOR = 'black';
-
-function colorizePath(elem, color) {
-    if (!elem) {
-        return;
-    }
-    const svgPath = elem.querySelector('path');
-    if (svgPath) {
-        svgPath.style.fill = color;
-    }
+function toObjJson(v, method) {
+    const value = {
+        'method': method
+    };
+    value[method] = v;
+    return JSON.stringify(value);
 }
 
-function oneQrCode(url, code, color, qrcontainer, document) {
-    const element = document.createElement('div');
-    element.classList.add('qrcode');
-    qrcontainer.appendChild(element);
-    url.searchParams.set('color', color);
-    qrRender(url.toString(), element);
-    colorizePath(element, color);
-    code[color] = element;
-}
+const clients = {}
 
-export default function server(window, document, settings) {
-    const connection = connectionFunc(settings, window.location);
+function makeQr(window, document, settings) {
     const staticHost = settings.sh || window.location.href;
-    let code = {};
-    {
-        const url = new URL(staticHost);
-        url.searchParams.delete('currentMode');
-        const qrcontainer = document.querySelector('.qrcontainerserver');
-        oneQrCode(url, code, 'blue', qrcontainer, document);
-        oneQrCode(url, code, 'red', qrcontainer, document);
-    }
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const url = new URL(staticHost);
+    url.search = urlParams;
+    url.searchParams.delete('wh');
+    url.searchParams.delete('sh');
+    url.searchParams.set('mode', 'net');
+    console.log("enemy url", url.toString());
+    return qrRender(url.toString(), document.querySelector(".qrcode"));
+}
 
-    connection.on('socket_open', () => {
-        colorizePath(code['blue'], 'royalblue');
-    });
+export default function server(window, document, settings, gameFunction) {
+    return new Promise(async (resolve, reject) => {
+        const connection = connectionFunc(settings, window.location);
+        const color = settings.color;
+        const logger = document.getElementsByClassName('log')[0];
+        connection.on('error', (e) => {
+            log(settings, e, logger);
+        });
+        connection.on('socket_open', async () => {
+            const code = makeQr(window, document, settings);
+            if (navigator.mediaDevices) {
+                await navigator.mediaDevices.getUserMedia({
+                              audio: true,
+                              video: true
+                          });
+            } else {
+                console.log("No mediaDevices")
+            }
+            connection.on('socket_close', () => {
+                removeElem(code);
+            });
+        });
 
-    connection.on('server_message', (json) => {
-        if (json.action === 'connected') {
-            colorizePath(code[json.from], SERVER_COLOR);
-        } else if (json.action === 'close') {
-            removeElem(code[json.from]);
+        const game = gameFunction(window, document, settings);
+        const actions = actionsFunc(game);
+        connection.on('recv', async (data) => {
+            // console.log(data);
+            const obj = JSON.parse(data);
+            const res = obj[obj.method];
+            const callback = actions[obj.method];
+            if (typeof callback === 'function') {
+                const validate = await callback(res);
+                if (validate) {
+                    connection.sendAll(data);
+                }
+            }
+        });
+        for (const [handlerName, callback] of Object.entries(actions)) {
+            game.on(handlerName, (n) => connection.sendAll(toObjJson(n, handlerName)));
+        }
+        resolve(game);
+
+
+        connection.on('open', async (id) => {
+            const elem = document.querySelector('.'+id);
+            elem.style.backgroundColor = "#AA0000";
+        });
+
+        try {
+            connection.connect();
+        } catch (e) {
+            log(settings, e, logger);
+            reject(e);
         }
     });
-
-    try {
-        connection.connect();
-    } catch (e) {
-        console.log(e);
-    }
 }

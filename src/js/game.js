@@ -19,6 +19,7 @@ export default function game(window, document, settings) {
         const ind = change.index;
         scores[ind] = change.scores[ind];
         fields[ind].innerText = scores[ind];
+        return true;
     };
 
     const move = (ind) => {

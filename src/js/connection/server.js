@@ -1,12 +1,12 @@
 "use strict";
-const colors = ['blue', 'red'];
 
 function stub(message) {
     console.log("Stub " + message);
 }
 
-let user = "";
-let user2 = "";
+const user = 'server';
+
+const clients = {}
 
 const handlers = {
     'recv': stub,
@@ -30,29 +30,99 @@ function stringifyEvent(e) {
 }
 
 
-function sendNegotiation(type, sdp, ws) {
-    const json = {from: user, to: user2, action: type, data: sdp};
-    console.log("Sending [" + user + "] to [" + user2 + "]: " + JSON.stringify(sdp));
+function sendNegotiation(type, sdp, ws, to) {
+    const json = {from: "server", to: to, action: type, data: sdp};
+    console.log("Sending [server] to [" + to + "]: " + JSON.stringify(sdp));
     return ws.send(JSON.stringify(json));
 }
 
-function getOtherColor(color) {
-    for (const colorOther of colors) {
-        if (color === colorOther) {
-            continue;
-        }
-        return colorOther;
-    }
-    return "";
+function setupDataChannel(dataChannel, signaling, id) {
+    dataChannel.onmessage = function (e) {
+        handlers['recv'](e.data, id);
+    };
+
+    dataChannel.onopen = function () {
+        console.log("------ DATACHANNEL OPENED ------");
+        handlers['open'](id);
+    };
+
+    dataChannel.onclose = function () {
+        console.log("------ DC closed! ------");
+    };
+
+    dataChannel.onerror = function () {
+        console.log("DC ERROR!!!")
+    };
 }
 
 
-function createSignalingChannel(socketUrl, color, serverOnly) {
+async function SetupFreshConnection(signaling, id) {
+    const peerConnection = new RTCPeerConnection(null);
+    // window.pc = peerConnection;
+
+    peerConnection.onicecandidate = e => {
+        if (!e) {
+            console.error("No ice");
+        }
+        const message = {
+          type: 'candidate',
+          candidate: null,
+        };
+        if (e.candidate) {
+          message.candidate = e.candidate.candidate;
+          message.sdpMid = e.candidate.sdpMid;
+          message.sdpMLineIndex = e.candidate.sdpMLineIndex;
+        }
+        console.log("candidate", e.candidate);
+        signaling.send("candidate", message, id);
+      };
+
+    return peerConnection;
+}
+
+async function processOffer(offer, peerConnection, signaling, id) {
+    const sdpConstraints = {
+        'mandatory':
+            {
+                'OfferToReceiveAudio': false,
+                'OfferToReceiveVideo': false
+            }
+    };
+
+    console.log("------ PROCESSED OFFER ------");
+    await peerConnection.setRemoteDescription(offer);
+    const answer = await peerConnection.createAnswer();
+    signaling.send("answer", {type: 'answer', sdp: answer.sdp}, id);
+    await peerConnection.setLocalDescription(answer);
+}
+
+
+async function ConnectionData(id, signaling) {
+    const client = clients[id];
+    if (client) {
+        // cleanup
+        client.pc.close();
+    }
+    const pc = await SetupFreshConnection(signaling, id);
+
+    pc.ondatachannel = (ev) => {
+        setupDataChannel(ev.channel, signaling, id);
+        clients[id].dc = ev.channel;
+    };
+    clients[id] = {pc: pc, dc: null};
+    return pc;
+}
+
+
+function createSignalingChannel(socketUrl) {
     const ws = new WebSocket(socketUrl);
 
-    const send = (type, sdp) => {
-        return sendNegotiation(type, sdp, ws);
+    const send = (type, sdp, to) => {
+        const json = {from: "server", to: to, action: type, data: sdp};
+        console.log("Sending [server] to [" + to + "]: " + JSON.stringify(sdp));
+        return ws.send(JSON.stringify(json));
     }
+
     const close = () => {
         // iphone fires "onerror" on close socket
         handlers['error'] = stub;
@@ -65,11 +135,6 @@ function createSignalingChannel(socketUrl, color, serverOnly) {
     ws.onopen = function (e) {
         console.log("Websocket opened");
         handlers['socket_open']();
-        if (!serverOnly) {
-            user = color;
-            user2 = getOtherColor(color);
-            sendNegotiation("connected", {color: user}, ws);
-        }
     }
     ws.onclose = function (e) {
         console.log("Websocket closed");
@@ -96,8 +161,6 @@ function createSignalingChannel(socketUrl, color, serverOnly) {
 
 const connectionFunc = function (settings, location) {
 
-    const serverOnly = settings.currentMode === 'server';
-
     function on(name, f) {
         handlers[name] = f;
     }
@@ -119,98 +182,34 @@ const connectionFunc = function (settings, location) {
         if (socketUrl == null) {
             throw "Can't determine ws address";
         }
-        const color = settings.color;
-        const signaling = createSignalingChannel(socketUrl, color, serverOnly);
-
-        if (serverOnly) {
-            signaling.onmessage = async function(text) {
-                    console.log("Websocket message received: " + text);
-                    const json = JSON.parse(text);
-                    if (json.from === user) {
-                        console.error("same user");
-                        return;
-                    }
-                    handlers['server_message'](json);
-            }
-            return;
-        }
-
-        const peerConnection = new RTCPeerConnection();
-        // window.pc = peerConnection;
-
-        peerConnection.onicecandidate = function (e) {
-            if (!e) return;
-            console.log("candidate", e.candidate);
-            signaling.send("candidate", e.candidate);
-        }
-        peerConnection.oniceconnectionstatechange = () => {
-          if (peerConnection.iceConnectionState === "failed") {
-            console.error("failed");
-            peerConnection.restartIce();
-          }
-        };
-        let makingOffer = false;
-        const polite = color === 'red';
-
-        let ignoreOffer = false;
-        let isSettingRemoteAnswerPending = false;
-
-        peerConnection.onnegotiationneeded = async () => {
-          try {
-            makingOffer = true;
-            console.log("make offer");
-            await peerConnection.setLocalDescription();
-            signaling.send("description", peerConnection.localDescription);
-          } catch(err) {
-            console.error(err);
-          } finally {
-            makingOffer = false;
-          }
-        }
-
-        peerConnection.ondatachannel = (ev) => {
-          if (dataChannel == null || polite) {
-              setupDataChannel(ev.channel, signaling);
-          }
-        };
+        const signaling = createSignalingChannel(socketUrl);
 
         signaling.onmessage = async function(text) {
-            console.log("Websocket message received: " + text);
             const json = JSON.parse(text);
-            if (json.from === user) {
+            if (json.from === "server") {
                 console.error("same user");
                 return;
             }
 
-            if (serverOnly) {
-                handlers['server_message'](json);
-                return;
-            }
+            console.log("Websocket message received: " + text, json);
+            const client = clients[json.from];
+            console.log(client);
 
             if (json.action === "candidate") {
-                peerConnection.addIceCandidate(json.data).catch(e => {
-                    console.error(e)
-                });
-            } else if (json.action === "description") {
-                const description = json.data;
-                const readyForOffer =
-                !makingOffer &&
-                (pc.signalingState == "stable" || isSettingRemoteAnswerPending);
-                const offerCollision = description.type == "offer" && !readyForOffer;
-                ignoreOffer = !polite && offerCollision;
-                if (ignoreOffer) {
-                  console.error("ignore");
-                  return;
-                }
-                isSettingRemoteAnswerPending = description.type == "answer";
-                await peerConnection.setRemoteDescription(description);
-                isSettingRemoteAnswerPending = false;
-                if (description.type =="offer") {
-                    await peerConnection.setLocalDescription();
-                    signaling.send("description", peerConnection.localDescription);
-                }
+                const pc = client.pc;
+                 if (!json.data.candidate) {
+                    await pc.addIceCandidate(null);
+                  } else {
+                    await pc.addIceCandidate(json.data);
+                  }
+
+            } else if (json.action === "offer") {
+                const pc = await ConnectionData(json.from, signaling);
+                await processOffer(json.data, pc, signaling, json.from);
             } else if (json.action === "connected") {
-                setupDataChannel(peerConnection.createDataChannel("gamechannel"), signaling);
+                console.log("Connected");
+                console.log(clients[json.from]);
+                // setupDataChannel(peerConnection.createDataChannel("gamechannel"), signaling);
             } else if (json.action === "close") {
                 // need for server
             } else {
@@ -219,46 +218,15 @@ const connectionFunc = function (settings, location) {
         }
     }
 
-    let dataChannel = null;
-    let isConnected = false;
-
-    function setupDataChannel(c, signaling) {
-        dataChannel = c;
-        dataChannel.onmessage = function (e) {
-            handlers['recv'](e.data);
-        };
-
-        dataChannel.onopen = function () {
-            console.log("------ DATACHANNEL OPENED ------");
-            isConnected = true;
-            signaling.send("close", {});
-            signaling.close();
-            handlers['open']();
-        };
-
-        dataChannel.onclose = function () {
-            console.log("------ DC closed! ------");
-            isConnected = false;
-        };
-
-        dataChannel.onerror = function () {
-            console.log("DC ERROR!!!")
-        };
+    const sendAll = (data) => {
+        for (const client of Object.values(clients)) {
+            if (client.dc) {
+                client.dc.send(data);
+            }
+        }
     }
 
-    function sendMessage(messageBody) {
-        if (!dataChannel) {
-            return false;
-        }
-        if (!isConnected) {
-            console.log("Not connected");
-            return false;
-        }
-        dataChannel.send(messageBody);
-        return isConnected;
-    }
-
-    return {connect, sendMessage, on, getOtherColor};
+    return {connect, sendAll, on};
 };
 
 export default connectionFunc;
