@@ -29,12 +29,21 @@ function stringifyEvent(e) {
   }, ' ');
 }
 
-
-function sendNegotiation(type, sdp, ws, to) {
-    const json = {from: "server", to: to, action: type, data: sdp};
-    console.log("Sending [server] to [" + to + "]: " + JSON.stringify(sdp));
-    return ws.send(JSON.stringify(json));
+function logFunction(s) {
+    let settings = s;
+    function init(set) {
+        settings = set;
+    }
+    function log(obj) {
+        if (settings && settings.networkDebug) {
+            console.log(obj);
+        }
+    }
+    return {init, log};
 }
+
+const logger = logFunction(null);
+
 
 function setupDataChannel(dataChannel, signaling, id) {
     dataChannel.onmessage = function (e) {
@@ -42,16 +51,16 @@ function setupDataChannel(dataChannel, signaling, id) {
     };
 
     dataChannel.onopen = function () {
-        console.log("------ DATACHANNEL OPENED ------");
+        logger.log("------ DATACHANNEL OPENED ------");
         handlers['open'](id);
     };
 
     dataChannel.onclose = function () {
-        console.log("------ DC closed! ------");
+        logger.log("------ DC closed! ------");
     };
 
     dataChannel.onerror = function () {
-        console.log("DC ERROR!!!")
+        console.error("DC ERROR!!!")
     };
 }
 
@@ -73,7 +82,7 @@ async function SetupFreshConnection(signaling, id) {
           message.sdpMid = e.candidate.sdpMid;
           message.sdpMLineIndex = e.candidate.sdpMLineIndex;
         }
-        console.log("candidate", e.candidate);
+        logger.log({"candidate": e.candidate});
         signaling.send("candidate", message, id);
       };
 
@@ -89,7 +98,7 @@ async function processOffer(offer, peerConnection, signaling, id) {
             }
     };
 
-    console.log("------ PROCESSED OFFER ------");
+    logger.log("------ PROCESSED OFFER ------");
     await peerConnection.setRemoteDescription(offer);
     const answer = await peerConnection.createAnswer();
     signaling.send("answer", {type: 'answer', sdp: answer.sdp}, id);
@@ -119,7 +128,7 @@ function createSignalingChannel(socketUrl) {
 
     const send = (type, sdp, to) => {
         const json = {from: "server", to: to, action: type, data: sdp};
-        console.log("Sending [server] to [" + to + "]: " + JSON.stringify(sdp));
+        logger.log("Sending [server] to [" + to + "]: " + JSON.stringify(sdp));
         return ws.send(JSON.stringify(json));
     }
 
@@ -133,7 +142,7 @@ function createSignalingChannel(socketUrl) {
     const result = {onmessage, send, close};
 
     ws.onopen = function (e) {
-        console.log("Websocket opened");
+        logger.log("Websocket opened");
         handlers['socket_open']();
     }
     ws.onclose = function (e) {
@@ -153,13 +162,15 @@ function createSignalingChannel(socketUrl) {
         }
     }
     ws.onerror = function (e) {
-        console.log(e);
+        console.error(e);
         handlers['error'](stringifyEvent(e));
     }
     return result;
 }
 
 const connectionFunc = function (settings, location) {
+
+    logger.init(settings);
 
     function on(name, f) {
         handlers[name] = f;
@@ -191,11 +202,14 @@ const connectionFunc = function (settings, location) {
                 return;
             }
 
-            console.log("Websocket message received: " + text, json);
-            const client = clients[json.from];
-            console.log(client);
+            logger.log("Websocket message received: " + text);
 
             if (json.action === "candidate") {
+                const client = clients[json.from];
+                if (!client) {
+                    console.error("No client");
+                    return;
+                }
                 const pc = client.pc;
                  if (!json.data.candidate) {
                     await pc.addIceCandidate(null);
@@ -207,13 +221,11 @@ const connectionFunc = function (settings, location) {
                 const pc = await ConnectionData(json.from, signaling);
                 await processOffer(json.data, pc, signaling, json.from);
             } else if (json.action === "connected") {
-                console.log("Connected");
-                console.log(clients[json.from]);
-                // setupDataChannel(peerConnection.createDataChannel("gamechannel"), signaling);
+                // TODO delete?
             } else if (json.action === "close") {
                 // need for server
             } else {
-                console.log("Unknown type " + json.action);
+                console.error("Unknown type " + json.action);
             }
         }
     }

@@ -6,14 +6,19 @@
     <meta name="description" content="Fool">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="theme-color" content="#ffffff">
-    <link id="favicon" rel="icon" href="./images/icon.svg" sizes="any" type="image/svg+xml">
+    <link id="favicon" rel="icon" href="./images/icon_reverse.svg" sizes="any" type="image/svg+xml">
     <link rel="manifest" href="./manifest.json">
 
 </head>
 
 <body>
 
-<div class="container">
+<div class="name-form-cont"></div>
+<div class="hand-cont"></div>
+
+
+<div class="container" data-background="lime">
+    <div class="places"></div>
     <div class="grid">
         <div class="player first">6</div>
         <div class="player second">6</div>
@@ -22,11 +27,30 @@
         <div class="table"></div>
     </div>
 </div>
+
 <div class="log"></div>
 <div class="qrcode"></div>
 <div class="qrcontainerserver"></div>
 <footer>
     <button id="butInstall" class="butInstall install hidden hidden2">Install as app</button>
 </footer>
+
+<template id="card">
+    <li class="sprite-container">
+        <div class="sprite"></div>
+    </li>
+</template>
+
+<template id="nameform">
+    <form class="nameform">
+        <label>
+            Enter your name:
+            <input class="nameinput" type="text" name="name" />
+        </label>
+        <input class="namesubmit" type="submit" value="Submit">
+    </form>
+</template>
+
+
 </body>
 </html>

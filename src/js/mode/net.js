@@ -24,7 +24,7 @@ function makeid(length) {
 
 export default function netMode(window, document, settings, gameFunction) {
     return new Promise((resolve, reject) => {
-        const connection = connectionFunc(settings, window.location, settings.color);
+        const connection = connectionFunc(settings, window.location, makeid(6));
         const logger = document.getElementsByClassName('log')[0];
         connection.on('error', (e) => {
             log(settings, e, logger);
@@ -52,6 +52,7 @@ export default function netMode(window, document, settings, gameFunction) {
             for (const [handlerName, callback] of Object.entries(actions)) {
                 game.on(handlerName, (n) => connection.sendMessage(toObjJson(n, handlerName)));
             }
+            game.onConnect();
             resolve(game);
         });
 

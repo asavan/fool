@@ -1,6 +1,6 @@
 {
-    "name": "asavan mastermind game",
-	"short_name": "mastermind",
+    "name": "asavan vuno game",
+	"short_name": "vuno",
     "icons": [
         {
           "src": "./images/icon512.png",
@@ -13,6 +13,22 @@
           "sizes": "192x192",
           "type": " image/png"
         }
+    ],
+    "shortcuts": [
+      {
+        "name": "Server Mode",
+        "short_name": "Server",
+        "description": "Start as server",
+        "url": "./?mode=server",
+        "icons": [{ "src": "./images/icon192.png", "sizes": "192x192" }]
+      },
+      {
+        "name": "Ai Mode",
+        "short_name": "Ai",
+        "description": "Play with bot",
+        "url": "./?mode=ai",
+        "icons": [{ "src": "./images/icon192.png", "sizes": "192x192" }]
+      }
     ],
     "theme_color": "#ffffff",
     "background_color": "#ffffff",

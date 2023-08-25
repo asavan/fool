@@ -3,5 +3,6 @@ export default {
     mode: "net",
     wsPort : 8088,
     color: "red",
-    logger: true
+    logger: true,
+    networkDebug: true
 }

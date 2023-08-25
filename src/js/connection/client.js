@@ -28,15 +28,30 @@ function stringifyEvent(e) {
   }, ' ');
 }
 
+function logFunction(s) {
+    let settings = s;
+    function init(set) {
+        settings = set;
+    }
+    function log(obj) {
+        if (settings && settings.networkDebug) {
+            console.log(obj);
+        }
+    }
+    return {init, log};
+}
+
+const logger = logFunction(null);
+
 
 function sendNegotiation(type, sdp, ws) {
     const json = {from: user, action: type, data: sdp};
-    console.log("Sending [" + user + "] " + JSON.stringify(sdp));
+    logger.log("Sending [" + user + "] " + JSON.stringify(sdp));
     return ws.send(JSON.stringify(json));
 }
 
 
-function createSignalingChannel(socketUrl, color) {
+function createSignalingChannel(socketUrl, networkDebug) {
     return new Promise((resolve, reject) => {
     const ws = new WebSocket(socketUrl);
 
@@ -53,14 +68,14 @@ function createSignalingChannel(socketUrl, color) {
     const result = {onmessage, send, close};
 
     ws.onopen = function (e) {
-        console.log("Websocket opened");
+        logger.log("Websocket opened");
         handlers['socket_open']();
         sendNegotiation("connected", {}, ws);
         resolve(result);
     }
 
     ws.onclose = function (e) {
-        console.log("Websocket closed");
+        logger.log("Websocket closed");
         handlers['socket_close']();
     }
 
@@ -76,7 +91,7 @@ function createSignalingChannel(socketUrl, color) {
         }
     }
     ws.onerror = function (e) {
-        console.log(e);
+        console.error(e);
         handlers['error'](stringifyEvent(e));
         reject(e);
     }
@@ -90,6 +105,7 @@ const connectionFunc = function (settings, location, id) {
 
     let isConnected = false;
     let dataChannel = null;
+    logger.init(settings);
 
     function on(name, f) {
         handlers[name] = f;
@@ -125,7 +141,7 @@ const connectionFunc = function (settings, location, id) {
               message.sdpMid = e.candidate.sdpMid;
               message.sdpMLineIndex = e.candidate.sdpMLineIndex;
             }
-            console.log("candidate", e.candidate);
+            logger.log({"candidate": e.candidate});
             signaling.send("candidate", message);
           };
         // window.pc = peerConnection;
@@ -164,10 +180,10 @@ const connectionFunc = function (settings, location, id) {
                 console.log("wrong recipient", user, json.to);
                 return;
             }
-            console.log("Websocket message received: " + text, json);
+            logger.log("Websocket message received: " + text);
 
             if (json.action === "candidate") {
-                console.log("ON CANDIDATE");
+                logger.log("ON CANDIDATE");
              if (!json.data.candidate) {
                 await peerConnection.addIceCandidate(null);
               } else {
@@ -180,7 +196,7 @@ const connectionFunc = function (settings, location, id) {
             } else if (json.action === "close") {
                 // need for server
             } else {
-                console.log("Unknown type " + json.action);
+                console.error("Unknown type " + json.action);
             }
         }
     }
@@ -192,7 +208,7 @@ const connectionFunc = function (settings, location, id) {
         };
 
         dataChannel.onopen = function () {
-            console.log("------ DATACHANNEL OPENED ------");
+            logger.log("------ DATACHANNEL OPENED ------");
             isConnected = true;
             signaling.send("close", {});
             signaling.close();
@@ -200,7 +216,7 @@ const connectionFunc = function (settings, location, id) {
         };
 
         dataChannel.onclose = function () {
-            console.log("------ DC closed! ------");
+            logger.log("------ DC closed! ------");
             isConnected = false;
         };
 
@@ -210,13 +226,15 @@ const connectionFunc = function (settings, location, id) {
     }
 
     function sendMessage(messageBody) {
+        console.log("data send1 " + messageBody);
         if (!dataChannel) {
             return false;
         }
         if (!isConnected) {
-            console.log("Not connected");
+            console.error("Not connected");
             return false;
         }
+        logger.log("data send " + messageBody);
         dataChannel.send(messageBody);
         return isConnected;
     }

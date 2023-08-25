@@ -1,7 +1,7 @@
 "use strict";
 
 import {removeElem, log} from "../helper.js";
-import actionsFunc from "../actions.js";
+import actionsFunc from "../actions_server.js";
 import qrRender from "../qrcode.js";
 import connectionFunc from "../connection/server.js";
 
@@ -13,7 +13,9 @@ function toObjJson(v, method) {
     return JSON.stringify(value);
 }
 
-const clients = {}
+const clients = {};
+let index = 0;
+clients['server'] = {"index": index};
 
 function makeQr(window, document, settings) {
     const staticHost = settings.sh || window.location.href;
@@ -52,14 +54,14 @@ export default function server(window, document, settings, gameFunction) {
         });
 
         const game = gameFunction(window, document, settings);
-        const actions = actionsFunc(game);
-        connection.on('recv', async (data) => {
+        const actions = actionsFunc(game, clients);
+        connection.on('recv', async (data, id) => {
             // console.log(data);
             const obj = JSON.parse(data);
             const res = obj[obj.method];
             const callback = actions[obj.method];
             if (typeof callback === 'function') {
-                const validate = await callback(res);
+                const validate = await callback(res, id);
                 if (validate) {
                     connection.sendAll(data);
                 }
@@ -68,12 +70,16 @@ export default function server(window, document, settings, gameFunction) {
         for (const [handlerName, callback] of Object.entries(actions)) {
             game.on(handlerName, (n) => connection.sendAll(toObjJson(n, handlerName)));
         }
+        game.on('username', (name) => game.join(0, name, 'server'));
+        game.on('swap', (id1, id2) => game.swap(id1, id2));
+        game.onConnect();
+        const grid = document.querySelector(".grid");
+        grid.classList.add('hidden');
         resolve(game);
 
-
         connection.on('open', async (id) => {
-            const elem = document.querySelector('.'+id);
-            elem.style.backgroundColor = "#AA0000";
+            ++index;
+            clients[id] = {"index": index};
         });
 
         try {
