@@ -53,6 +53,7 @@ function drawPlayers(window, document, engine) {
         places.appendChild(elem);
         ++i;
     }
+    drawCenter(window, document, engine.getCardOnBoard());
 }
 
 
@@ -66,7 +67,9 @@ function drawCenter(window, document, p) {
     } else {
         discardPile.replaceChildren();
     }
-    drawHand(document, discardPile, [p]);
+    if (p !== null) {
+        drawHand(document, discardPile, [p]);
+    }
 }
 
 

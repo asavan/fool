@@ -58,14 +58,14 @@ li {
    position:absolute;
    top:50%;
    left:50%;
-   width:100px;
+   width:120px;
    height:100px;
-   margin:-51px;
    background:#fff7f0;
    /*border-radius:50%;*/
    text-align:center;
    /*line-height:100px;*/
-   transform: rotate(var(--angle-deg)) translate(100px) rotate(calc(-1 * var(--angle-deg)));
+   margin: -70px;
+   transform: rotate(var(--angle-deg)) translate(140px) rotate(calc(-1 * var(--angle-deg)));
 }
 
 .card-face {
@@ -77,7 +77,7 @@ li {
 }
 
 .sprite-container{
-  width: 40px;
+  width: 30px;
 }
 
 .sprite{
@@ -97,6 +97,7 @@ li {
 
 .hand {
     display: flex;
+    flex-wrap: wrap;
 }
 
 
