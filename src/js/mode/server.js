@@ -73,8 +73,6 @@ export default function server(window, document, settings, gameFunction) {
         game.on('username', (name) => game.join(0, name, 'server'));
         game.on('swap', (id1, id2) => game.swap(id1, id2));
         game.onConnect();
-        const grid = document.querySelector(".grid");
-        grid.classList.add('hidden');
         resolve(game);
 
         connection.on('open', async (id) => {

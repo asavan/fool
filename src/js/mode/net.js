@@ -30,7 +30,7 @@ export default function netMode(window, document, settings, gameFunction) {
             log(settings, e, logger);
         });
         connection.on('socket_open', () => {
-            const grid = document.getElementsByClassName('grid')[0];
+            const grid = document.getElementsByClassName('places')[0];
             grid.style.backgroundColor = "#AA0000";
             connection.on('socket_close', () => {
                 grid.style.backgroundColor = "black";

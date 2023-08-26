@@ -42,13 +42,13 @@ export default function choosePlace(window, document, settings, handlers, player
         elem.dataset.id = i;
         elem.dataset.angle = angleDeg + 'deg';
         elem.style.setProperty('--angle-deg', angleDeg + 'deg');
-        elem.classList.add('circle');
+        elem.classList.add('circle', 'clickable');
         angleDeg += increaseDeg;
         places.appendChild(elem);
     }
 
     const start = document.createElement("button");
-    start.classList.add('start-button');
+    start.classList.add('start-button', 'clickable');
     start.addEventListener("click", onAllSeated);
     box.appendChild(start);
 }

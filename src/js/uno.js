@@ -10,14 +10,26 @@ const handlers = {
     'shuffle': stub,
     'deal': stub,
     'draw': stub,
-    'move': stub
+    'discard': stub,
+    'move': stub,
+    'clearPlayer': stub
 }
 
+const INITIAL_DEALT = 7;
 let dealer = 0;
+let direction = 1;
 let players = [];
-
 let deck = null;
+let cardOnBoard = null;
 
+
+function nextPlayer(ind, size) {
+    return (dealer + (ind + 1) * direction + size) % size;
+}
+
+function getCardOnBoard() {
+    return cardOnBoard;
+}
 
 
 /**
@@ -131,14 +143,24 @@ function newPlayer(name, ind) {
 
     const getName = () => {return n};
     const getIndex = () => {return i};
-    const addCard = (card) => deck.push(card);
+    const addCard = (card) => {
+        deck.push(card);
+        console.log(name, deck);
+    }
     const pile = () => [...deck];
+    const cleanHand = async () => {
+        console.log("clean hand");
+        console.log("clean hand");
+        deck.length = 0;
+        await handlers['clearPlayer'](i);
+    }
 
     return {
             getName,
             addCard,
             pile,
-            getIndex
+            getIndex,
+            cleanHand
           };
 }
 
@@ -149,8 +171,15 @@ function addPlayer(name) {
 
 async function dealToPlayer(deck, playerIndex) {
     const card = deck.deal();
-    await handlers['draw'](playerIndex, card);
     players[playerIndex].addCard(card);
+    await handlers['draw'](playerIndex, card);
+    return card;
+}
+
+async function dealToDiscard(deck) {
+    const card = deck.deal();
+    cardOnBoard = card;
+    await handlers['discard'](card);
     return card;
 }
 
@@ -187,21 +216,29 @@ function size() {
     return players.length;
 }
 
+function getDealer() {
+    return dealer;
+}
+
+function reverse() {
+    direction *= -1;
+}
+
 async function chooseDealer() {
     deck = await newShuffledDeck();
-    console.log(deck);
     let candidates = [...players];
-    console.log('Deciding dealer');
+
     while (candidates.length > 1) {
         const n = candidates.length;
         let scores = new Array(n);
         let max = 0;
         for (let i = 0; i < n; i++) {
-          	  const card = await dealToPlayer(deck, candidates[i].getIndex());
+              const dealIndex = nextPlayer(i, n);
+          	  const card = await dealToPlayer(deck, candidates[dealIndex].getIndex());
               const score = cardScore(card);
-              console.log('>> ' + candidates[i].getName() + ': Player ' + i + ' draws ' + cardType(card) + ' '
+              console.log('>> ' + candidates[dealIndex].getName() + ': Player ' + i + ' draws ' + cardType(card) + ' '
                 + cardColor(card) + ' and gets ' + score + ' points');
-              scores[i] = score;
+              scores[dealIndex] = score;
               max = Math.max(max, score);
         }
         const newCand = [];
@@ -212,12 +249,38 @@ async function chooseDealer() {
         }
         candidates = newCand;
     }
+    if (candidates.length >= 1) {
+        dealer = candidates[0].getIndex();
+    } else {
+        console.error("No cand", candidates);
+    }
     console.log('dealer was choosen');
+}
+
+async function cleanAllHands() {
+    cardOnBoard = null;
+    for (const pl of players) {
+        await pl.cleanHand();
+    }
+    deck = await newShuffledDeck();
+}
+
+async function deal() {
+    await cleanAllHands();
+    for (let round = 0; round < INITIAL_DEALT; ++round) {
+        const n = players.length;
+        for (let i = 0; i < n; i++) {
+            const dealIndex = nextPlayer(i, n);
+            const card = await dealToPlayer(deck, players[dealIndex].getIndex());
+        }
+    }
+    dealToDiscard(deck);
 }
 
 export default function initCore() {
     return {
         chooseDealer,
+        deal,
         getPlayerIterator,
         addPlayer,
         size,
@@ -225,6 +288,8 @@ export default function initCore() {
         dealToPlayer,
         cardScore,
         cardColor,
-        cardType
+        cardType,
+        getDealer,
+        getCardOnBoard
     }
 }

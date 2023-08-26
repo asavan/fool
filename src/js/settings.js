@@ -4,5 +4,5 @@ export default {
     wsPort : 8088,
     color: "red",
     logger: true,
-    networkDebug: true
+    networkDebug: false
 }

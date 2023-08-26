@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkfool=self.webpackChunkfool||[]).push([[945],{945:(e,n,i)=>{function o(e,n,i,o){return new Promise(((l,t)=>{const c=o(e,n,i);c.on("move",(e=>{})),c.join(0,"sasha","server"),c.join(1,"client1","client1"),c.join(2,"client2","client2"),c.join(3,"client3","client3"),c.afterAllJoined(),l(c)}))}i.r(n),i.d(n,{default:()=>o})}}]);

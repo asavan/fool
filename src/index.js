@@ -18,18 +18,12 @@ function starter(window, document) {
         });
     } else if (settings.mode === 'ai') {
         import("./js/mode/ai.js").then(ai => {
-            ai.default(window, document, settings, gameFunction).then(g => {
-                g.on("gameover", (score) => {
-                    const btnAdd = document.querySelector('.butInstall');
-                    btnAdd.classList.remove("hidden2");
-                });
-            });
+            ai.default(window, document, settings, gameFunction);
         });
     } else {
         assert(false, "Unsupported mode");
     }
 }
-
 
 if (__USE_SERVICE_WORKERS__) {
     if ('serviceWorker' in navigator) {

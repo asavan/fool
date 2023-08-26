@@ -1,5 +1,5 @@
 "use strict"; // jshint ;_;
-import {assert} from "./helper.js";
+import {assert, delay} from "./helper.js";
 import coreUnoFunc from "./uno.js";
 
 function stub(message) {
@@ -10,21 +10,24 @@ function stub(message) {
 let players = [];
 let dealer = 0;
 
+function drawCard(p, cardItem) {
+    const cardClone = cardItem.content.cloneNode(true).firstElementChild;
+    cardClone.style.setProperty('--sprite-x', (1400 - (p%14)*100) + '%');
+    cardClone.style.setProperty('--sprite-y', (800 - Math.floor(p/14)*100) + '%');
+    return cardClone;
+}
+
 function drawHand(document, parent, pile) {
     const hand = document.createElement("ul");
     const cardItem = document.querySelector('#card');
     hand.classList.add('hand');
     for (const p of pile) {
-        const cardClone = cardItem.content.cloneNode(true).firstElementChild;
-        cardClone.style.setProperty('--sprite-x', (1400 - (p%14)*100) + '%');
-        cardClone.style.setProperty('--sprite-y', (800 - Math.floor(p/14)*100) + '%');
-        hand.appendChild(cardClone);
+        hand.appendChild(drawCard(p, cardItem));
     }
     parent.appendChild(hand);
 }
 
 function drawPlayers(window, document, engine) {
-    console.log("DRAWING PLAYERS");
     const box = document.querySelector(".places");
     box.replaceChildren();
     const places = document.createElement("ul");
@@ -53,9 +56,21 @@ function drawPlayers(window, document, engine) {
 }
 
 
+function drawCenter(window, document, p) {
+    const box = document.querySelector(".places");
+    let discardPile = box.querySelector(".center-pile");
+    if (!discardPile) {
+        discardPile = document.createElement("div");
+        discardPile.classList.add("center-pile");
+        box.appendChild(discardPile);
+    } else {
+        discardPile.replaceChildren();
+    }
+    drawHand(document, discardPile, [p]);
+}
+
+
 export default function unoGame(window, document, settings, playersExternal, handlers) {
-
-
 
     const engine = coreUnoFunc(settings);
     players = playersExternal;
@@ -65,13 +80,20 @@ export default function unoGame(window, document, settings, playersExternal, han
     }
 
     const handCont = document.querySelector('.hand-cont');
-    engine.on("draw", () => {
-        console.log("draw");
+    engine.on("draw", async () => {
         drawPlayers(window, document, engine);
+        await delay(300);
     });
 
-    engine.on("shuffle", () => {
-        console.log("shuffle");
+    engine.on("discard", async (p) => {
+        drawCenter(window, document, p);
+        await delay(300);
+    });
+
+    engine.on("shuffle", async () => {
+        // TODO play shuffle animation
+        drawPlayers(window, document, engine);
+        await delay(300);
     });
 
     engine.on("deal", () => {
@@ -79,15 +101,15 @@ export default function unoGame(window, document, settings, playersExternal, han
     });
 
     async function chooseDealer() {
-        await engine.chooseDealer();
+        return await engine.chooseDealer();
     }
 
     async function deal() {
-        await engine.deal();
+        return await engine.deal();
     }
 
-    async function draw() {
-        await engine.deal();
+    async function draw(playerIndex) {
+        return await engine.deal();
     }
 
     function start() {
