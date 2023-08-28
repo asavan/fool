@@ -12,7 +12,18 @@ const handlers = {
     'draw': stub,
     'discard': stub,
     'move': stub,
-    'clearPlayer': stub
+    'clearPlayer': stub,
+    'ready': stub,
+    'changeCurrent': stub
+}
+
+async function report(callbackName, ...args) {
+    const callback = handlers[callbackName];
+    if (typeof(callback) === 'function') {
+        return await callback(...args);
+    } else {
+        stub(callbackName);
+    }
 }
 
 const INITIAL_DEALT = 7;
@@ -21,7 +32,13 @@ let direction = 1;
 let players = [];
 let deck = null;
 let cardOnBoard = null;
+let discardPile = [];
+let currentPlayer = null;
+let currentColor = null;
 
+function calcNextFromCurrent(ind, size) {
+    return (ind + direction + size) % size;
+}
 
 function nextPlayer(ind, size) {
     return (dealer + (ind + 1) * direction + size) % size;
@@ -30,6 +47,8 @@ function nextPlayer(ind, size) {
 function getCardOnBoard() {
     return cardOnBoard;
 }
+
+const GOOD_COLORS = ['red', 'yellow', 'green', 'blue'];
 
 
 /**
@@ -129,11 +148,21 @@ async function newShuffledDeck() {
 
     function deal() {
         const card = deck.pop();
-        console.log(card);
+        // console.log(card);
         return card;
     }
 
-    return {deal: deal};
+    function addCard(card) {
+        deck.push(card)
+    }
+
+    async function addCardAndShuffle(card) {
+        addCard(card);
+        shuffleArray(deck);
+        await handlers['shuffle']();
+    }
+
+    return {deal, addCardAndShuffle};
 }
 
 function newPlayer(name, ind) {
@@ -145,12 +174,10 @@ function newPlayer(name, ind) {
     const getIndex = () => {return i};
     const addCard = (card) => {
         deck.push(card);
-        console.log(name, deck);
+        // console.log(name, deck);
     }
     const pile = () => [...deck];
     const cleanHand = async () => {
-        console.log("clean hand");
-        console.log("clean hand");
         deck.length = 0;
         await handlers['clearPlayer'](i);
     }
@@ -177,9 +204,17 @@ async function dealToPlayer(deck, playerIndex) {
 }
 
 async function dealToDiscard(deck) {
-    const card = deck.deal();
+    let card = deck.deal();
     cardOnBoard = card;
     await handlers['discard'](card);
+    while (cardColor(card) === 'black') {
+        cardOnBoard = null;
+        await deck.addCardAndShuffle(card);
+        card = deck.deal();
+        cardOnBoard = card;
+        await handlers['discard'](card);
+    }
+    discardPile.push(card);
     return card;
 }
 
@@ -220,8 +255,15 @@ function getDealer() {
     return dealer;
 }
 
-function reverse() {
+async function reverse() {
     direction *= -1;
+    if (currentPlayer == null) {
+        currentPlayer = calcNextFromCurrent(dealer, players.length);
+    } else {
+        currentPlayer = calcNextFromCurrent(currentPlayer, players.length);
+    }
+
+    return await report("changeCurrent", currentPlayer);
 }
 
 async function chooseDealer() {
@@ -259,10 +301,69 @@ async function chooseDealer() {
 
 async function cleanAllHands() {
     cardOnBoard = null;
+    discardPile = [];
     for (const pl of players) {
         await pl.cleanHand();
     }
     deck = await newShuffledDeck();
+}
+
+function setActivePlayer(ind) {
+    currentPlayer = ind;
+    handlers["ready"](ind);
+}
+
+
+
+async function skip() {
+    if (currentPlayer == null) {
+        currentPlayer = calcNextFromCurrent(dealer + direction, players.length);
+    } else {
+        currentPlayer = calcNextFromCurrent(currentPlayer, players.length);
+    }
+
+    return await handlers['changeCurrent'](currentPlayer);
+}
+
+async function calcCardEffect(card, playerInd) {
+    const type = cardType(card);
+    if (currentPlayer != null) {
+        if (currentPlayer != playerInd) {
+            console.error(playerInd, currentPlayer);
+        }
+    }
+    if (type === 'Reverse') {
+        if (players.length === 2) {
+            await skip();
+        } else {
+            await reverse();
+        }
+        return;
+    }
+
+    if (type === 'Skip') {
+         await skip();
+         return;
+    }
+
+    if (type === 'Draw2') {
+        for (let i = 0; i < 2; ++i) {
+            await dealToPlayer(deck, playerInd);
+        }
+        await skip();
+        return;
+    }
+
+    if (type === 'Draw4') {
+        for (let i = 0; i < 4; ++i) {
+            await dealToPlayer(deck, playerInd);
+        }
+        await skip();
+        return;
+    }
+
+    currentColor = cardColor(card);
+    await handlers['changeCurrent'](currentPlayer);
 }
 
 async function deal() {
@@ -274,7 +375,55 @@ async function deal() {
             const card = await dealToPlayer(deck, players[dealIndex].getIndex());
         }
     }
-    dealToDiscard(deck);
+    const card = await dealToDiscard(deck);
+    await calcCardEffect(card, nextPlayer(0, players.length));
+}
+
+function playerHasColor(playerInd, currentColor) {
+    return players[playerInd].pile().find(c => cardColor(c) === currentColor);
+}
+
+async function tryMove(playerInd, card) {
+    if (playerInd !== currentPlayer) {
+        console.log("Wrong player");
+        return false;
+    }
+
+    if (cardType(card) === 'Wild') {
+        const newColor = await handlers["chooseColor"](playerInd);
+
+        currentColor = newColor;
+        if (!GOOD_COLORS.includes(newColor)) {
+            console.error("Wrong color", newColor);
+            return false;
+        }
+        return true;
+    }
+
+    if (cardType(card) === 'Draw4') {
+        if (playerHasColor(playerInd, currentColor)) {
+            return false;
+        }
+
+        const newColor = await handlers["chooseColor"](playerInd);
+
+        currentColor = newColor;
+        if (!GOOD_COLORS.includes(newColor)) {
+            console.error("Wrong color", newColor);
+            return false;
+        }
+        return true;
+    }
+
+    if (cardColor(card) == currentColor) {
+        return true;
+    }
+
+    if (cardType(card) == cardType(cardOnBoard)) {
+            return true;
+    }
+
+    return false;
 }
 
 export default function initCore() {
@@ -290,6 +439,7 @@ export default function initCore() {
         cardColor,
         cardType,
         getDealer,
-        getCardOnBoard
+        getCardOnBoard,
+        tryMove
     }
 }
