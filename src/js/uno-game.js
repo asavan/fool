@@ -14,6 +14,7 @@ function drawCard(p, cardItem) {
     const cardClone = cardItem.content.cloneNode(true).firstElementChild;
     cardClone.style.setProperty('--sprite-x', (1400 - (p%14)*100) + '%');
     cardClone.style.setProperty('--sprite-y', (800 - Math.floor(p/14)*100) + '%');
+    cardClone.dataset.card = p;
     return cardClone;
 }
 
@@ -27,6 +28,25 @@ function drawHand(document, parent, pile) {
     parent.appendChild(hand);
 }
 
+
+function drawDeck(document, parent, card, engine) {
+    const hand = document.createElement("ul");
+    const cardItem = document.querySelector('#card');
+    hand.classList.add('hand');
+    hand.appendChild(drawCard(card, cardItem));
+
+    const backItem = document.querySelector('#back');
+    const backClone = backItem.content.cloneNode(true).firstElementChild;
+    hand.appendChild(backClone);
+
+    backClone.addEventListener("click", async (e) => {
+        e.preventDefault();
+        await engine.drawCurrent();
+    });
+    parent.appendChild(hand);
+}
+
+
 function drawPlayers(window, document, engine) {
     const box = document.querySelector(".places");
     box.replaceChildren();
@@ -38,6 +58,8 @@ function drawPlayers(window, document, engine) {
     let angleDeg = 90;
     const players = engine.getPlayerIterator();
     let i = 0;
+    const dealer = engine.getDealer();
+    const currentPlayer = engine.getCurrentPlayer();
     for (const pl of players) {
         const elem = document.createElement("li");
         const nameElem = document.createElement("span");
@@ -48,16 +70,33 @@ function drawPlayers(window, document, engine) {
         elem.dataset.angle = angleDeg + 'deg';
         elem.style.setProperty('--angle-deg', angleDeg + 'deg');
         elem.classList.add('circle');
+        if (dealer === i) {
+            elem.classList.add('dealer');
+        }
+        if (currentPlayer === i) {
+            elem.classList.add('current-player');
+        }
         angleDeg += increaseDeg;
 
         places.appendChild(elem);
         ++i;
     }
-    drawCenter(window, document, engine.getCardOnBoard());
+    drawCenter(window, document, engine.getCardOnBoard(), engine);
+    places.addEventListener("click", async (e) => {
+        e.preventDefault();
+        const cardEl = e.target.parentElement;
+
+        if (cardEl && cardEl.classList.contains('card')) {
+            const playerEl = cardEl.parentElement.parentElement;
+            const card = parseInt(cardEl.dataset.card);
+            const playerId = parseInt(playerEl.dataset.id);
+            await engine.moveToDiscard(playerId, card);
+        }
+    });
 }
 
 
-function drawCenter(window, document, p) {
+function drawCenter(window, document, p, engine) {
     const box = document.querySelector(".places");
     let discardPile = box.querySelector(".center-pile");
     if (!discardPile) {
@@ -68,7 +107,8 @@ function drawCenter(window, document, p) {
         discardPile.replaceChildren();
     }
     if (p !== null) {
-        drawHand(document, discardPile, [p]);
+        // drawHand(document, discardPile, [p]);
+        drawDeck(document, discardPile, p, engine);
     }
 }
 
@@ -83,24 +123,43 @@ export default function unoGame(window, document, settings, playersExternal, han
     }
 
     const handCont = document.querySelector('.hand-cont');
-    engine.on("draw", async () => {
+    engine.on("draw", async (card) => {
         drawPlayers(window, document, engine);
-        await delay(300);
+        await delay(30);
+        await handlers['draw'](card);
+    });
+
+    engine.on("changeCurrent", async (card) => {
+            drawPlayers(window, document, engine);
+            await delay(30);
+            await handlers['changeCurrent'](card);
+    });
+
+    engine.on("move", async (card) => {
+            drawPlayers(window, document, engine);
+            await delay(30);
+            await handlers['move'](card);
     });
 
     engine.on("discard", async (p) => {
-        drawCenter(window, document, p);
-        await delay(300);
+        drawCenter(window, document, p, engine);
+        await delay(30);
+        await handlers['discard'](p);
     });
 
     engine.on("shuffle", async () => {
         // TODO play shuffle animation
         drawPlayers(window, document, engine);
         await delay(300);
+        await handlers['shuffle']();
     });
 
     engine.on("deal", () => {
-            console.log("deal");
+        console.log("deal");
+    });
+
+    engine.on("gameover", async () => {
+        await handlers['gameover']();
     });
 
     async function chooseDealer() {

@@ -5,7 +5,7 @@ import choosePlaceFunc from "./places.js";
 import unoGameFunc from "./uno-game.js";
 
 function stub(message) {
-    console.log("Stub " + message);
+    console.log("Stub1 " + message);
 }
 
 const handlers = {
@@ -14,8 +14,14 @@ const handlers = {
     'username': stub,
     'start': stub,
     'swap': stub,
-    'uno-start': stub
+    'uno-start': stub,
+    'shuffle': stub,
+    'draw': stub,
+    'discard': stub,
+    'chooseColor': stub,
+    'changeCurrent': stub
 }
+
 
 let players = [];
 let dealer = 0;

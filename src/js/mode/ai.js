@@ -7,6 +7,7 @@ export default function ai(window, document, settings, gameFunction) {
         const game = gameFunction(window, document, settings);
 
         game.on("move", (move) => console.log(move));
+        game.on("draw", (move) => {});
         game.join(0, 'sasha', 'server');
         game.join(1, 'client1', 'client1');
         game.join(2, 'client2', 'client2');

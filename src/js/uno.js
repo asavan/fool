@@ -1,6 +1,7 @@
 "use strict";
 
-import {shuffleArray} from "./shuffle.js";
+import deckFunc from "./deck.js";
+import playerFunc from "./player.js";
 
 function stub(message) {
     console.log("Stub " + message);
@@ -14,7 +15,10 @@ const handlers = {
     'move': stub,
     'clearPlayer': stub,
     'ready': stub,
-    'changeCurrent': stub
+    'changeCurrent': stub,
+    'gameover': stub,
+    'roundover': stub,
+    'chooseColor': getCurrentColor
 }
 
 async function report(callbackName, ...args) {
@@ -35,6 +39,13 @@ let cardOnBoard = null;
 let discardPile = [];
 let currentPlayer = null;
 let currentColor = null;
+let cardTaken = 0;
+let gameover = false;
+let roundover = false;
+
+function getCurrentColor() {
+    return currentColor;
+}
 
 function calcNextFromCurrent(ind, size) {
     return (ind + direction + size) % size;
@@ -132,68 +143,9 @@ function cardScore(num) {
   return points;
 }
 
-function newDeck() {
-    let deck = [ ...Array(112).keys()];
-    deck.splice(56, 1); //56
-    deck.splice(69, 1); //70
-    deck.splice(82, 1); //84
-    deck.splice(95, 1); //98
-    return deck;
-}
-
-async function newShuffledDeck() {
-    const deck = newDeck();
-    shuffleArray(deck);
-    await handlers['shuffle']();
-
-    function deal() {
-        const card = deck.pop();
-        // console.log(card);
-        return card;
-    }
-
-    function addCard(card) {
-        deck.push(card)
-    }
-
-    async function addCardAndShuffle(card) {
-        addCard(card);
-        shuffleArray(deck);
-        await handlers['shuffle']();
-    }
-
-    return {deal, addCardAndShuffle};
-}
-
-function newPlayer(name, ind) {
-    const n = name;
-    const i = ind;
-    const deck = [];
-
-    const getName = () => {return n};
-    const getIndex = () => {return i};
-    const addCard = (card) => {
-        deck.push(card);
-        // console.log(name, deck);
-    }
-    const pile = () => [...deck];
-    const cleanHand = async () => {
-        deck.length = 0;
-        await handlers['clearPlayer'](i);
-    }
-
-    return {
-            getName,
-            addCard,
-            pile,
-            getIndex,
-            cleanHand
-          };
-}
-
 function addPlayer(name) {
     const n = players.length;
-    players.push(newPlayer(name, n));
+    players.push(playerFunc.newPlayer(name, n, handlers));
 }
 
 async function dealToPlayer(deck, playerIndex) {
@@ -255,19 +207,18 @@ function getDealer() {
     return dealer;
 }
 
+function getCurrentPlayer() {
+    return currentPlayer;
+}
+
 async function reverse() {
     direction *= -1;
-    if (currentPlayer == null) {
-        currentPlayer = calcNextFromCurrent(dealer, players.length);
-    } else {
-        currentPlayer = calcNextFromCurrent(currentPlayer, players.length);
-    }
-
+    currentPlayer = calcNextFromCurrent(currentPlayer, players.length);
     return await report("changeCurrent", currentPlayer);
 }
 
 async function chooseDealer() {
-    deck = await newShuffledDeck();
+    deck = await deckFunc.newShuffledDeck(handlers);
     let candidates = [...players];
 
     while (candidates.length > 1) {
@@ -296,6 +247,7 @@ async function chooseDealer() {
     } else {
         console.error("No cand", candidates);
     }
+    currentPlayer = dealer;
     console.log('dealer was choosen');
 }
 
@@ -305,7 +257,7 @@ async function cleanAllHands() {
     for (const pl of players) {
         await pl.cleanHand();
     }
-    deck = await newShuffledDeck();
+    deck = await deckFunc.newShuffledDeck(handlers);
 }
 
 function setActivePlayer(ind) {
@@ -314,19 +266,17 @@ function setActivePlayer(ind) {
 }
 
 
-
 async function skip() {
-    if (currentPlayer == null) {
-        currentPlayer = calcNextFromCurrent(dealer + direction, players.length);
-    } else {
-        currentPlayer = calcNextFromCurrent(currentPlayer, players.length);
-    }
-
+    currentPlayer = calcNextFromCurrent(currentPlayer + direction, players.length);
     return await handlers['changeCurrent'](currentPlayer);
 }
 
 async function calcCardEffect(card, playerInd) {
     const type = cardType(card);
+    const newColor = cardColor(card);
+    if (newColor != 'black') {
+        currentColor = newColor;
+    }
     if (currentPlayer != null) {
         if (currentPlayer != playerInd) {
             console.error(playerInd, currentPlayer);
@@ -348,7 +298,7 @@ async function calcCardEffect(card, playerInd) {
 
     if (type === 'Draw2') {
         for (let i = 0; i < 2; ++i) {
-            await dealToPlayer(deck, playerInd);
+            await dealToPlayer(deck, calcNextFromCurrent(currentPlayer, players.length));
         }
         await skip();
         return;
@@ -356,14 +306,13 @@ async function calcCardEffect(card, playerInd) {
 
     if (type === 'Draw4') {
         for (let i = 0; i < 4; ++i) {
-            await dealToPlayer(deck, playerInd);
+            await dealToPlayer(deck, calcNextFromCurrent(currentPlayer, players.length));
         }
         await skip();
         return;
     }
 
-    currentColor = cardColor(card);
-    await handlers['changeCurrent'](currentPlayer);
+    next();
 }
 
 async function deal() {
@@ -372,11 +321,12 @@ async function deal() {
         const n = players.length;
         for (let i = 0; i < n; i++) {
             const dealIndex = nextPlayer(i, n);
-            const card = await dealToPlayer(deck, players[dealIndex].getIndex());
+            await dealToPlayer(deck, players[dealIndex].getIndex());
         }
     }
     const card = await dealToDiscard(deck);
-    await calcCardEffect(card, nextPlayer(0, players.length));
+    console.log("deal finished");
+    await calcCardEffect(card, currentPlayer);
 }
 
 function playerHasColor(playerInd, currentColor) {
@@ -385,18 +335,22 @@ function playerHasColor(playerInd, currentColor) {
 
 async function tryMove(playerInd, card) {
     if (playerInd !== currentPlayer) {
-        console.log("Wrong player");
+        console.log("Wrong player", currentPlayer, playerInd);
+        return false;
+    }
+
+    if (roundover) {
+        console.log("start new round");
         return false;
     }
 
     if (cardType(card) === 'Wild') {
         const newColor = await handlers["chooseColor"](playerInd);
-
-        currentColor = newColor;
         if (!GOOD_COLORS.includes(newColor)) {
             console.error("Wrong color", newColor);
             return false;
         }
+        currentColor = newColor;
         return true;
     }
 
@@ -407,11 +361,11 @@ async function tryMove(playerInd, card) {
 
         const newColor = await handlers["chooseColor"](playerInd);
 
-        currentColor = newColor;
         if (!GOOD_COLORS.includes(newColor)) {
             console.error("Wrong color", newColor);
             return false;
         }
+        currentColor = newColor;
         return true;
     }
 
@@ -420,10 +374,53 @@ async function tryMove(playerInd, card) {
     }
 
     if (cardType(card) == cardType(cardOnBoard)) {
-            return true;
+         return true;
     }
 
+    console.log("Bad card", cardType(card), cardType(cardOnBoard), currentColor);
     return false;
+}
+
+async function calcScore() {
+    let score = 0;
+    const players = getPlayerIterator();
+    for (const pl of players) {
+        for (const card of pl.pile) {
+            score += cardScore(card);
+        }
+    }
+    return score;
+}
+
+async function moveToDiscard(playerInd, card) {
+    const res = await tryMove(playerInd, card);
+    if (res) {
+        const cardInd = players[playerInd].removeCard(card);
+        cardOnBoard = card;
+        discardPile.push(card);
+        await handlers["move"](cardInd);
+        await calcCardEffect(card, currentPlayer);
+        if (players[playerInd].pile().length === 0) {
+            roundover = true;
+            players[playerInd].updateScore(calcScore());
+            await handlers['roundover']();
+        }
+    }
+}
+
+async function next() {
+    currentPlayer = calcNextFromCurrent(currentPlayer, players.length);
+    return await handlers['changeCurrent'](currentPlayer);
+}
+
+async function drawCurrent() {
+    if (cardTaken > 0) {
+        cardTaken = 0;
+        await next();
+        return;
+    }
+    cardTaken++;
+    await dealToPlayer(deck, currentPlayer);
 }
 
 export default function initCore() {
@@ -439,7 +436,10 @@ export default function initCore() {
         cardColor,
         cardType,
         getDealer,
+        getCurrentPlayer,
         getCardOnBoard,
-        tryMove
+        tryMove,
+        moveToDiscard,
+        drawCurrent
     }
 }

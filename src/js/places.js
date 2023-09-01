@@ -12,7 +12,6 @@ export default function choosePlace(window, document, settings, handlers, player
     let angleDeg = 90;
     let selected = null;
     function onSelect(e) {
-        console.log(e.target, e.target.dataset.id);
         e.preventDefault();
         if (!e.target || e.target.dataset.id === null) {
             console.log("WRONG TARGET");
