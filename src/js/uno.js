@@ -151,8 +151,22 @@ function addPlayer(name) {
 async function dealToPlayer(deck, playerIndex) {
     const card = deck.deal();
     players[playerIndex].addCard(card);
-    await handlers['draw'](playerIndex, card);
+    await handlers['draw']({playerIndex, card});
     return card;
+}
+
+async function onDraw(playerIndex, card) {
+    const cardFromDeck = await dealToPlayer(deck, playerIndex);
+    if (cardFromDeck !== card) {
+        console.error("Different engines");
+    }
+}
+
+async function onDiscard(card) {
+    const cardFromDeck = await dealToDiscard(deck);
+    if (cardFromDeck !== card) {
+        console.error("Different engines");
+    }
 }
 
 async function dealToDiscard(deck) {
@@ -259,6 +273,8 @@ async function cleanAllHands() {
     }
     deck = await deckFunc.newShuffledDeck(handlers);
 }
+
+
 
 function setActivePlayer(ind) {
     currentPlayer = ind;
@@ -385,7 +401,7 @@ async function calcScore() {
     let score = 0;
     const players = getPlayerIterator();
     for (const pl of players) {
-        for (const card of pl.pile) {
+        for (const card of pl.pile()) {
             score += cardScore(card);
         }
     }
@@ -423,6 +439,20 @@ async function drawCurrent() {
     await dealToPlayer(deck, currentPlayer);
 }
 
+async function setDeck(d) {
+    console.log("Deck setted");
+    if (deck == null) {
+        deck = deckFunc.newExternalDeck(d, handlers);
+    } else {
+        deck.setDeck(d);
+    }
+    console.log("Deck setted2");
+}
+
+function setCurrent(c) {
+    currentPlayer = c;
+}
+
 export default function initCore() {
     return {
         chooseDealer,
@@ -431,7 +461,6 @@ export default function initCore() {
         addPlayer,
         size,
         on,
-        dealToPlayer,
         cardScore,
         cardColor,
         cardType,
@@ -440,6 +469,11 @@ export default function initCore() {
         getCardOnBoard,
         tryMove,
         moveToDiscard,
-        drawCurrent
+        drawCurrent,
+        setDeck,
+        onDraw,
+        onDiscard,
+        setCurrent,
+        cleanAllHands
     }
 }

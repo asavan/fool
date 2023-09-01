@@ -123,10 +123,10 @@ export default function unoGame(window, document, settings, playersExternal, han
     }
 
     const handCont = document.querySelector('.hand-cont');
-    engine.on("draw", async (card) => {
+    engine.on("draw", async ({playerIndex, card}) => {
         drawPlayers(window, document, engine);
         await delay(30);
-        await handlers['draw'](card);
+        await handlers['draw']({playerIndex, card});
     });
 
     engine.on("changeCurrent", async (card) => {
@@ -147,11 +147,11 @@ export default function unoGame(window, document, settings, playersExternal, han
         await handlers['discard'](p);
     });
 
-    engine.on("shuffle", async () => {
+    engine.on("shuffle", async (deck) => {
         // TODO play shuffle animation
         drawPlayers(window, document, engine);
         await delay(300);
-        await handlers['shuffle']();
+        await handlers['shuffle'](deck);
     });
 
     engine.on("deal", () => {
@@ -160,6 +160,10 @@ export default function unoGame(window, document, settings, playersExternal, han
 
     engine.on("gameover", async () => {
         await handlers['gameover']();
+    });
+
+    engine.on("clearPlayer", async (playerIndex) => {
+        await handlers['clearPlayer'](playerIndex);
     });
 
     async function chooseDealer() {
@@ -177,10 +181,41 @@ export default function unoGame(window, document, settings, playersExternal, han
     function start() {
     }
 
+    async function onShuffle(deck) {
+        await engine.setDeck(deck);
+        console.log("onShuffle");
+        drawPlayers(window, document, engine);
+    }
+
+    async function onDraw(playerIndex, card) {
+        console.log("onDraw");
+        return engine.onDraw(playerIndex, card);
+    }
+
+    async function onDiscard(card) {
+            console.log("onDiscard");
+            return engine.onDiscard(card);
+    }
+
+    async function onChangeCurrent(cur) {
+        engine.setCurrent(cur);
+        drawPlayers(window, document, engine);
+    }
+
+    async function onClearHand(playerIndex) {
+        await engine.cleanAllHands();
+        drawPlayers(window, document, engine);
+    }
+
     return {
        chooseDealer,
        deal,
        draw,
-       start
+       start,
+       onShuffle,
+       onDraw,
+       onDiscard,
+       onChangeCurrent,
+       onClearHand
     }
 }

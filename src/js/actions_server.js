@@ -12,10 +12,13 @@ function init(game, clients) {
           client.username = n;
           return game.join(client.index, n, id);
         },
-        'start': async (p) => {
-          console.log(p);
-          return game.onStart(p);
-        }
+        'start': false,
+        'shuffle': false,
+        'draw': false,
+        'discard': false,
+        'move': false,
+        'changeCurrent': false,
+        'clearPlayer': false
     }
 }
 

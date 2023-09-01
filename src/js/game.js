@@ -19,6 +19,7 @@ const handlers = {
     'draw': stub,
     'discard': stub,
     'chooseColor': stub,
+    'clearPlayer': stub,
     'changeCurrent': stub
 }
 
@@ -27,6 +28,8 @@ let players = [];
 let dealer = 0;
 
 export default function game(window, document, settings) {
+
+    let unoGame = null;
 
     function onChange(m) {
         stub(m);
@@ -52,9 +55,15 @@ export default function game(window, document, settings) {
         handlers['start'](players);
     }
 
+    const onDraw = (p, q) => {
+        unoGame.onDraw(p, q);
+    }
+
     const onStart = (p) => {
         players = p;
-        const unoGame = unoGameFunc(window, document, settings, players, handlers);
+        unoGame = unoGameFunc(window, document, settings, players, handlers);
+        const grid = document.getElementsByClassName('places')[0];
+        grid.style.backgroundColor = "blueviolet";
     }
 
     const startButton = document.querySelector(".start");
@@ -81,13 +90,44 @@ export default function game(window, document, settings) {
 
     const afterAllJoined = async () => {
        start();
-       const unoGame = unoGameFunc(window, document, settings, players, handlers);
+       unoGame = unoGameFunc(window, document, settings, players, handlers);
        console.log("Game init");
        await main(unoGame);
    }
 
     on('onSeatsFinished', afterAllJoined);
 
+    const onShuffle = (deck) => {
+        if (unoGame == null) {
+            console.error("No game");
+            return;
+        }
+        return unoGame.onShuffle(deck);
+    }
+
+    const onDiscard = (card) => {
+        if (unoGame == null) {
+            console.error("No game");
+            return;
+        }
+        return unoGame.onDiscard(card);
+    }
+
+    const onChangeCurrent = (card) => {
+            if (unoGame == null) {
+                console.error("No game");
+                return;
+            }
+            return unoGame.onChangeCurrent(card);
+        }
+
+    const onClearHand = (card) => {
+                if (unoGame == null) {
+                    console.error("No game");
+                    return;
+                }
+                return unoGame.onClearHand(card);
+            }
 
     return {
        on,
@@ -98,6 +138,11 @@ export default function game(window, document, settings) {
        swap,
        onStart,
        main,
-       afterAllJoined
+       afterAllJoined,
+       onShuffle,
+       onDraw,
+       onDiscard,
+       onChangeCurrent,
+       onClearHand
     }
 }

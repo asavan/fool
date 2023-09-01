@@ -40,13 +40,13 @@ export default function netMode(window, document, settings, gameFunction) {
         connection.on('open', () => {
             const game = gameFunction(window, document, settings);
             const actions = actionsFunc(game);
-            connection.on('recv', (data) => {
+            connection.on('recv', async (data) => {
                 // console.log(data);
                 const obj = JSON.parse(data);
                 const res = obj[obj.method];
                 const callback = actions[obj.method];
                 if (typeof callback === 'function') {
-                    callback(res);
+                    await callback(res);
                 }
             });
             for (const [handlerName, callback] of Object.entries(actions)) {

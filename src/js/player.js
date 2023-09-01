@@ -15,6 +15,7 @@ function newPlayer(name, ind, handlers) {
     const pile = () => [...deck];
     const cleanHand = async () => {
         deck.length = 0;
+        console.log('clearPlayer', i);
         await handlers['clearPlayer'](i);
     }
 
