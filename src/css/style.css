@@ -162,6 +162,7 @@ footer {
     width: 375px;
     height: 600px;
     display: block;
+    position:relative;
 }
 
 .install {
@@ -183,6 +184,43 @@ footer {
     height: 100%;
     grid-gap: 3px;
 }
+
+.color-grid {
+    position: absolute;
+    z-index: 3;
+    display: grid;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    background-color: blueviolet;
+    opacity: 0.7;
+    grid-gap: 3px;
+}
+
+.color-grid > li {
+    cursor: pointer;
+}
+
+.green {
+    background-color: green;
+}
+
+.blue {
+    background-color: blue;
+}
+
+.yellow {
+    background-color: yellow;
+}
+
+.red {
+    background-color: red;
+}
+
+
 
 .first, .second {
     grid-row: 2 / 5;

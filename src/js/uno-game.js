@@ -1,6 +1,7 @@
 "use strict"; // jshint ;_;
 import {assert, delay} from "./helper.js";
 import coreUnoFunc from "./uno.js";
+import colorChooser from "./choose_color.js";
 
 function stub(message) {
     console.log("Stub " + message);
@@ -65,11 +66,19 @@ function drawPlayers(window, document, engine) {
         const nameElem = document.createElement("span");
         nameElem.innerText = pl.getName();
         elem.appendChild(nameElem);
+
+        const score = pl.getScore();
+        if (score > 0) {
+            const scoreElem = document.createElement("span");
+            scoreElem.innerText = score;
+            elem.appendChild(scoreElem);
+        }
+
         drawHand(document, elem, pl.pile());
         elem.dataset.id = i;
         elem.dataset.angle = angleDeg + 'deg';
         elem.style.setProperty('--angle-deg', angleDeg + 'deg');
-        elem.classList.add('circle');
+        elem.classList.add('circle', 'player-name');
         if (dealer === i) {
             elem.classList.add('dealer');
         }
@@ -164,6 +173,16 @@ export default function unoGame(window, document, settings, playersExternal, han
 
     engine.on("clearPlayer", async (playerIndex) => {
         await handlers['clearPlayer'](playerIndex);
+    });
+
+    colorChooser(window, document, engine);
+
+    engine.on("roundover", async () => {
+        await delay(200);
+        await engine.cleanAllHands();
+        await delay(300);
+        await engine.nextDealer();
+        await engine.deal();
     });
 
     async function chooseDealer() {

@@ -429,6 +429,12 @@ async function next() {
     return await handlers['changeCurrent'](currentPlayer);
 }
 
+async function nextDealer() {
+    dealer = calcNextFromCurrent(currentPlayer, players.length);
+    roundover = false;
+    return await report("nextDealer", dealer);
+}
+
 async function drawCurrent() {
     if (cardTaken > 0) {
         cardTaken = 0;
@@ -474,6 +480,7 @@ export default function initCore() {
         onDraw,
         onDiscard,
         setCurrent,
-        cleanAllHands
+        cleanAllHands,
+        nextDealer
     }
 }
