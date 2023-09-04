@@ -58,6 +58,7 @@ function setupDataChannel(dataChannel, signaling, id) {
 
     dataChannel.onclose = function () {
         logger.log("------ DATACHANNEL CLOSED ------");
+        delete clients[id];
         handlers['disconnect'](id);
     };
 
@@ -236,7 +237,11 @@ const connectionFunc = function (settings, location) {
     const sendAll = (data) => {
         for (const client of Object.values(clients)) {
             if (client.dc) {
-                client.dc.send(data);
+                try {
+                    client.dc.send(data);
+                } catch(e) {
+                    console.log(e, client);
+                }
             }
         }
     }

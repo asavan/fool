@@ -35,7 +35,7 @@ function drawDeck(document, parent, card, engine) {
     parent.appendChild(hand);
 }
 
-function drawPlayersInner(window, document, engine) {
+function drawPlayersInner(window, document, engine, myIndex) {
     const box = document.querySelector(".places");
     box.replaceChildren();
     const places = document.createElement("ul");
@@ -43,12 +43,12 @@ function drawPlayersInner(window, document, engine) {
     // places.style.position = 'relative';
     box.appendChild(places);
     const increaseDeg = 360 / engine.size();
-    let angleDeg = 90;
     const players = engine.getPlayerIterator();
     let i = 0;
     const dealer = engine.getDealer();
     const currentPlayer = engine.getCurrentPlayer();
     for (const pl of players) {
+        const angleDeg = 90 + increaseDeg*(i-myIndex);
         const elem = document.createElement("li");
         const nameElem = document.createElement("span");
         nameElem.innerText = pl.getName();
@@ -72,7 +72,6 @@ function drawPlayersInner(window, document, engine) {
         if (currentPlayer === i) {
             elem.classList.add('current-player');
         }
-        angleDeg += increaseDeg;
 
         places.appendChild(elem);
         ++i;
@@ -172,7 +171,7 @@ function drawLayout(window, document, engine, myIndex) {
 
 function drawPlayers(window, document, engine, myIndex, settings) {
     if (settings.show) {
-        drawPlayersInner(window, document, engine);
+        drawPlayersInner(window, document, engine, myIndex);
         return;
     }
 
