@@ -5,31 +5,33 @@ import choosePlaceFunc from "./places.js";
 import unoGameFunc from "./uno-game.js";
 
 function stub(message) {
-    console.log("Stub1 " + message);
+    console.log("Stub " + message);
+}
+
+function stub1(message) {
+    console.log(message);
 }
 
 const handlers = {
     'move': stub,
     'gameover': stub,
     'username': stub,
-    'start': stub,
-    'swap': stub,
-    'uno-start': stub,
-    'shuffle': stub,
-    'draw': stub,
-    'discard': stub,
-    'chooseColor': stub,
+    'start': stub1,
+    'swap': stub1,
+    'uno-start': stub1,
+    'shuffle': stub1,
+    'draw': stub1,
+    'discard': stub1,
+    'chooseColor': stub1,
     'clearPlayer': stub,
     'changeCurrent': stub
 }
 
 
-let players = [];
-let dealer = 0;
-
 export default function game(window, document, settings) {
 
     let unoGame = null;
+    let players = [];
 
     function onChange(m) {
         stub(m);
@@ -44,11 +46,14 @@ export default function game(window, document, settings) {
         choosePlaceFunc(window, document, settings, handlers, players);
     }
 
-    const getState = () => {
-        return {
-            "players": players,
-            "dealer": dealer
-        }
+    const disconnect = (external_id) => {
+        console.log(external_id);
+        const old_size = players.length;
+        players = players.filter(p => p.external_id != external_id);
+        const new_size = players.length;
+        console.log(players);
+        choosePlaceFunc(window, document, settings, handlers, players);
+        return old_size > new_size;
     }
 
     const start = () => {
@@ -81,18 +86,12 @@ export default function game(window, document, settings) {
         players[id2] = temp;
         choosePlaceFunc(window, document, settings, handlers, players);
     }
-    const main = async (unoGame) => {
-        await unoGame.chooseDealer();
-        await delay(1000);
-        await unoGame.deal();
-        await unoGame.start();
-    }
 
     const afterAllJoined = async () => {
        start();
        unoGame = unoGameFunc(window, document, settings, players, handlers);
        console.log("Game init");
-       await main(unoGame);
+       await unoGame.start();
    }
 
     on('onSeatsFinished', afterAllJoined);
@@ -114,20 +113,20 @@ export default function game(window, document, settings) {
     }
 
     const onChangeCurrent = (card) => {
-            if (unoGame == null) {
-                console.error("No game");
-                return;
-            }
-            return unoGame.onChangeCurrent(card);
+        if (unoGame == null) {
+            console.error("No game");
+            return;
         }
+        return unoGame.onChangeCurrent(card);
+    }
 
     const onClearHand = (card) => {
-                if (unoGame == null) {
-                    console.error("No game");
-                    return;
-                }
-                return unoGame.onClearHand(card);
-            }
+        if (unoGame == null) {
+            console.error("No game");
+            return;
+        }
+        return unoGame.onClearHand(card);
+    }
 
     return {
        on,
@@ -137,12 +136,12 @@ export default function game(window, document, settings) {
        onConnect,
        swap,
        onStart,
-       main,
        afterAllJoined,
        onShuffle,
        onDraw,
        onDiscard,
        onChangeCurrent,
-       onClearHand
+       onClearHand,
+       disconnect
     }
 }

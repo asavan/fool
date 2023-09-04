@@ -6,8 +6,8 @@ function newPlayer(name, ind, handlers) {
     const deck = [];
     let score = 0;
 
-    const getName = () => {return n};
-    const getIndex = () => {return i};
+    const getName = () => { return n };
+    const getIndex = () => { return i };
     const addCard = (card) => {
         deck.push(card);
         // console.log(name, deck);
@@ -15,12 +15,11 @@ function newPlayer(name, ind, handlers) {
     const pile = () => [...deck];
     const cleanHand = async () => {
         deck.length = 0;
-        console.log('clearPlayer', i);
         await handlers['clearPlayer'](i);
     }
 
     const updateScore = (s) => { score += s; }
-    const getScore = () => {return score;}
+    const getScore = () => { return score; }
 
     const removeCard = (card) => {
         const removeIndex = deck.indexOf(card);

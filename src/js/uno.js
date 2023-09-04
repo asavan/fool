@@ -4,33 +4,39 @@ import deckFunc from "./deck.js";
 import playerFunc from "./player.js";
 
 function stub(message) {
-    console.log("Stub " + message);
+    console.log("Stub22 " + message);
+}
+
+function stub1(message) {
+    console.log("Stub11 " + message);
 }
 
 const handlers = {
-    'shuffle': stub,
-    'deal': stub,
-    'draw': stub,
-    'discard': stub,
-    'move': stub,
-    'clearPlayer': stub,
-    'ready': stub,
-    'changeCurrent': stub,
-    'gameover': stub,
-    'roundover': stub,
+    'shuffle': stub1,
+    'deal': stub1,
+    'draw': stub1,
+    'discard': stub1,
+    'move': stub1,
+    'clearPlayer': stub1,
+    'ready': stub1,
+    'changeCurrent': stub1,
+    'gameover': stub1,
+    'roundover': stub1,
     'chooseColor': getCurrentColor
 }
 
 async function report(callbackName, ...args) {
     const callback = handlers[callbackName];
     if (typeof(callback) === 'function') {
+        console.log(callbackName);
         return await callback(...args);
     } else {
         stub(callbackName);
     }
 }
 
-const INITIAL_DEALT = 7;
+let INITIAL_DEALT = 7;
+let MAX_SCORE = 500;
 let dealer = 0;
 let direction = 1;
 let players = [];
@@ -225,10 +231,9 @@ function getCurrentPlayer() {
     return currentPlayer;
 }
 
-async function reverse() {
+function reverse() {
     direction *= -1;
-    currentPlayer = calcNextFromCurrent(currentPlayer, players.length);
-    return await report("changeCurrent", currentPlayer);
+    return next();
 }
 
 async function chooseDealer() {
@@ -275,16 +280,15 @@ async function cleanAllHands() {
 }
 
 
-
 function setActivePlayer(ind) {
     currentPlayer = ind;
     handlers["ready"](ind);
 }
 
 
-async function skip() {
-    currentPlayer = calcNextFromCurrent(currentPlayer + direction, players.length);
-    return await handlers['changeCurrent'](currentPlayer);
+function skip() {
+    currentPlayer = calcNextFromCurrent(currentPlayer, players.length);
+    return next();
 }
 
 async function calcCardEffect(card, playerInd) {
@@ -328,7 +332,7 @@ async function calcCardEffect(card, playerInd) {
         return;
     }
 
-    next();
+    await next();
 }
 
 async function deal() {
@@ -397,7 +401,7 @@ async function tryMove(playerInd, card) {
     return false;
 }
 
-async function calcScore() {
+function calcScore() {
     let score = 0;
     const players = getPlayerIterator();
     for (const pl of players) {
@@ -419,25 +423,36 @@ async function moveToDiscard(playerInd, card) {
         if (players[playerInd].pile().length === 0) {
             roundover = true;
             players[playerInd].updateScore(calcScore());
-            await handlers['roundover']();
+            if (players[playerInd].getScore() > MAX_SCORE) {
+                await handlers['gameover']();
+            } else {
+                await handlers['roundover']();
+            }
         }
     }
 }
 
 async function next() {
     currentPlayer = calcNextFromCurrent(currentPlayer, players.length);
+    cardTaken = 0;
     return await handlers['changeCurrent'](currentPlayer);
 }
 
 async function nextDealer() {
-    dealer = calcNextFromCurrent(currentPlayer, players.length);
+    direction = 1;
+    dealer = calcNextFromCurrent(dealer, players.length);
+    currentPlayer = dealer;
     roundover = false;
     return await report("nextDealer", dealer);
 }
 
 async function drawCurrent() {
+    if (roundover) {
+        console.log("start new round");
+        return false;
+    }
+
     if (cardTaken > 0) {
-        cardTaken = 0;
         await next();
         return;
     }
@@ -459,7 +474,13 @@ function setCurrent(c) {
     currentPlayer = c;
 }
 
-export default function initCore() {
+export default function initCore(settings) {
+    if (settings.cardsDeal) {
+        INITIAL_DEALT = settings.cardsDeal;
+    }
+    if (settings.maxScore) {
+        MAX_SCORE = settings.maxScore;
+    }
     return {
         chooseDealer,
         deal,

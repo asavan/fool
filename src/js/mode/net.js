@@ -24,7 +24,8 @@ function makeid(length) {
 
 export default function netMode(window, document, settings, gameFunction) {
     return new Promise((resolve, reject) => {
-        const connection = connectionFunc(settings, window.location, makeid(6));
+        const myId = makeid(6);
+        const connection = connectionFunc(settings, window.location, myId);
         const logger = document.getElementsByClassName('log')[0];
         connection.on('error', (e) => {
             log(settings, e, logger);
@@ -38,6 +39,7 @@ export default function netMode(window, document, settings, gameFunction) {
         });
 
         connection.on('open', () => {
+            settings['externalId'] = myId;
             const game = gameFunction(window, document, settings);
             const actions = actionsFunc(game);
             connection.on('recv', async (data) => {

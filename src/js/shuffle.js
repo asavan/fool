@@ -8,4 +8,3 @@ export function shuffleArray(array) {
         array[j] = temp;
     }
 }
-

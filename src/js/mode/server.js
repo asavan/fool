@@ -40,14 +40,14 @@ export default function server(window, document, settings, gameFunction) {
         });
         connection.on('socket_open', async () => {
             const code = makeQr(window, document, settings);
-            if (navigator.mediaDevices) {
-                await navigator.mediaDevices.getUserMedia({
-                              audio: true,
-                              video: true
-                          });
-            } else {
-                console.log("No mediaDevices")
-            }
+//            if (navigator.mediaDevices) {
+//                await navigator.mediaDevices.getUserMedia({
+//                              audio: true,
+//                              video: true
+//                          });
+//            } else {
+//                console.log("No mediaDevices")
+//            }
             connection.on('socket_close', () => {
                 removeElem(code);
             });
@@ -70,6 +70,16 @@ export default function server(window, document, settings, gameFunction) {
         for (const [handlerName, callback] of Object.entries(actions)) {
             game.on(handlerName, (n) => connection.sendAll(toObjJson(n, handlerName)));
         }
+
+        connection.on('disconnect', (id) => {
+            const is_disconnected = game.disconnect(id);
+            if (is_disconnected) {
+                --index;
+                delete clients[id];
+            }
+            console.log(id, index);
+        });
+
         game.on('username', (name) => game.join(0, name, 'server'));
         game.on('swap', (id1, id2) => game.swap(id1, id2));
         game.onConnect();

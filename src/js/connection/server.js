@@ -15,6 +15,7 @@ const handlers = {
     'socket_close': stub,
     'close': stub,
     'error': stub,
+    'disconnect': stub,
 }
 
 function stringifyEvent(e) {
@@ -56,11 +57,13 @@ function setupDataChannel(dataChannel, signaling, id) {
     };
 
     dataChannel.onclose = function () {
-        logger.log("------ DC closed! ------");
+        logger.log("------ DATACHANNEL CLOSED ------");
+        handlers['disconnect'](id);
     };
 
     dataChannel.onerror = function () {
-        console.error("DC ERROR!!!")
+        console.error("DC ERROR!!!");
+        handlers['disconnect'](id);
     };
 }
 
