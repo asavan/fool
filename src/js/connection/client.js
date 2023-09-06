@@ -204,6 +204,7 @@ const connectionFunc = function (settings, location, id) {
 
     function setupDataChannel(dataChannel, signaling) {
         dataChannel.onmessage = function (e) {
+            logger.log("data get " + e.data);
             handlers['recv'](e.data);
         };
 
@@ -226,7 +227,7 @@ const connectionFunc = function (settings, location, id) {
     }
 
     function sendMessage(messageBody) {
-        console.log("data send1 " + messageBody);
+        logger.log("data send1 " + messageBody);
         if (!dataChannel) {
             return false;
         }

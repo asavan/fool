@@ -1,10 +1,10 @@
 "use strict";
 
-function init(game) {
+function init(game, myIndex) {
     return {
-        'move': async (n) => {
-          console.log("try to move " + JSON.stringify(n));
-          return game.onChange(n);
+        'move': ({playerIndex, card}) => {
+              console.log("try to move " + JSON.stringify({playerIndex, card}));
+              return game.onChange(playerIndex, card);
         },
         'dealer': async (n) => {
           console.log("try to set dealer " + JSON.stringify(n));
@@ -24,9 +24,9 @@ function init(game) {
               console.log({playerIndex, card});
               return game.onDraw(playerIndex, card);
         },
-        'changeCurrent': async (cur) => {
-              console.log("Change current", cur);
-              return game.onChangeCurrent(cur);
+        'changeCurrent': async (currentData) => {
+              console.log("Change current");
+              return game.onChangeCurrent(currentData);
         },
         'clearPlayer': async (cur) => {
               console.log("clearPlayer", cur);

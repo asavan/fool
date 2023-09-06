@@ -14,38 +14,17 @@ function newDeck() {
 async function newShuffledDeck(handlers) {
     let deck = newDeck();
     shuffleArray(deck);
+    console.log("New deck");
     await handlers['shuffle'](deck);
 
-    function deal() {
-        const card = deck.pop();
-        // console.log(card);
-        return card;
-    }
-
-    function setDeck(d) {
-        deck = d;
-    }
-
-    function addCard(card) {
-        deck.push(card)
-    }
-
-    async function addCardAndShuffle(card) {
-        addCard(card);
-        shuffleArray(deck);
-        await handlers['shuffle'](deck);
-    }
-
-    return {deal, addCardAndShuffle, setDeck};
+    return newExternalDeck(deck, handlers);
 }
-
 
 function newExternalDeck(d, handlers) {
     let deck = d;
 
     function deal() {
         const card = deck.pop();
-        // console.log(card);
         return card;
     }
 
@@ -57,15 +36,18 @@ function newExternalDeck(d, handlers) {
         deck.push(card)
     }
 
+    function checkTop(card) {
+        return deck.at(-1) === card;
+    }
+
     async function addCardAndShuffle(card) {
         addCard(card);
         shuffleArray(deck);
         await handlers['shuffle'](deck);
     }
 
-    return {deal, addCardAndShuffle, setDeck};
+    return {deal, addCardAndShuffle, setDeck, checkTop};
 }
-
 
 
 export default {

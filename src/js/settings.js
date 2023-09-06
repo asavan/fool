@@ -3,10 +3,10 @@ export default {
     mode: "net",
     wsPort : 8088,
     logger: true,
-    networkDebug: false,
+    networkDebug: true,
     cardsDeal: 7,
     maxScore: 500,
-    showAll: false,
+    showAll: true,
     show: true,
     externalId: "server"
 }

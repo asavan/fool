@@ -33,8 +33,13 @@ export default function game(window, document, settings) {
     let unoGame = null;
     let players = [];
 
-    function onChange(m) {
-        stub(m);
+    function onChange(m, p) {
+        if (unoGame == null) {
+            console.error("No game");
+            return;
+        }
+        console.log(m, p);
+        return unoGame.onMove(m, p);
     }
 
     function on(name, f) {
@@ -57,11 +62,20 @@ export default function game(window, document, settings) {
     }
 
     const start = () => {
+        // TODO move to server
+        const qr = document.querySelector(".qrcode");
+        if (qr) {
+            qr.innerHTML = '';
+        }
         handlers['start'](players);
     }
 
     const onDraw = (p, q) => {
-        unoGame.onDraw(p, q);
+        if (unoGame == null) {
+            console.error("No game");
+            return;
+        }
+        return unoGame.onDraw(p, q);
     }
 
     const onStart = (p) => {
@@ -101,6 +115,7 @@ export default function game(window, document, settings) {
             console.error("No game");
             return;
         }
+        console.log("onShuffle");
         return unoGame.onShuffle(deck);
     }
 
@@ -112,12 +127,12 @@ export default function game(window, document, settings) {
         return unoGame.onDiscard(card);
     }
 
-    const onChangeCurrent = (card) => {
+    const onChangeCurrent = (currentData) => {
         if (unoGame == null) {
             console.error("No game");
             return;
         }
-        return unoGame.onChangeCurrent(card);
+        return unoGame.onChangeCurrent(currentData);
     }
 
     const onClearHand = (card) => {

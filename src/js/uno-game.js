@@ -22,19 +22,23 @@ export default function unoGame(window, document, settings, playersExternal, han
     engine.on("draw", async ({playerIndex, card}) => {
         layout.drawPlayers(window, document, engine, myIndex, settings);
         await delay(30);
-        await handlers['draw']({playerIndex, card});
+        if (playerIndex === myIndex || settings.mode === 'server') {
+            await handlers['draw']({playerIndex, card});
+        }
     });
 
-    engine.on("changeCurrent", async (player) => {
+    engine.on("changeCurrent", async ({currentPlayer, dealer}) => {
         layout.drawPlayers(window, document, engine, myIndex, settings);
         await delay(30);
-        await handlers['changeCurrent'](player);
+        await handlers['changeCurrent']({currentPlayer, dealer, myIndex});
     });
 
-    engine.on("move", async (card) => {
+    engine.on("move", async ({playerIndex, card}) => {
         layout.drawPlayers(window, document, engine, myIndex, settings);
         await delay(30);
-        await handlers['move'](card);
+        if (playerIndex === myIndex || settings.mode === 'server') {
+            await handlers['move']({playerIndex, card});
+        }
     });
 
     engine.on("discard", async (p) => {
@@ -89,23 +93,32 @@ export default function unoGame(window, document, settings, playersExternal, han
         layout.drawPlayers(window, document, engine, myIndex, settings);
     }
 
-    async function onDraw(playerIndex, card) {
+    function onDraw(playerIndex, card) {
         console.log("onDraw");
         return engine.onDraw(playerIndex, card);
     }
 
-    async function onDiscard(card) {
+    function onMove(m, p) {
+        console.log("onMove");
+        return engine.onMove(m, p);
+    }
+
+    function onDiscard(card) {
         console.log("onDiscard");
         return engine.onDiscard(card);
     }
 
-    async function onChangeCurrent(cur) {
-        engine.setCurrent(cur);
+    async function onChangeCurrent({currentPlayer, dealer, myIndex}) {
+        if (engine.getCurrentPlayer() !== myIndex && settings.mode == 'server') {
+            console.log("Wrong player", engine.getCurrentPlayer(), myIndex);
+            return;
+        }
+        engine.setCurrent(currentPlayer, dealer);
         layout.drawPlayers(window, document, engine, myIndex, settings);
     }
 
     async function onClearHand(playerIndex) {
-        await engine.cleanAllHands();
+        await engine.cleanHand(playerIndex);
         layout.drawPlayers(window, document, engine, myIndex, settings);
     }
 
@@ -115,6 +128,7 @@ export default function unoGame(window, document, settings, playersExternal, han
        onDraw,
        onDiscard,
        onChangeCurrent,
-       onClearHand
+       onClearHand,
+       onMove
     }
 }

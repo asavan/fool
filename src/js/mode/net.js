@@ -2,6 +2,7 @@
 
 import connectionFunc from "../connection/client.js";
 import actionsFunc from "../actions.js";
+import Queue from "../utils/queue.js";
 import {removeElem, log} from "../helper.js";
 
 function toObjJson(v, method) {
@@ -40,6 +41,8 @@ export default function netMode(window, document, settings, gameFunction) {
 
         connection.on('open', () => {
             settings['externalId'] = myId;
+            const queue = Queue();
+            let inProgress = false;
             const game = gameFunction(window, document, settings);
             const actions = actionsFunc(game);
             connection.on('recv', async (data) => {
@@ -48,13 +51,25 @@ export default function netMode(window, document, settings, gameFunction) {
                 const res = obj[obj.method];
                 const callback = actions[obj.method];
                 if (typeof callback === 'function') {
-                    await callback(res);
+                    queue.enqueue({callback, res, fName: obj.method});
                 }
             });
             for (const [handlerName, callback] of Object.entries(actions)) {
                 game.on(handlerName, (n) => connection.sendMessage(toObjJson(n, handlerName)));
             }
             game.onConnect();
+            async function step() {
+                if (!queue.isEmpty() && !inProgress) {
+                    const {callback, res, fName} = queue.dequeue();
+                    console.log("Progress start", fName, inProgress);
+                    inProgress = true;
+                    await callback(res);
+                    console.log("Progress stop", fName, inProgress);
+                    inProgress = false;
+                }
+                window.requestAnimationFrame(step);
+            }
+            window.requestAnimationFrame(step);
             resolve(game);
         });
 

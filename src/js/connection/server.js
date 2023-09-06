@@ -235,6 +235,7 @@ const connectionFunc = function (settings, location) {
     }
 
     const sendAll = (data) => {
+        logger.log("sendAll " + data);
         for (const client of Object.values(clients)) {
             if (client.dc) {
                 try {
