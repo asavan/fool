@@ -18,7 +18,7 @@ function drawHand(document, parent, pile) {
     parent.appendChild(hand);
 }
 
-function drawDeck(document, parent, card, engine) {
+function drawDeck(document, parent, card, engine, mode, myIndex) {
     const hand = document.createElement("ul");
     const cardItem = document.querySelector('#card');
     hand.classList.add('hand');
@@ -30,7 +30,14 @@ function drawDeck(document, parent, card, engine) {
 
     backClone.addEventListener("click", async (e) => {
         e.preventDefault();
-        await engine.drawCurrent();
+        if (mode === 'ai') {
+            await engine.drawCurrent();
+        } else {
+            const res = await engine.onDrawPlayer(myIndex);
+            if (res == null) {
+                await engine.pass(myIndex);
+            }
+        }
     });
     parent.appendChild(hand);
 }
@@ -76,7 +83,7 @@ function drawPlayersInner(window, document, engine, myIndex) {
         places.appendChild(elem);
         ++i;
     }
-    drawCenter(window, document, engine.getCardOnBoard(), engine);
+    drawCenter(window, document, engine.getCardOnBoard(), engine, "ai", myIndex);
     places.addEventListener("click", async (e) => {
         e.preventDefault();
         const cardEl = e.target.parentElement;
@@ -90,7 +97,7 @@ function drawPlayersInner(window, document, engine, myIndex) {
     });
 }
 
-function drawCenter(window, document, p, engine) {
+function drawCenter(window, document, p, engine, mode, myIndex) {
     const box = document.querySelector(".places");
     let discardPile = box.querySelector(".center-pile");
     if (!discardPile) {
@@ -102,12 +109,69 @@ function drawCenter(window, document, p, engine) {
     }
     if (p !== null) {
         // drawHand(document, discardPile, [p]);
-        drawDeck(document, discardPile, p, engine);
+        drawDeck(document, discardPile, p, engine, mode, myIndex);
     }
+}
+
+function drawMyHand(window, document, engine, myIndex, myPlayer, box) {
+    const elem = document.createElement("div");
+    elem.classList.add('my-hand');
+    const nameElem = document.createElement("span");
+    nameElem.innerText = myPlayer.getName();
+    elem.appendChild(nameElem);
+
+    elem.dataset.id = myIndex;
+    elem.classList.add('player-name');
+    const dealer = engine.getDealer();
+    const currentPlayer = engine.getCurrentPlayer();
+    if (dealer === myIndex) {
+        elem.classList.add('dealer');
+    }
+    if (currentPlayer === myIndex) {
+        elem.classList.add('current-player');
+    }
+
+    const score = myPlayer.getScore();
+    if (score > 0) {
+        const scoreElem = document.createElement("span");
+        scoreElem.innerText = score;
+        elem.appendChild(scoreElem);
+    }
+
+    drawHand(document, elem, myPlayer.pile());
+    elem.addEventListener("click", async (e) => {
+        e.preventDefault();
+        const cardEl = e.target.parentElement;
+
+        if (cardEl && cardEl.classList.contains('card')) {
+            const card = parseInt(cardEl.dataset.card);
+            await engine.moveToDiscard(myIndex, card);
+        }
+    });
+
+    box.appendChild(elem);
+}
+
+
+function mapColor(color) {
+    const colors = {
+        'green': 'rgba(85, 170, 85, 0.3)',
+        'red' : 'rgba(255, 85, 85, 0.3)',
+        'yellow': 'rgba(255, 170, 0, 0.3)',
+        'blue': 'rgba(85, 85, 255, 0.3)',
+    }
+    const c = colors[color];
+    if (c != null) {
+        return c;
+    }
+    return 'aliceblue';
 }
 
 
 function drawLayout(window, document, engine, myIndex) {
+    const root = document.documentElement;
+    root.style.setProperty('--card-width', "50px");
+    root.style.setProperty('--current-color', mapColor(engine.getCurrentColor()));
     const box = document.querySelector(".places");
     box.replaceChildren();
     const places = document.createElement("ul");
@@ -119,7 +183,14 @@ function drawLayout(window, document, engine, myIndex) {
     let i = 0;
     const dealer = engine.getDealer();
     const currentPlayer = engine.getCurrentPlayer();
+    let myPlayer = null;
     for (const pl of players) {
+        if (i === myIndex) {
+            myPlayer = pl;
+            ++i;
+            continue;
+        }
+        console.log(i, pl);
         const angleDeg = 90 + increaseDeg*(i-myIndex);
 
         const elem = document.createElement("li");
@@ -166,7 +237,8 @@ function drawLayout(window, document, engine, myIndex) {
 
         places.appendChild(elem);
     }
-    drawCenter(window, document, engine.getCardOnBoard(), engine);
+    drawCenter(window, document, engine.getCardOnBoard(), engine, "net", myIndex);
+    drawMyHand(window, document, engine, myIndex, myPlayer, box);
 }
 
 function drawPlayers(window, document, engine, myIndex, settings) {

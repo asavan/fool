@@ -2,9 +2,9 @@
 
 function init(game, clients) {
     return {
-        'move': async ({playerIndex, card}) => {
-          console.log("try to move " + JSON.stringify({playerIndex, card}));
-          return game.onChange(playerIndex, card);
+        'move': async (data) => {
+          console.log("try to move " + JSON.stringify(data));
+          return game.onChange(data);
         },
         'username': async (n, id) => {
           console.log("User joined", n, id);
@@ -14,13 +14,17 @@ function init(game, clients) {
         },
         'start': false,
         'shuffle': false,
-//        'draw': async ({playerIndex, card}) => {
-//                      console.log("draw", {playerIndex, card});
-//                      return game.onDraw(playerIndex, card);
-//                },
-        'draw': false,
+        'draw': async ({playerIndex, card}) => {
+              console.log({playerIndex, card});
+              return game.onDraw(playerIndex, card);
+        },
+//        'draw': false,
         'discard': false,
-        'changeCurrent': false,
+//        'changeCurrent': false,
+        'changeCurrent': async (currentData) => {
+                      console.log("Change current");
+                      return game.onChangeCurrent(currentData);
+                },
         'clearPlayer': false
     }
 }

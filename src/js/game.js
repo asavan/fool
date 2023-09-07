@@ -33,13 +33,12 @@ export default function game(window, document, settings) {
     let unoGame = null;
     let players = [];
 
-    function onChange(m, p) {
+    function onChange(data) {
         if (unoGame == null) {
             console.error("No game");
             return;
         }
-        console.log(m, p);
-        return unoGame.onMove(m, p);
+        return unoGame.onMove(data);
     }
 
     function on(name, f) {
@@ -82,7 +81,7 @@ export default function game(window, document, settings) {
         players = p;
         unoGame = unoGameFunc(window, document, settings, players, handlers);
         const grid = document.getElementsByClassName('places')[0];
-        grid.style.backgroundColor = "blueviolet";
+        grid.removeAttribute("style");
     }
 
     const startButton = document.querySelector(".start");

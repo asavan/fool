@@ -7,7 +7,12 @@
     --main-color: #F0F8FF;
     --player-color: chartreuse;
     --field-size: 4;
-    --card-width: 30;
+    --card-width: 30px;
+    --color-green: rgba(85, 170, 85, 0.3);
+    --color-red: rgba(255, 85, 85, 0.3);
+    --color-yellow: rgba(255, 170, 0, 0.3);
+    --color-blue: rgba(85, 85, 255, 0.3);
+    --current-color: aliceblue;
 }
 
 
@@ -39,7 +44,6 @@ li {
 .circle-wrapper {
    width:100%;
    height:100%;
-   background:aliceblue; /*Chartreuse;*/
    position:relative;
 }
 
@@ -48,6 +52,13 @@ li {
     height:100%;
     display: block;
     position:relative;
+}
+
+.my-hand {
+   position:absolute;
+   bottom: 0;
+   width:100%;
+   height:200px;
 }
 
 .clickable {
@@ -86,7 +97,7 @@ li {
 }
 
 .sprite-container{
-  width: 30px;
+  width: var(--card-width);
 }
 
 .sprite{
@@ -158,7 +169,7 @@ footer {
 }
 
 .container {
-    background-color: aquamarine;
+    background-color: var(--current-color);
     width: 375px;
     height: 600px;
     display: block;

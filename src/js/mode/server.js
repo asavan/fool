@@ -3,6 +3,7 @@
 import {removeElem, log} from "../helper.js";
 import actionsFunc from "../actions_server.js";
 import qrRender from "../qrcode.js";
+import Queue from "../utils/queue.js";
 import connectionFunc from "../connection/server.js";
 
 function toObjJson(v, method) {
@@ -53,6 +54,9 @@ export default function server(window, document, settings, gameFunction) {
             });
         });
 
+        const queue = Queue();
+        let inProgress = false;
+
         const game = gameFunction(window, document, settings);
         const actions = actionsFunc(game, clients);
         connection.on('recv', async (data, id) => {
@@ -61,10 +65,7 @@ export default function server(window, document, settings, gameFunction) {
             const res = obj[obj.method];
             const callback = actions[obj.method];
             if (typeof callback === 'function') {
-                const validate = await callback(res, id);
-                if (validate) {
-                    connection.sendAll(data);
-                }
+                queue.enqueue({callback, res, fName: obj.method, id, data});
             }
         });
         for (const [handlerName, callback] of Object.entries(actions)) {
@@ -82,6 +83,25 @@ export default function server(window, document, settings, gameFunction) {
 
         game.on('username', (name) => game.join(0, name, 'server'));
         game.on('swap', (id1, id2) => game.swap(id1, id2));
+
+
+        async function step() {
+            if (!queue.isEmpty() && !inProgress) {
+                const {callback, res, fName, id, data} = queue.dequeue();
+                console.log("Progress start", fName, inProgress);
+                inProgress = true;
+                const validate = await callback(res, id);
+                if (validate) {
+                    connection.sendAll(data);
+                }
+                console.log("Progress stop", fName, inProgress);
+                inProgress = false;
+            }
+            window.requestAnimationFrame(step);
+        }
+        window.requestAnimationFrame(step);
+
+
         game.onConnect();
         resolve(game);
 

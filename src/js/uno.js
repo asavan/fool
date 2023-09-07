@@ -164,14 +164,56 @@ async function dealToPlayer(deck, playerIndex) {
 
 async function onDraw(playerIndex, card) {
     if (!deck.checkTop(card)) {
-        console.error("Different engines");
+        console.log("Different engines");
         return;
     }
+    if (playerIndex !== currentPlayer) {
+        console.error("draw not for current player");
+    }
     const cardFromDeck = await dealToPlayer(deck, playerIndex);
+    return cardFromDeck;
 }
 
-async function onMove(playerIndex, card) {
-    const res = await moveToDiscard(playerIndex, card);
+async function onDrawPlayer(playerIndex) {
+    if (playerIndex !== currentPlayer) {
+        console.error("draw not for current player");
+        return;
+    }
+
+    if (roundover) {
+        console.log("start new round");
+        return false;
+    }
+
+    if (cardTaken > 0) {
+        console.log("alreadyDrawn");
+        return;
+    }
+    cardTaken++;
+    const cardFromDeck = await dealToPlayer(deck, currentPlayer);
+    return cardFromDeck;
+}
+
+function pass(playerIndex) {
+    if (playerIndex !== currentPlayer) {
+        console.error("draw not for current player");
+        return;
+    }
+
+    if (roundover) {
+        console.log("start new round");
+        return false;
+    }
+
+    if (cardTaken == 0) {
+        console.log("cannot pass");
+        return;
+    }
+    return next();
+}
+
+async function onMove(playerIndex, card, nextColor) {
+    const res = await onMoveToDiscard(playerIndex, card, nextColor);
     if (!res) {
         console.error("Different engines");
     }
@@ -442,6 +484,61 @@ async function tryMove(playerInd, card) {
     return false;
 }
 
+async function onTryMove(playerInd, card, nextColor) {
+    if (playerInd !== currentPlayer) {
+        console.log("Wrong player", currentPlayer, playerInd);
+        return false;
+    }
+
+    // player has card
+    if (!playerHasCard(playerInd, card)) {
+        console.log("player not has card");
+        return false;
+    }
+
+    if (roundover) {
+        console.log("start new round");
+        return false;
+    }
+
+    if (cardType(card) === 'Wild') {
+        const newColor = nextColor;
+        if (!GOOD_COLORS.includes(nextColor)) {
+            console.error("Wrong color", newColor);
+            return false;
+        }
+        currentColor = newColor;
+        return true;
+    }
+
+    if (cardType(card) === 'Draw4') {
+        if (playerHasColor(playerInd, currentColor)) {
+            return false;
+        }
+
+        const newColor = nextColor;
+
+        if (!GOOD_COLORS.includes(newColor)) {
+            console.error("Wrong color", newColor);
+            return false;
+        }
+        currentColor = newColor;
+        return true;
+    }
+
+    if (cardColor(card) == currentColor) {
+        return true;
+    }
+
+    if (cardType(card) == cardType(cardOnBoard)) {
+         return true;
+    }
+
+    console.log("Bad card", cardType(card), cardType(cardOnBoard), currentColor);
+    return false;
+}
+
+
 function calcScore() {
     let score = 0;
     const players = getPlayerIterator();
@@ -455,6 +552,27 @@ function calcScore() {
 
 async function moveToDiscard(playerIndex, card) {
     const res = await tryMove(playerIndex, card);
+    if (res) {
+        const cardInd = players[playerIndex].removeCard(card);
+        cardOnBoard = card;
+        discardPile.push(card);
+        await handlers["move"]({playerIndex, card, currentColor});
+        await calcCardEffect(card, currentPlayer);
+        if (players[playerIndex].pile().length === 0) {
+            roundover = true;
+            players[playerIndex].updateScore(calcScore());
+            if (players[playerIndex].getScore() > MAX_SCORE) {
+                await handlers['gameover'](players[playerIndex].getScore());
+            } else {
+                await handlers['roundover'](players[playerIndex].getScore());
+            }
+        }
+    }
+    return res;
+}
+
+async function onMoveToDiscard(playerIndex, card, nextColor) {
+    const res = await onTryMove(playerIndex, card, nextColor);
     if (res) {
         const cardInd = players[playerIndex].removeCard(card);
         cardOnBoard = card;
@@ -517,6 +635,7 @@ function setCurrent(c, d) {
     currentPlayer = c;
     if (d != null) {
         dealer = d;
+        roundover = false;
     }
 }
 
@@ -550,6 +669,9 @@ export default function initCore(settings) {
         setCurrent,
         cleanAllHands,
         cleanHand,
-        nextDealer
+        nextDealer,
+        onDrawPlayer,
+        pass,
+        getCurrentColor
     }
 }

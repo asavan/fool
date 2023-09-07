@@ -6,7 +6,7 @@ export default {
     networkDebug: true,
     cardsDeal: 7,
     maxScore: 500,
-    showAll: true,
+    showAll: false,
     show: true,
     externalId: "server"
 }

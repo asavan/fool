@@ -2,9 +2,9 @@
 
 function init(game, myIndex) {
     return {
-        'move': ({playerIndex, card}) => {
-              console.log("try to move " + JSON.stringify({playerIndex, card}));
-              return game.onChange(playerIndex, card);
+        'move': async (data) => {
+          console.log("try to move " + JSON.stringify(data));
+          return game.onChange(data);
         },
         'dealer': async (n) => {
           console.log("try to set dealer " + JSON.stringify(n));
