@@ -20,13 +20,7 @@ clients['server'] = {"index": index};
 
 function makeQr(window, document, settings) {
     const staticHost = settings.sh || window.location.href;
-    const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
     const url = new URL(staticHost);
-    url.search = urlParams;
-    url.searchParams.delete('wh');
-    url.searchParams.delete('sh');
-    url.searchParams.set('mode', 'net');
     console.log("enemy url", url.toString());
     return qrRender(url.toString(), document.querySelector(".qrcode"));
 }

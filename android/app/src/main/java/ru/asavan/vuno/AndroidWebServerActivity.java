@@ -29,6 +29,7 @@ public class AndroidWebServerActivity extends Activity {
             addButtons(IpUtils.getIPAddressSafe());
             Map<String, String> mainParams = new LinkedHashMap<>();
             mainParams.put("mode", "ai");
+            mainParams.put("showAll", "true");
             btnUtils.launchWebView(WEB_VIEW_URL, mainParams);
         } catch (Exception e) {
             Log.e(MAIN_LOG_TAG, "main", e);
@@ -42,6 +43,7 @@ public class AndroidWebServerActivity extends Activity {
         {
             Map<String, String> mainParams = new LinkedHashMap<>();
             mainParams.put("mode", "ai");
+            mainParams.put("showAll", "true");
             btnUtils.addButtonTwa(WEB_GAME_URL, mainParams, R.id.button3);
             btnUtils.addButtonWebView(WEB_VIEW_URL, mainParams, R.id.button5);
             btnUtils.addButtonWebView(hostUtils.getStaticHost(LOCAL_IP), mainParams, R.id.button6);
