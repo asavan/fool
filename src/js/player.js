@@ -19,6 +19,7 @@ function newPlayer(name, ind, handlers) {
     }
 
     const updateScore = (s) => { score += s; }
+    const setScore = (s) => { score = s; }
     const getScore = () => { return score; }
 
     const removeCard = (card) => {
@@ -39,7 +40,8 @@ function newPlayer(name, ind, handlers) {
             cleanHand,
             removeCard,
             updateScore,
-            getScore
+            getScore,
+            setScore
           };
 }
 

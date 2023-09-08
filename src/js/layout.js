@@ -242,6 +242,7 @@ function drawLayout(window, document, engine, myIndex) {
 }
 
 function drawPlayers(window, document, engine, myIndex, settings) {
+    console.log("drawPlayers", engine.state());
     if (settings.show) {
         drawPlayersInner(window, document, engine, myIndex);
         return;

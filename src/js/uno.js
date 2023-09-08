@@ -42,11 +42,13 @@ let dealer = 0;
 let direction = 1;
 let players = [];
 let deck = null;
+let isServer = true;
 let cardOnBoard = null;
 let discardPile = [];
 let currentPlayer = null;
 let currentColor = null;
 let cardTaken = 0;
+let cardDiscarded = 0;
 let gameover = false;
 let roundover = false;
 
@@ -447,6 +449,11 @@ async function tryMove(playerInd, card) {
         return false;
     }
 
+    if (cardDiscarded > 0) {
+        console.log("already moved");
+        return false;
+    }
+
     if (cardType(card) === 'Wild') {
         const newColor = await handlers["chooseColor"](playerInd);
         if (!GOOD_COLORS.includes(newColor)) {
@@ -498,6 +505,11 @@ async function onTryMove(playerInd, card, nextColor) {
 
     if (roundover) {
         console.log("start new round");
+        return false;
+    }
+
+    if (cardDiscarded > 0) {
+        console.log("already moved");
         return false;
     }
 
@@ -556,19 +568,32 @@ async function moveToDiscard(playerIndex, card) {
         const cardInd = players[playerIndex].removeCard(card);
         cardOnBoard = card;
         discardPile.push(card);
-        await handlers["move"]({playerIndex, card, currentColor});
-        await calcCardEffect(card, currentPlayer);
-        if (players[playerIndex].pile().length === 0) {
-            roundover = true;
-            players[playerIndex].updateScore(calcScore());
-            if (players[playerIndex].getScore() > MAX_SCORE) {
-                await handlers['gameover'](players[playerIndex].getScore());
-            } else {
-                await handlers['roundover'](players[playerIndex].getScore());
-            }
+        const newColor = cardColor(card);
+        if (newColor != 'black') {
+            currentColor = newColor;
         }
+        ++cardDiscarded;
+        await handlers["move"]({playerIndex, card, currentColor});
+        if (isServer) {
+            await calcCardEffect(card, currentPlayer);
+        }
+        await checkGameEnd(playerIndex);
     }
     return res;
+}
+
+async function checkGameEnd(playerIndex) {
+    const player = players[playerIndex];
+    if (player.pile().length === 0) {
+        roundover = true;
+        const diff = calcScore();
+        player.updateScore(diff);
+        if (player.getScore() > MAX_SCORE) {
+            await handlers['gameover']({playerIndex, score: player.getScore(), diff});
+        } else {
+            await handlers['roundover']({playerIndex, score: player.getScore(), diff});
+        }
+    }
 }
 
 async function onMoveToDiscard(playerIndex, card, nextColor) {
@@ -577,16 +602,15 @@ async function onMoveToDiscard(playerIndex, card, nextColor) {
         const cardInd = players[playerIndex].removeCard(card);
         cardOnBoard = card;
         discardPile.push(card);
+        const newColor = cardColor(card);
+        if (newColor != 'black') {
+            currentColor = newColor;
+        }
+
         await handlers["move"]({playerIndex, card, currentColor});
-        await calcCardEffect(card, currentPlayer);
-        if (players[playerIndex].pile().length === 0) {
-            roundover = true;
-            players[playerIndex].updateScore(calcScore());
-            if (players[playerIndex].getScore() > MAX_SCORE) {
-                await handlers['gameover']();
-            } else {
-                await handlers['roundover']();
-            }
+        if (isServer) {
+            await calcCardEffect(card, currentPlayer);
+            await checkGameEnd(playerIndex);
         }
     }
     return res;
@@ -595,6 +619,7 @@ async function onMoveToDiscard(playerIndex, card, nextColor) {
 async function next() {
     currentPlayer = calcNextFromCurrent(currentPlayer, players.length);
     cardTaken = 0;
+    cardDiscarded = 0;
     console.log("Current change", currentPlayer);
     return await handlers['changeCurrent']({currentPlayer, dealer});
 }
@@ -604,6 +629,8 @@ async function nextDealer() {
     dealer = calcNextFromCurrent(dealer, players.length);
     currentPlayer = dealer;
     roundover = false;
+    cardTaken = 0;
+    cardDiscarded = 0;
     return await handlers['changeCurrent']({currentPlayer, dealer});
 }
 
@@ -623,6 +650,7 @@ async function drawCurrent() {
 
 async function setDeck(d) {
     console.log("Deck setted");
+    isServer = false;
     if (deck == null) {
         deck = deckFunc.newExternalDeck(d, handlers);
     } else {
@@ -632,10 +660,21 @@ async function setDeck(d) {
 }
 
 function setCurrent(c, d) {
-    currentPlayer = c;
+    cardTaken = 0;
+    cardDiscarded = 0;
     if (d != null) {
         dealer = d;
         roundover = false;
+    }
+    currentPlayer = c;
+}
+
+function state() {
+    return {
+        currentPlayer,
+        dealer,
+        currentColor,
+        cardOnBoard,
     }
 }
 
@@ -672,6 +711,7 @@ export default function initCore(settings) {
         nextDealer,
         onDrawPlayer,
         pass,
-        getCurrentColor
+        getCurrentColor,
+        state
     }
 }

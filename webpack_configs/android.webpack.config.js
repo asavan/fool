@@ -16,7 +16,7 @@ const aConfig = (env, argv) => {
 
         entry: {main: ["./src/index.js", "./src/css/style.css"]},
         output: {
-            path: path.resolve(__dirname, "../android/app/src/main/assets/www"),
+            path: path.resolve(dirname, "../android/app/src/main/assets/www"),
             filename: "[name].[contenthash].js",
             clean: true
         },
@@ -41,7 +41,7 @@ const aConfig = (env, argv) => {
             }), new CssMinimizerPlugin()],
         },
         plugins: [
-            new HTMLInlineCSSWebpackPlugin(),
+            new HTMLInlineCSSWebpackPlugin.default(),
             new HtmlWebpackPlugin({
                 template: "./src/index.html",
                 minify: false
