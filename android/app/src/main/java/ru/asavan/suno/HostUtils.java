@@ -1,4 +1,4 @@
-package ru.asavan.vuno;
+package ru.asavan.suno;
 
 public class HostUtils {
     private final int static_content_port;

@@ -13,6 +13,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Vuno"
+rootProject.name = "Suno"
 include(":app")
  

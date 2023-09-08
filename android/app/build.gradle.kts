@@ -9,11 +9,11 @@ java {
 }
 
 android {
-    namespace = "ru.asavan.vuno"
+    namespace = "ru.asavan.suno"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "ru.asavan.vuno"
+        applicationId = "ru.asavan.suno"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

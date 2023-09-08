@@ -1,4 +1,4 @@
-package ru.asavan.vuno;
+package ru.asavan.suno;
 
 import android.content.Context;
 

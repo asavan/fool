@@ -1,4 +1,4 @@
-package ru.asavan.vuno;
+package ru.asavan.suno;
 
 import android.content.Context;
 
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("ru.asavan.vuno", appContext.getPackageName());
+        assertEquals("ru.asavan.suno", appContext.getPackageName());
     }
 }

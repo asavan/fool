@@ -1,4 +1,4 @@
-package ru.asavan.vuno;
+package ru.asavan.suno;
 
 import java.io.IOException;
 

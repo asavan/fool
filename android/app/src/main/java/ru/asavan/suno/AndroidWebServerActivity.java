@@ -1,4 +1,4 @@
-package ru.asavan.vuno;
+package ru.asavan.suno;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -15,7 +15,7 @@ public class AndroidWebServerActivity extends Activity {
     public static final String LOCAL_IP = "127.0.0.1";
     public static final String LOCALHOST = "localhost";
     public static final String WEB_VIEW_URL = "file:///android_asset/www/index.html";
-    public static final String MAIN_LOG_TAG = "VUNO_TAG";
+    public static final String MAIN_LOG_TAG = "SUNO_TAG";
     private static final boolean secure = false;
 
     private BtnUtils btnUtils;

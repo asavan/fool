@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Vuno</string>
+    <string name="app_name">Suno</string>
 
     <string name="launch">Launch in browser</string>
     <string name="launch_twa">Launch in app</string>
