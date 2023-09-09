@@ -2,40 +2,49 @@
 
 function init(game, myIndex) {
     return {
-        'move': async (data) => {
-          console.log("try to move " + JSON.stringify(data));
-          return game.onChange(data);
+        'move': (data) => {
+              console.log("try to move " + JSON.stringify(data));
+              return game.onChange(data);
         },
-        'dealer': async (n) => {
-          console.log("try to set dealer " + JSON.stringify(n));
-          return game.setDealer(n);
+        'dealer': (n) => {
+              console.log("try to set dealer " + JSON.stringify(n));
+              return game.setDealer(n);
         },
         'username': false,
-        'start': async (p) => {
-                  console.log(p);
-                  return game.onStart(p);
+        'start': (p) => {
+              console.log(p);
+              return game.onStart(p);
         },
-        'shuffle': async (p) => {
+        'shuffle': (p) => {
               console.log(p);
               return game.onShuffle(p);
         },
 
-        'draw': async ({playerIndex, card}) => {
+        'draw': ({playerIndex, card}) => {
               console.log({playerIndex, card});
               return game.onDraw(playerIndex, card);
         },
-        'changeCurrent': async (currentData) => {
+        'changeCurrent': (currentData) => {
               console.log("Change current");
               return game.onChangeCurrent(currentData);
         },
-        'clearPlayer': async (cur) => {
+        'clearPlayer': (cur) => {
               console.log("clearPlayer", cur);
               return game.onClearHand(cur);
         },
-        'discard': async (p) => {
+        'discard': (p) => {
               console.log("Discard", p);
               return game.onDiscard(p);
-        }
+        },
+        'roundover': (p) => {
+               console.log("new round", p);
+               return game.onNewRound(p);
+         },
+        'gameover': (p) => {
+               console.log("game over", p);
+               return game.onGameOver(p);
+         },
+        'pass': false
     }
 }
 

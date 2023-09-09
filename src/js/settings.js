@@ -3,10 +3,12 @@ export default {
     mode: "net",
     wsPort : 8088,
     logger: true,
-    networkDebug: true,
+    networkDebug: false,
     cardsDeal: 7,
     maxScore: 500,
     showAll: false,
     show: true,
-    externalId: "server"
+    externalId: "server",
+    colorOrder: ['red', 'yellow', 'green', 'blue', 'black'],
+    sortByColor: 'asc'
 }

@@ -16,7 +16,7 @@ export default function Queue() {
         return item;
     }
     function peek() {
-    return elements[head];
+        return elements[head];
     }
     function length() {
         return tail - head;

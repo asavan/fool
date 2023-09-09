@@ -8,10 +8,10 @@
     --player-color: chartreuse;
     --field-size: 4;
     --card-width: 30px;
-    --color-green: rgba(85, 170, 85, 0.3);
-    --color-red: rgba(255, 85, 85, 0.3);
-    --color-yellow: rgba(255, 170, 0, 0.3);
-    --color-blue: rgba(85, 85, 255, 0.3);
+    --color-green: rgba(85, 170, 85, 0.9);
+    --color-red: rgba(255, 85, 85, 0.9);
+    --color-yellow: rgba(255, 170, 0, 0.9);
+    --color-blue: rgba(85, 85, 255, 0.9);
     --current-color: aliceblue;
 }
 
@@ -61,6 +61,15 @@ li {
    height:200px;
 }
 
+.player-name {
+    font-size: 3rem;
+}
+
+img {
+    height:30px;
+    width:30px;
+}
+
 .clickable {
     cursor: pointer;
 }
@@ -72,7 +81,7 @@ li {
    left:50%;
    width:120px;
    height:100px;
-   background:#fff7f0;
+   /* background:#fff7f0; */
    /*border-radius:50%;*/
    text-align:center;
    /*line-height:100px;*/
@@ -125,6 +134,8 @@ li {
   background-position: 0 0;
   background-size: 100%;
   display:block;
+  border-radius: 10%;
+  border: solid 0.3px;
 }
 
 
@@ -155,9 +166,7 @@ li {
    left:50%;
    margin: -30px;
    text-align:center;
-   background:#fff7f0;
 }
-
 
 .content {
     flex: 1 0 auto;
@@ -216,22 +225,20 @@ footer {
 }
 
 .green {
-    background-color: green;
+    background-color: var(--color-green);
 }
 
 .blue {
-    background-color: blue;
+    background-color: var(--color-blue);
 }
 
 .yellow {
-    background-color: yellow;
+    background-color: var(--color-yellow);
 }
 
 .red {
-    background-color: red;
+    background-color: var(--color-red);
 }
-
-
 
 .first, .second {
     grid-row: 2 / 5;
@@ -282,4 +289,27 @@ footer {
 
 .hidden {
     display: none;
+}
+
+.nameform {
+    line-height: 1.6;
+    font-size: 1.5rem;
+}
+
+input[type='text']{
+    padding: 10px;
+}
+
+.namesubmit {
+    font-size: 1.5rem;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.mirror {
+    transform: scaleX(-1);
 }

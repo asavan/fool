@@ -23,6 +23,9 @@ const handlers = {
     'changeDealer': stub1,
     'gameover': stub1,
     'roundover': stub1,
+    'pass': stub,
+    'drawExternal': stub,
+    'moveExternal': stub,
     'chooseColor': getCurrentColor
 }
 
@@ -54,6 +57,10 @@ let roundover = false;
 
 function getCurrentColor() {
     return currentColor;
+}
+
+function getDirection() {
+    return direction;
 }
 
 function calcNextFromCurrent(ind, size) {
@@ -157,23 +164,29 @@ function addPlayer(name) {
     players.push(playerFunc.newPlayer(name, n, handlers));
 }
 
-async function dealToPlayer(deck, playerIndex) {
+async function dealToPlayer(deck, playerIndex, external) {
     const card = deck.deal();
     players[playerIndex].addCard(card);
-    await handlers['draw']({playerIndex, card});
+    if (!external) {
+        await handlers['draw']({playerIndex, card});
+    } else {
+        await handlers['drawExternal']({playerIndex, card});
+    }
     return card;
 }
 
 async function onDraw(playerIndex, card) {
     if (!deck.checkTop(card)) {
-        console.log("Different engines");
+        console.error("Different engines");
         return;
     }
     if (playerIndex !== currentPlayer) {
         console.error("draw not for current player");
+        // return;
     }
-    const cardFromDeck = await dealToPlayer(deck, playerIndex);
-    return cardFromDeck;
+    const cardFromDeck = await dealToPlayer(deck, playerIndex, true);
+    cardTaken++;
+    return true;
 }
 
 async function onDrawPlayer(playerIndex) {
@@ -196,9 +209,9 @@ async function onDrawPlayer(playerIndex) {
     return cardFromDeck;
 }
 
-function pass(playerIndex) {
+async function pass(playerIndex) {
     if (playerIndex !== currentPlayer) {
-        console.error("draw not for current player");
+        console.error("pass not for current player");
         return;
     }
 
@@ -211,13 +224,15 @@ function pass(playerIndex) {
         console.log("cannot pass");
         return;
     }
-    return next();
+    await next();
+    await handlers['pass']({playerIndex});
+    return true;
 }
 
 async function onMove(playerIndex, card, nextColor) {
     const res = await onMoveToDiscard(playerIndex, card, nextColor);
     if (!res) {
-        console.error("Different engines");
+        console.log("Different engines");
     }
     return res;
 }
@@ -333,7 +348,7 @@ async function chooseDealer() {
         console.error("No cand", candidates);
     }
     currentPlayer = dealer;
-    await handlers['changeCurrent']({currentPlayer, dealer});
+    await handlers['changeCurrent']({currentPlayer, dealer, direction});
     console.log('dealer was choosen', currentPlayer, dealer);
 }
 
@@ -576,8 +591,8 @@ async function moveToDiscard(playerIndex, card) {
         await handlers["move"]({playerIndex, card, currentColor});
         if (isServer) {
             await calcCardEffect(card, currentPlayer);
+            await checkGameEnd(playerIndex);
         }
-        await checkGameEnd(playerIndex);
     }
     return res;
 }
@@ -596,6 +611,31 @@ async function checkGameEnd(playerIndex) {
     }
 }
 
+async function onNewRound(data) {
+    const player = players[data.playerIndex];
+    const oldScore = player.getScore();
+    cardTaken = 0;
+    cardDiscarded = 0;
+    roundover = false;
+
+    if (data.score != oldScore + data.diff) {
+        console.error("Bad score");
+        return;
+    }
+    player.setScore(data.score);
+}
+
+function onPass(playerIndex) {
+    if (playerIndex != currentPlayer) {
+        console.error("Bad pass", playerIndex, currentPlayer);
+        return false;
+    }
+    if (cardTaken == 0) {
+        console.error("Bad pass", playerIndex);
+    }
+    return next();
+}
+
 async function onMoveToDiscard(playerIndex, card, nextColor) {
     const res = await onTryMove(playerIndex, card, nextColor);
     if (res) {
@@ -606,8 +646,8 @@ async function onMoveToDiscard(playerIndex, card, nextColor) {
         if (newColor != 'black') {
             currentColor = newColor;
         }
-
-        await handlers["move"]({playerIndex, card, currentColor});
+        ++cardDiscarded;
+        await handlers["moveExternal"]({playerIndex, card, currentColor});
         if (isServer) {
             await calcCardEffect(card, currentPlayer);
             await checkGameEnd(playerIndex);
@@ -621,7 +661,8 @@ async function next() {
     cardTaken = 0;
     cardDiscarded = 0;
     console.log("Current change", currentPlayer);
-    return await handlers['changeCurrent']({currentPlayer, dealer});
+    await handlers['changeCurrent']({currentPlayer, dealer, direction});
+    return true;
 }
 
 async function nextDealer() {
@@ -631,7 +672,7 @@ async function nextDealer() {
     roundover = false;
     cardTaken = 0;
     cardDiscarded = 0;
-    return await handlers['changeCurrent']({currentPlayer, dealer});
+    return await handlers['changeCurrent']({currentPlayer, dealer, direction});
 }
 
 async function drawCurrent() {
@@ -659,12 +700,15 @@ async function setDeck(d) {
     console.log("Deck setted2");
 }
 
-function setCurrent(c, d) {
+function setCurrent(c, d, dir) {
     cardTaken = 0;
     cardDiscarded = 0;
     if (d != null) {
         dealer = d;
         roundover = false;
+    }
+    if (dir != null) {
+        direction = dir;
     }
     currentPlayer = c;
 }
@@ -675,7 +719,40 @@ function state() {
         dealer,
         currentColor,
         cardOnBoard,
+        color: cardColor(cardOnBoard),
+        type: cardType(cardOnBoard)
     }
+}
+
+function sortByTemplate(pile, sortDirection, colors) {
+    pile.sort((p1, p2) => {
+        const c1 = cardColor(p1);
+        const c2 = cardColor(p2);
+        if (c1 == c2) {
+            if (sortDirection === 'asc') {
+                return cardScore(p1)-cardScore(p2);
+            } else {
+                return cardScore(p2)-cardScore(p1);
+            }
+        }
+        for (const c of colors) {
+            if (c == c1) {
+                if (sortDirection === 'asc') {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            }
+
+            if (c == c2) {
+                if (sortDirection === 'asc') {
+                    return 1;
+                } else {
+                    return -1;
+                }
+            }
+        }
+    });
 }
 
 export default function initCore(settings) {
@@ -712,6 +789,10 @@ export default function initCore(settings) {
         onDrawPlayer,
         pass,
         getCurrentColor,
-        state
+        getDirection,
+        state,
+        onNewRound,
+        onPass,
+        sortByTemplate
     }
 }

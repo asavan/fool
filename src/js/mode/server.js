@@ -86,7 +86,9 @@ export default function server(window, document, settings, gameFunction) {
                 inProgress = true;
                 const validate = await callback(res, id);
                 if (validate) {
-                    connection.sendAll(data);
+                    // connection.sendAll(data);
+                } else {
+                    console.error("Bad move", data);
                 }
                 console.log("Progress stop", fName, inProgress);
                 inProgress = false;

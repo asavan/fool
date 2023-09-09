@@ -36,6 +36,11 @@ export default function choosePlace(window, document, settings, handlers, player
 
     places.addEventListener("click", onSelect);
     for (let i = 0; i < players.length; ++i) {
+        const player = players[i];
+        if (player == null) {
+            angleDeg += increaseDeg;
+            continue;
+        }
         const elem = document.createElement("li");
         elem.innerText = players[i].name;
         elem.dataset.id = i;

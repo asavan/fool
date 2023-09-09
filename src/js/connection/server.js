@@ -48,6 +48,7 @@ const logger = logFunction(null);
 
 function setupDataChannel(dataChannel, signaling, id) {
     dataChannel.onmessage = function (e) {
+        logger.log("get data " + e.data);
         handlers['recv'](e.data, id);
     };
 

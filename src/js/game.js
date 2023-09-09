@@ -14,17 +14,21 @@ function stub1(message) {
 
 const handlers = {
     'move': stub,
+    'moveExternal': stub,
+    'drawExternal': stub,
     'gameover': stub,
     'username': stub,
     'start': stub1,
     'swap': stub1,
+    'pass': stub1,
     'uno-start': stub1,
     'shuffle': stub1,
     'draw': stub1,
     'discard': stub1,
     'chooseColor': stub1,
     'clearPlayer': stub,
-    'changeCurrent': stub
+    'changeCurrent': stub,
+    'roundover': stub
 }
 
 
@@ -48,6 +52,7 @@ export default function game(window, document, settings) {
     const join = (ind, name, external_id) => {
         players[ind] = {"name": name, "external_id": external_id};
         choosePlaceFunc(window, document, settings, handlers, players);
+        return true;
     }
 
     const disconnect = (external_id) => {
@@ -88,6 +93,8 @@ export default function game(window, document, settings) {
     if (startButton) {
         startButton.addEventListener("click", start);
     }
+
+    enterName(window, document, settings, handlers);
 
     const onConnect = () => {
         enterName(window, document, settings, handlers);
@@ -134,6 +141,14 @@ export default function game(window, document, settings) {
         return unoGame.onChangeCurrent(currentData);
     }
 
+    const cardToString = (currentData) => {
+            if (unoGame == null) {
+                console.error("No game");
+                return;
+            }
+            return unoGame.cardToString(currentData);
+        }
+
     const onClearHand = (card) => {
         if (unoGame == null) {
             console.error("No game");
@@ -141,6 +156,31 @@ export default function game(window, document, settings) {
         }
         return unoGame.onClearHand(card);
     }
+
+    const onNewRound = (data) => {
+        if (unoGame == null) {
+            console.error("No game");
+            return;
+        }
+        return unoGame.onNewRound(data);
+    }
+
+    const onGameOver = (data) => {
+        if (unoGame == null) {
+            console.error("No game");
+            return;
+        }
+        return unoGame.onGameOver(data);
+    }
+
+    const onPass = (data) => {
+        if (unoGame == null) {
+            console.error("No game");
+            return;
+        }
+        return unoGame.onPass(data);
+    }
+
 
     return {
        on,
@@ -154,8 +194,12 @@ export default function game(window, document, settings) {
        onShuffle,
        onDraw,
        onDiscard,
+       onNewRound,
        onChangeCurrent,
        onClearHand,
-       disconnect
+       onGameOver,
+       disconnect,
+       cardToString,
+       onPass
     }
 }

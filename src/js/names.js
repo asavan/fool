@@ -4,6 +4,9 @@ import {assert} from "./helper.js";
 
 export default function enterName(window, document, settings, handlers) {
     const formCont = document.querySelector(".name-form-cont");
+    if (formCont.childElementCount > 0) {
+        return;
+    }
     const formItem = document.querySelector('#nameform');
     const formClone = formItem.content.cloneNode(true).firstElementChild;
     formCont.replaceChildren(formClone);
@@ -21,6 +24,7 @@ export default function enterName(window, document, settings, handlers) {
         console.log("On name", name);
         form.classList.add('hidden');
         field.classList.remove('hidden');
+        formCont.replaceChildren();
     }
 
     if (data) {
@@ -28,8 +32,8 @@ export default function enterName(window, document, settings, handlers) {
     }
 
     form.addEventListener("submit", function(evt) {
-            evt.preventDefault();
-            window.sessionStorage.setItem("username", input.value);
-            onName(input.value);
+        evt.preventDefault();
+        window.sessionStorage.setItem("username", input.value);
+        onName(input.value);
     });
 }

@@ -37,7 +37,11 @@ function newExternalDeck(d, handlers) {
     }
 
     function checkTop(card) {
-        return deck.at(-1) === card;
+        const res = deck.at(-1) === card;
+        if (!res) {
+            console.log("bad deck", deck.at(-1), card);
+        }
+        return res;
     }
 
     async function addCardAndShuffle(card) {
