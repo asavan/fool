@@ -10,7 +10,6 @@ function newPlayer(name, ind, handlers) {
     const getIndex = () => { return i };
     const addCard = (card) => {
         deck.push(card);
-        // console.log(name, deck);
     }
     const pile = () => [...deck];
     const cleanHand = async () => {
@@ -33,16 +32,16 @@ function newPlayer(name, ind, handlers) {
     }
 
     return {
-            getName,
-            addCard,
-            pile,
-            getIndex,
-            cleanHand,
-            removeCard,
-            updateScore,
-            getScore,
-            setScore
-          };
+        getName,
+        addCard,
+        pile,
+        getIndex,
+        cleanHand,
+        removeCard,
+        updateScore,
+        getScore,
+        setScore
+    };
 }
 
 export default {

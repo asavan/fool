@@ -12,27 +12,34 @@ function stub1(message) {
     console.log(message);
 }
 
-const handlers = {
-    'move': stub,
-    'moveExternal': stub,
-    'drawExternal': stub,
-    'gameover': stub,
-    'username': stub,
-    'start': stub1,
-    'swap': stub1,
-    'pass': stub1,
-    'uno-start': stub1,
-    'shuffle': stub1,
-    'draw': stub1,
-    'discard': stub1,
-    'chooseColor': stub1,
-    'clearPlayer': stub,
-    'changeCurrent': stub,
-    'roundover': stub
+function makeCommonSeed(players) {
+    let seed = '';
+    for (const pl of players) {
+        seed += pl.external_id;
+    }
+    return seed;
 }
 
-
 export default function game(window, document, settings) {
+
+    const handlers = {
+        'move': stub,
+        'moveExternal': stub,
+        'drawExternal': stub,
+        'gameover': stub,
+        'username': stub,
+        'start': stub1,
+        'swap': stub1,
+        'pass': stub1,
+        'uno-start': stub1,
+        'shuffle': stub1,
+        'draw': stub1,
+        'discard': stub1,
+        'chooseColor': stub1,
+        'clearPlayer': stub,
+        'changeCurrent': stub,
+        'roundover': stub
+    }
 
     let unoGame = null;
     let players = [];
@@ -84,6 +91,7 @@ export default function game(window, document, settings) {
 
     const onStart = (p) => {
         players = p;
+        settings.seed = makeCommonSeed(players);
         unoGame = unoGameFunc(window, document, settings, players, handlers);
         const grid = document.getElementsByClassName('places')[0];
         grid.removeAttribute("style");
@@ -94,7 +102,9 @@ export default function game(window, document, settings) {
         startButton.addEventListener("click", start);
     }
 
-    enterName(window, document, settings, handlers);
+    if (settings.mode != 'ai') {
+        enterName(window, document, settings, handlers);
+    }
 
     const onConnect = () => {
         enterName(window, document, settings, handlers);
@@ -109,6 +119,9 @@ export default function game(window, document, settings) {
 
     const afterAllJoined = async () => {
        start();
+       if (!settings.seed) {
+          settings.seed = makeCommonSeed(players);
+       }
        unoGame = unoGameFunc(window, document, settings, players, handlers);
        console.log("Game init");
        await unoGame.start();

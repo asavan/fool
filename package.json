@@ -28,5 +28,8 @@
     "webpack-dev-server": "^4.15.1",
     "workbox-webpack-plugin": "^7.0.0",
     "ws": "8.13.0"
+  },
+  "dependencies": {
+    "esm-seedrandom": "^3.0.5"
   }
 }

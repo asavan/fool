@@ -52,6 +52,7 @@ export default function choosePlace(window, document, settings, handlers, player
     }
 
     const start = document.createElement("button");
+    start.textContent = "Start";
     start.classList.add('start-button', 'clickable');
     start.addEventListener("click", onAllSeated);
     box.appendChild(start);

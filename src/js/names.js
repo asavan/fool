@@ -4,6 +4,14 @@ import {assert} from "./helper.js";
 
 export default function enterName(window, document, settings, handlers) {
     const formCont = document.querySelector(".name-form-cont");
+    const data = window.sessionStorage.getItem("username");
+    if (data) {
+        console.log("Send name data", data);
+        handlers['username'](data);
+        formCont.replaceChildren();
+        return;
+    }
+
     if (formCont.childElementCount > 0) {
         return;
     }
@@ -14,7 +22,6 @@ export default function enterName(window, document, settings, handlers) {
     const form = document.querySelector(".nameform");
     const input = document.querySelector(".nameinput");
     const field = document.querySelector(".container");
-    let data = window.sessionStorage.getItem("username");
     if (settings.mode == 'net') {
         field.classList.add('hidden');
     }
@@ -25,10 +32,6 @@ export default function enterName(window, document, settings, handlers) {
         form.classList.add('hidden');
         field.classList.remove('hidden');
         formCont.replaceChildren();
-    }
-
-    if (data) {
-        onName(data);
     }
 
     form.addEventListener("submit", function(evt) {

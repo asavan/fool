@@ -46,6 +46,10 @@ function drawDeck(document, parent, card, engine, mode, myIndex) {
 }
 
 function drawPlayersInner(window, document, engine, myIndex, settings) {
+    const root = document.documentElement;
+    root.style.setProperty('--card-width', "40px");
+    root.style.setProperty('--current-color', mapColor(engine.getCurrentColor()));
+
     const box = document.querySelector(".places");
     box.replaceChildren();
     const places = document.createElement("ul");
@@ -215,10 +219,13 @@ function drawLayout(window, document, engine, myIndex, settings) {
         nameElem.innerText = pl.getName();
         elem.appendChild(nameElem);
 
-
-        const pileElem = document.createElement("div");
-        pileElem.innerText = pl.pile().length;
-        elem.appendChild(pileElem);
+        if (settings.show) {
+            drawHand(document, elem, pl.pile(), engine, settings);
+        } else {
+            const pileElem = document.createElement("div");
+            pileElem.innerText = pl.pile().length;
+            elem.appendChild(pileElem);
+        }
 
         const score = pl.getScore();
         if (score > 0) {
@@ -248,7 +255,7 @@ function drawLayout(window, document, engine, myIndex, settings) {
 
 function drawPlayers(window, document, engine, myIndex, settings) {
 //    console.log("drawPlayers", engine.state());
-    if (settings.show) {
+    if (settings.clickAll) {
         drawPlayersInner(window, document, engine, myIndex, settings);
         return;
     }

@@ -7,8 +7,10 @@ export default {
     cardsDeal: 7,
     maxScore: 500,
     showAll: false,
+    clickAll: false,
     show: true,
     externalId: "server",
     colorOrder: ['red', 'yellow', 'green', 'blue', 'black'],
-    sortByColor: 'asc'
+    sortByColor: 'asc',
+    seed: ''
 }

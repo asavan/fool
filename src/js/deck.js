@@ -11,16 +11,16 @@ function newDeck() {
     return deck;
 }
 
-async function newShuffledDeck(handlers) {
+async function newShuffledDeck(handlers, rngFunc) {
     let deck = newDeck();
-    shuffleArray(deck);
+    shuffleArray(deck, rngFunc);
     console.log("New deck");
     await handlers['shuffle'](deck);
 
-    return newExternalDeck(deck, handlers);
+    return newExternalDeck(deck, handlers, rngFunc);
 }
 
-function newExternalDeck(d, handlers) {
+function newExternalDeck(d, handlers, rngFunc) {
     let deck = d;
 
     function deal() {
@@ -46,7 +46,7 @@ function newExternalDeck(d, handlers) {
 
     async function addCardAndShuffle(card) {
         addCard(card);
-        shuffleArray(deck);
+        shuffleArray(deck, rngFunc);
         await handlers['shuffle'](deck);
     }
 

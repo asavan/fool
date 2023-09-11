@@ -4,9 +4,16 @@ import coreUnoFunc from "./uno.js";
 import colorChooser from "./choose_color.js";
 import layout from "./layout.js";
 
+import {prng_alea} from 'esm-seedrandom';
+
 export default function unoGame(window, document, settings, playersExternal, handlers) {
 
-    const engine = coreUnoFunc(settings);
+    let myrng = prng_alea(settings.seed);
+    const gameState = {
+        inColorChoose: false,
+        inExternalMove: false
+    }
+    const engine = coreUnoFunc(settings, myrng);
     let index = 0;
     let myIndex = 0;
 
@@ -88,9 +95,30 @@ export default function unoGame(window, document, settings, playersExternal, han
         console.log("deal");
     });
 
+    function onGameEnd(message1, message2) {
+        const overlay = document.getElementsByClassName("overlay")[0];
+        const close = document.getElementsByClassName("close")[0];
+        const btnInstall = document.getElementsByClassName("install")[0];
+
+        close.addEventListener("click", function (e) {
+            e.preventDefault();
+            overlay.classList.remove("show");
+        }, false);
+
+        const h2 = overlay.querySelector('h2');
+        h2.textContent = message1;
+        const content = overlay.querySelector('.content');
+        content.textContent = message2;
+        overlay.classList.add('show');
+        btnInstall.classList.remove('hidden2');
+    }
+
     engine.on("gameover", async (data) => {
         drawScreen();
-        console.log("GAME OVER");
+        console.log("GAME OVER", data);
+        const name = playersExternal[data.playerIndex].name;
+        console.log(name);
+        onGameEnd(name + " wins", "with score " + data.score);
         await handlers['gameover'](data);
     });
 
@@ -98,7 +126,7 @@ export default function unoGame(window, document, settings, playersExternal, han
         await handlers['clearPlayer'](playerIndex);
     });
 
-    colorChooser(window, document, engine);
+    colorChooser(window, document, engine, gameState);
 
     engine.on("roundover", async (data) => {
         if (settings.mode === 'net') {
@@ -107,8 +135,6 @@ export default function unoGame(window, document, settings, playersExternal, han
         }
         console.log("roundover");
         await handlers["roundover"](data);
-        await delay(200);
-        await engine.cleanAllHands();
         await delay(300);
         await engine.nextDealer();
         await engine.deal();
@@ -176,9 +202,10 @@ export default function unoGame(window, document, settings, playersExternal, han
 
     async function onGameOver(data) {
         console.log("onGameOver", data);
-        const res = await engine.onNewRound(data);
         drawScreen();
-        return res;
+        // const res = await engine.onNewRound(data);
+        onGameEnd("", "with score " + data.score);
+        return true;
     }
 
     function cardToString(card) {

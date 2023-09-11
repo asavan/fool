@@ -5,6 +5,10 @@ import {assert} from "../helper.js";
 export default function ai(window, document, settings, gameFunction) {
     return new Promise((resolve, reject) => {
         settings.externalId = "client1";
+        settings.cardsDeal = 1;
+        settings.seed = 'h';
+        settings.maxScore = 3;
+        settings.clickAll = true;
         const game = gameFunction(window, document, settings);
 
         game.on("move", (move) => console.log(move));
@@ -16,7 +20,7 @@ export default function ai(window, document, settings, gameFunction) {
         game.join(0, 'server', 'server');
         for (let i = 1; i < 4; ++i) {
             const name = 'client' + i;
-            game.join(1, name, name);
+            game.join(i, name, name);
         }
         game.afterAllJoined();
 
