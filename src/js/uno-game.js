@@ -30,29 +30,32 @@ export default function unoGame(window, document, settings, playersExternal, han
         ++index;
     }
 
-    const handCont = document.querySelector('.hand-cont');
     engine.on("draw", async ({playerIndex, card}) => {
         drawScreen();
-        await delay(30);
+        const start = Date.now();
         if (playerIndex === myIndex || settings.mode === 'server') {
             await handlers['draw']({playerIndex, card});
         }
+        const end = Date.now();
+        await delay(200 - end + start);
     });
 
     engine.on("drawExternal", async ({playerIndex, card}) => {
         drawScreen();
-        await delay(30);
+        const start = Date.now();
         if (settings.mode === 'server') {
             await handlers['draw']({playerIndex, card});
         }
+        const end = Date.now();
+        await delay(200 - end + start);
     });
 
     engine.on("changeCurrent", async ({currentPlayer, dealer, direction}) => {
         layout.drawPlayers(window, document, engine, myIndex, settings);
-        await delay(30);
         if (settings.mode === 'server') {
             await handlers['changeCurrent']({currentPlayer, dealer, myIndex, direction});
         }
+        await delay(50);
     });
 
     engine.on("pass", async ({playerIndex}) => {
@@ -80,15 +83,15 @@ export default function unoGame(window, document, settings, playersExternal, han
 
     engine.on("discard", async (p) => {
         drawScreen();
-        await delay(30);
         await handlers['discard'](p);
+        await delay(30);
     });
 
     engine.on("shuffle", async (deck) => {
         // TODO play shuffle animation
         drawScreen();
-        await delay(300);
         await handlers['shuffle'](deck);
+        await delay(300);
     });
 
     engine.on("deal", () => {

@@ -126,7 +126,11 @@ function drawMyHand(window, document, engine, myIndex, myPlayer, box, settings) 
     const statusRow = document.createElement("div");
     statusRow.classList.add('row');
     const nameElem = document.createElement("span");
-    nameElem.innerText = myPlayer.getName();
+    let name = myPlayer.getName();
+    if (engine.getDealer() === myIndex) {
+        name += "*";
+    }
+    nameElem.innerText = name;
     statusRow.appendChild(nameElem);
 
     const score = myPlayer.getScore();
@@ -137,12 +141,15 @@ function drawMyHand(window, document, engine, myIndex, myPlayer, box, settings) 
     }
 
     const directionElem = document.createElement("span");
-    const img = document.createElement("img");
-    img.src = './images/reload.svg';
+    directionElem.classList.add('sprite-container');
+
+    const directionElem1 = document.createElement("div");
     if (engine.getDirection() > 0) {
-        img.classList.add('mirror');
+        directionElem1.classList.add('direction-forward');
+    } else {
+        directionElem1.classList.add('direction-back');
     }
-    directionElem.appendChild(img);
+    directionElem.appendChild(directionElem1);
     statusRow.appendChild(directionElem);
 
     elem.appendChild(statusRow);
@@ -152,9 +159,7 @@ function drawMyHand(window, document, engine, myIndex, myPlayer, box, settings) 
     elem.classList.add('player-name');
     const dealer = engine.getDealer();
     const currentPlayer = engine.getCurrentPlayer();
-    if (dealer === myIndex) {
-        elem.classList.add('dealer');
-    }
+
     if (currentPlayer === myIndex) {
         elem.classList.add('current-player');
     }

@@ -53,9 +53,7 @@ let currentColor = null;
 let cardTaken = 0;
 let cardDiscarded = 0;
 let gameover = false;
-let roundover = false;
-
-
+let roundover = true;
 
 
 function getCurrentColor() {
@@ -198,7 +196,7 @@ async function onDraw(playerIndex, card) {
 
 async function onDrawPlayer(playerIndex) {
     if (playerIndex !== currentPlayer) {
-        console.error("draw not for current player");
+        console.log("draw not for current player");
         return;
     }
 
@@ -218,7 +216,7 @@ async function onDrawPlayer(playerIndex) {
 
 async function pass(playerIndex) {
     if (playerIndex !== currentPlayer) {
-        console.error("pass not for current player");
+        console.log("pass not for current player");
         return;
     }
 
@@ -264,6 +262,11 @@ async function onDiscard(card) {
 
 async function dealToDiscard(deck) {
     console.log("dealToDiscard");
+    roundover = false;
+
+    currentPlayer = dealer;
+    await handlers['changeCurrent']({currentPlayer, dealer, direction});
+
     let card = deck.deal();
     cardOnBoard = card;
     await handlers['discard'](card);
@@ -289,22 +292,22 @@ function getPlayer(ind) {
 
 function getPlayerIterator() {
     return  {
-             [Symbol.iterator]() {
-               let i = 0;
-               return {
-                 next() {
-                   if (i >= players.length){
-                    return { done: true, value: i };
-                   }
-                   return { done: false, value: players[i++] };
-                 },
-                 return() {
-                   console.log("Closing");
-                   return { done: true };
-                 },
-               };
-             },
-           };
+     [Symbol.iterator]() {
+       let i = 0;
+       return {
+         next() {
+           if (i >= players.length){
+            return { done: true, value: i };
+           }
+           return { done: false, value: players[i++] };
+         },
+         return() {
+           console.log("Closing");
+           return { done: true };
+         },
+       };
+     },
+   };
 }
 
 function size() {
@@ -333,8 +336,9 @@ async function chooseDealerInner(rngFunc) {
         let max = 0;
         for (let i = 0; i < n; i++) {
               const dealIndex = nextPlayer(i, n);
-              currentPlayer = dealIndex;
-          	  const card = await dealToPlayer(deck, candidates[dealIndex].getIndex());
+              currentPlayer = candidates[dealIndex].getIndex();
+              // await handlers['changeCurrent']({currentPlayer, dealer, direction});
+          	  const card = await dealToPlayer(deck, currentPlayer);
               const score = cardScore(card);
               console.log('>> ' + candidates[dealIndex].getName() + ': Player ' + i + ' draws ' + cardType(card) + ' '
                 + cardColor(card) + ' and gets ' + score + ' points');
@@ -356,7 +360,7 @@ async function chooseDealerInner(rngFunc) {
     }
     currentPlayer = dealer;
     await handlers['changeCurrent']({currentPlayer, dealer, direction});
-    console.log('dealer was choosen', currentPlayer, dealer);
+    console.log('dealer was chosen', currentPlayer, dealer);
 }
 
 async function cleanAllHands(rngFunc) {
@@ -392,10 +396,9 @@ async function calcCardEffect(card, playerInd) {
     const type = cardType(card);
 
     if (type === 'Reverse') {
-        if (players.length === 2) {
+        reverse();
+        if (players.length < 3) {
             skip();
-        } else {
-            reverse();
         }
     }
 
@@ -425,7 +428,9 @@ async function dealN(initialDealt, rngFunc) {
         const n = players.length;
         for (let i = 0; i < n; i++) {
             const dealIndex = nextPlayer(i, n);
-            await dealToPlayer(deck, players[dealIndex].getIndex());
+            currentPlayer = players[dealIndex].getIndex();
+            // await handlers['changeCurrent']({currentPlayer, dealer, direction});
+            await dealToPlayer(deck, currentPlayer);
         }
     }
     const card = await dealToDiscard(deck);
