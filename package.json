@@ -1,19 +1,24 @@
 {
   "name": "fool",
   "version": "1.0.0",
+  "author": "Alex Sav",
+  "description": "Simple uno game",
   "private": true,
-  "description": "",
   "main": "index.js",
   "type": "module",
   "sideEffects": false,
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "ws": "node devtools/ws-server.js",
     "start": "webpack serve --config webpack_configs/webpack.config.js --mode development",
     "all": "npm-run-all -p -r ws start",
     "android": "webpack --config webpack_configs/android.webpack.config.js --mode production",
     "build": "webpack --config webpack_configs/production.webpack.config.js --mode production",
-    "test": "node --test",
-    "test:watch": "node --test --test-reporter spec --watch ./tests",
+    "test": "node --test --test-reporter dot",
+    "test:verbose": "node --test",
+    "test:watch": "node --test --watch ./tests",
     "test:coverage": "c8 node --test"
   },
   "devDependencies": {
@@ -26,6 +31,7 @@
     "mini-css-extract-plugin": "^2.7.6",
     "npm-check-updates": "^16.11.1",
     "npm-run-all": "^4.1.5",
+    "prettier": "^3.0.3",
     "terser-webpack-plugin": "^5.3.9",
     "webpack": "^5.88.2",
     "webpack-cli": "^5.1.4",

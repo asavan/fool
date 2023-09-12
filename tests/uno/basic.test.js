@@ -9,9 +9,7 @@ test('hello', () => {
 });
 
 test('has card', () => {
-  const pile = [0, 1, 110];
-  const found = core.pileHasColor(pile, 'red');
-  assert.ok(found, 'No color');
-  assert.ok(!core.pileHasColor(pile, 'green'), 'Has green but should not');
+  const pile = [0, 1, 110]; // red red blue
+  assert.ok(core.pileHasColor(pile, 'red'), 'No color');
+  assert.notEqual(core.pileHasColor(pile, 'green'), true, 'Has green but should not');
 });
-
