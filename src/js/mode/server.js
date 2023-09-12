@@ -2,7 +2,7 @@
 
 import {removeElem, log} from "../helper.js";
 import actionsFunc from "../actions_server.js";
-import qrRender from "../qrcode.js";
+import qrRender from "../lib/qrcode.js";
 import Queue from "../utils/queue.js";
 import connectionFunc from "../connection/server.js";
 
@@ -66,6 +66,11 @@ export default function server(window, document, settings, gameFunction) {
             game.on(handlerName, (n) => connection.sendAll(toObjJson(n, handlerName)));
         }
 
+        game.on('start', (data) => {
+            connection.closeSocket();
+            connection.sendAll(toObjJson(data, 'start'));
+        });
+
         connection.on('disconnect', (id) => {
             const is_disconnected = game.disconnect(id);
             if (is_disconnected) {
@@ -73,6 +78,7 @@ export default function server(window, document, settings, gameFunction) {
                 delete clients[id];
             }
             console.log(id, index);
+
         });
 
         game.on('username', (name) => game.join(0, name, 'server'));

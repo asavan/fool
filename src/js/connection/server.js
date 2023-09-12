@@ -59,8 +59,8 @@ function setupDataChannel(dataChannel, signaling, id) {
 
     dataChannel.onclose = function () {
         logger.log("------ DATACHANNEL CLOSED ------");
-        delete clients[id];
         handlers['disconnect'](id);
+        delete clients[id];
     };
 
     dataChannel.onerror = function () {
@@ -176,6 +176,7 @@ function createSignalingChannel(socketUrl) {
 const connectionFunc = function (settings, location) {
 
     logger.init(settings);
+    let signalChannel = null;
 
     function on(name, f) {
         handlers[name] = f;
@@ -233,6 +234,8 @@ const connectionFunc = function (settings, location) {
                 console.error("Unknown type " + json.action);
             }
         }
+        signalChannel = signaling;
+        return signaling;
     }
 
     const sendAll = (data) => {
@@ -244,11 +247,19 @@ const connectionFunc = function (settings, location) {
                 } catch(e) {
                     console.log(e, client);
                 }
+            } else {
+                console.error("No connection", client);
             }
         }
     }
 
-    return {connect, sendAll, on};
+    function closeSocket() {
+        if (signalChannel) {
+            signalChannel.close();
+        }
+    }
+
+    return {connect, sendAll, on, closeSocket};
 };
 
 export default connectionFunc;

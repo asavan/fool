@@ -3,6 +3,7 @@ import {assert, delay} from "./helper.js";
 import coreUnoFunc from "./uno.js";
 import colorChooser from "./choose_color.js";
 import layout from "./layout.js";
+import core from "./uno/basic.js"
 
 import {prng_alea} from 'esm-seedrandom';
 
@@ -37,7 +38,7 @@ export default function unoGame(window, document, settings, playersExternal, han
             await handlers['draw']({playerIndex, card});
         }
         const end = Date.now();
-        await delay(200 - end + start);
+        await delay(150 - end + start);
     });
 
     engine.on("drawExternal", async ({playerIndex, card}) => {
@@ -211,10 +212,6 @@ export default function unoGame(window, document, settings, playersExternal, han
         return true;
     }
 
-    function cardToString(card) {
-        return engine.cardColor(card) + " " + engine.cardType(card);
-    }
-
     function onPass(data) {
         return engine.onPass(data.playerIndex);
     }
@@ -229,7 +226,6 @@ export default function unoGame(window, document, settings, playersExternal, han
        onMove,
        onNewRound,
        onGameOver,
-       cardToString,
        onPass
     }
 }

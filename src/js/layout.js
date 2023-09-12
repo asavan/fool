@@ -1,4 +1,5 @@
 "use strict"; // jshint ;_;
+import core from "./uno/basic.js"
 
 function drawCard(p, cardItem) {
     const cardClone = cardItem.content.cloneNode(true).firstElementChild;
@@ -13,7 +14,7 @@ function drawHand(document, parent, pile, engine, settings) {
     const cardItem = document.querySelector('#card');
     hand.classList.add('hand');
     if (settings && settings.sortByColor) {
-        engine.sortByTemplate(pile, settings.sortByColor, settings.colorOrder);
+        core.sortByTemplate(pile, settings.sortByColor, settings.colorOrder);
     }
     for (const p of pile) {
         hand.appendChild(drawCard(p, cardItem));
@@ -220,17 +221,25 @@ function drawLayout(window, document, engine, myIndex, settings) {
         const angleDeg = 90 + increaseDeg*(i-myIndex);
 
         const elem = document.createElement("li");
-        const nameElem = document.createElement("div");
-        nameElem.innerText = pl.getName();
-        elem.appendChild(nameElem);
 
         if (settings.show) {
             drawHand(document, elem, pl.pile(), engine, settings);
         } else {
             const pileElem = document.createElement("div");
+            pileElem.classList.add('player-name');
+
             pileElem.innerText = pl.pile().length;
             elem.appendChild(pileElem);
         }
+
+        const nameElem = document.createElement("div");
+        let name = pl.getName();
+        if (dealer === i) {
+            name += "*";
+        }
+        nameElem.innerText = name;
+        elem.appendChild(nameElem);
+
 
         const score = pl.getScore();
         if (score > 0) {
@@ -243,10 +252,7 @@ function drawLayout(window, document, engine, myIndex, settings) {
         elem.dataset.id = i;
         elem.dataset.angle = angleDeg + 'deg';
         elem.style.setProperty('--angle-deg', angleDeg + 'deg');
-        elem.classList.add('circle', 'player-name');
-        if (dealer === i) {
-            elem.classList.add('dealer');
-        }
+        elem.classList.add('circle');
         if (currentPlayer === i) {
             elem.classList.add('current-player');
         }

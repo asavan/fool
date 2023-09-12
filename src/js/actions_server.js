@@ -12,7 +12,6 @@ function init(game, clients) {
           client.username = n;
           return game.join(client.index, n, id);
         },
-        'start': false,
         'shuffle': false,
         'draw': ({playerIndex, card}) => {
           console.log({playerIndex, card});

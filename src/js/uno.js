@@ -1,14 +1,21 @@
 "use strict";
 
 import deckFunc from "./deck.js";
-import playerFunc from "./player.js";
+import newPlayer from "./player.js";
+import core from "./uno/basic.js"
 
 function stub(message) {
     console.log("Stub22 " + message);
 }
 
 function stub1(message) {
-    console.log("Stub11 " + message);
+    console.log(message);
+}
+
+function localAssert(condition, message) {
+    if (!condition) {
+        console.log(message);
+    }
 }
 
 const handlers = {
@@ -65,6 +72,7 @@ function getDirection() {
 }
 
 function calcNextFromCurrent(ind, size) {
+    localAssert(size > 0, "Bad usage");
     return (ind + direction + size) % size;
 }
 
@@ -76,96 +84,12 @@ function getCardOnBoard() {
     return cardOnBoard;
 }
 
-const GOOD_COLORS = ['red', 'yellow', 'green', 'blue'];
-
-
-/**
- * Given a card number, returns its color
- * @function
- * @param {Number} num Number of the card position in deck
- * @return {String} Card color. Either black, red, yellow, green or blue.
- */
-function cardColor(num) {
-  let color;
-  if (num % 14 === 13) {
-    return 'black';
-  }
-  switch (Math.floor(num / 14)) {
-    case 0:
-    case 4:
-      color = 'red';
-      break;
-    case 1:
-    case 5:
-      color = 'yellow';
-      break;
-    case 2:
-    case 6:
-      color = 'green';
-      break;
-    case 3:
-    case 7:
-      color = 'blue';
-      break;
-  }
-  return color;
-}
-
-/**
- * Given a card number, returns its type
- * @function
- * @param {Number} num Number of the card position in deck
- * @return {String} Card type. Either skip, reverse, draw2, draw4, wild or number.
- */
-function cardType(num) {
-  switch (num % 14) {
-    case 10: //Skip
-      return 'Skip';
-    case 11: //Reverse
-      return 'Reverse';
-    case 12: //Draw 2
-      return 'Draw2';
-    case 13: //Wild or Wild Draw 4
-      if (Math.floor(num / 14) >= 4) {
-        return 'Draw4';
-      } else {
-        return 'Wild';
-      }
-    default:
-      return 'Number ' + (num % 14);
-  }
-}
-
-/**
- * Given a card number, returns its scoring
- * @function
- * @param {Number} num Number of the card position in deck
- * @return {Number} Points value.
- */
-function cardScore(num) {
-  let points;
-  switch (num % 14) {
-    case 10: //Skip
-    case 11: //Reverse
-    case 12: //Draw 2
-      points = 20;
-      break;
-    case 13: //Wild or Wild Draw 4
-      points = 50;
-      break;
-    default:
-      points = num % 14;
-      break;
-  }
-  return points;
-}
-
 function addPlayer(name) {
     if (!name) {
         return false;
     }
     const n = players.length;
-    players.push(playerFunc.newPlayer(name, n, handlers));
+    players.push(newPlayer(name, n, handlers));
     return true;
 }
 
@@ -251,7 +175,7 @@ async function onDiscard(card) {
     const cardFromDeck = deck.deal();
     cardOnBoard = card;
     await handlers['discard'](card);
-    const newColor = cardColor(card);
+    const newColor = core.cardColor(card);
     if (newColor !== 'black') {
         discardPile.push(card);
         currentColor = newColor;
@@ -270,7 +194,7 @@ async function dealToDiscard(deck) {
     let card = deck.deal();
     cardOnBoard = card;
     await handlers['discard'](card);
-    while (cardColor(card) === 'black') {
+    while (core.cardColor(card) === 'black') {
         cardOnBoard = null;
         await deck.addCardAndShuffle(card);
         card = deck.deal();
@@ -278,7 +202,7 @@ async function dealToDiscard(deck) {
         await handlers['discard'](card);
     }
     discardPile.push(card);
-    currentColor = cardColor(card);
+    currentColor = core.cardColor(card);
     return card;
 }
 
@@ -339,9 +263,9 @@ async function chooseDealerInner(rngFunc) {
               currentPlayer = candidates[dealIndex].getIndex();
               // await handlers['changeCurrent']({currentPlayer, dealer, direction});
           	  const card = await dealToPlayer(deck, currentPlayer);
-              const score = cardScore(card);
-              console.log('>> ' + candidates[dealIndex].getName() + ': Player ' + i + ' draws ' + cardType(card) + ' '
-                + cardColor(card) + ' and gets ' + score + ' points');
+              const score = core.cardScore(card);
+              console.log('>> ' + candidates[dealIndex].getName() + ': Player ' + i + ' draws '
+                                + core.cardToString(card) + ' and gets ' + score + ' points');
               scores[dealIndex] = score;
               max = Math.max(max, score);
         }
@@ -367,7 +291,8 @@ async function cleanAllHands(rngFunc) {
     cardOnBoard = null;
     discardPile = [];
     for (const pl of players) {
-        await pl.cleanHand();
+        pl.cleanHand();
+        await handlers['clearPlayer'](pl.getIndex());
     }
     deck = await deckFunc.newShuffledDeck(handlers, rngFunc);
 }
@@ -376,6 +301,7 @@ async function cleanHand(playerIndex) {
     cardOnBoard = null;
     discardPile = [];
     players[playerIndex].cleanHand();
+    await handlers['clearPlayer'](playerIndex);
 }
 
 
@@ -392,12 +318,12 @@ function skip() {
 }
 
 async function calcCardEffect(card, playerInd) {
-    console.log("calcCardEffect");
-    const type = cardType(card);
+    const type = core.cardType(card);
+    console.log("calcCardEffect", playerInd, currentPlayer, type);
 
     if (type === 'Reverse') {
         reverse();
-        if (players.length < 3) {
+        if (players.length === 2) {
             skip();
         }
     }
@@ -428,22 +354,23 @@ async function dealN(initialDealt, rngFunc) {
         const n = players.length;
         for (let i = 0; i < n; i++) {
             const dealIndex = nextPlayer(i, n);
-            currentPlayer = players[dealIndex].getIndex();
+            const currentPlayer = players[dealIndex].getIndex();
             // await handlers['changeCurrent']({currentPlayer, dealer, direction});
             await dealToPlayer(deck, currentPlayer);
         }
     }
     const card = await dealToDiscard(deck);
-    console.log("deal finished");
+    console.log("deal finished", currentPlayer, core.cardToString(card));
     await calcCardEffect(card, currentPlayer);
 }
 
-function playerHasColor(playerInd, currentColor) {
-    return players[playerInd].pile().find(c => cardColor(c) === currentColor);
-}
 
 function playerHasCard(playerInd, card) {
     return players[playerInd].pile().includes(card);
+}
+
+function getCurrentPlayerObj() {
+    return players[currentPlayer];
 }
 
 async function tryMove(playerInd, card) {
@@ -453,7 +380,7 @@ async function tryMove(playerInd, card) {
     }
 
     // player has card
-    if (!playerHasCard(playerInd, card)) {
+    if (!getCurrentPlayerObj().hasCard(card)) {
         console.log("player not has card");
         return false;
     }
@@ -468,9 +395,9 @@ async function tryMove(playerInd, card) {
         return false;
     }
 
-    if (cardType(card) === 'Wild') {
+    if (core.cardType(card) === 'Wild') {
         const newColor = await handlers["chooseColor"](playerInd);
-        if (!GOOD_COLORS.includes(newColor)) {
+        if (!core.GOOD_COLORS.includes(newColor)) {
             console.error("Wrong color", newColor);
             return false;
         }
@@ -478,14 +405,14 @@ async function tryMove(playerInd, card) {
         return true;
     }
 
-    if (cardType(card) === 'Draw4') {
-        if (playerHasColor(playerInd, currentColor)) {
+    if (core.cardType(card) === 'Draw4') {
+        if (getCurrentPlayerObj().hasColor(currentColor)) {
             return false;
         }
 
         const newColor = await handlers["chooseColor"](playerInd);
 
-        if (!GOOD_COLORS.includes(newColor)) {
+        if (!core.GOOD_COLORS.includes(newColor)) {
             console.error("Wrong color", newColor);
             return false;
         }
@@ -493,15 +420,15 @@ async function tryMove(playerInd, card) {
         return true;
     }
 
-    if (cardColor(card) == currentColor) {
+    if (core.cardColor(card) == currentColor) {
         return true;
     }
 
-    if (cardType(card) == cardType(cardOnBoard)) {
+    if (core.cardType(card) == cardType(cardOnBoard)) {
          return true;
     }
 
-    console.log("Bad card", cardType(card), cardType(cardOnBoard), currentColor);
+    console.log("Bad card", core.cardType(card), core.cardType(cardOnBoard), currentColor);
     return false;
 }
 
@@ -512,12 +439,12 @@ async function onTryMove(playerInd, card, nextColor) {
     }
 
     // player has card
-    if (!playerHasCard(playerInd, card)) {
+    if (!getCurrentPlayerObj().hasCard(card)) {
         console.log("player not has card");
         return false;
     }
 
-    if (!GOOD_COLORS.includes(nextColor)) {
+    if (!core.GOOD_COLORS.includes(nextColor)) {
         console.error("Wrong color", nextColor);
         return false;
     }
@@ -532,28 +459,28 @@ async function onTryMove(playerInd, card, nextColor) {
         return false;
     }
 
-    if (cardType(card) === 'Wild') {
+    if (core.cardType(card) === 'Wild') {
         return true;
     }
 
-    if (cardType(card) === 'Draw4') {
-        return !playerHasColor(playerInd, currentColor);
+    if (core.cardType(card) === 'Draw4') {
+        return !getCurrentPlayerObj().hasColor(currentColor);
     }
 
-    if (cardColor(card) != nextColor) {
+    if (core.cardColor(card) != nextColor) {
         console.error("Wrong next color", nextColor, card);
         return false;
     }
 
-    if (cardColor(card) == currentColor) {
+    if (core.cardColor(card) == currentColor) {
         return true;
     }
 
-    if (cardType(card) == cardType(cardOnBoard)) {
+    if (core.cardType(card) == core.cardType(cardOnBoard)) {
         return true;
     }
 
-    console.log("Bad card", cardType(card), cardType(cardOnBoard), currentColor);
+    console.log("Bad card", core.cardType(card), core.cardType(cardOnBoard), currentColor);
     return false;
 }
 
@@ -563,7 +490,7 @@ function calcScore() {
     const players = getPlayerIterator();
     for (const pl of players) {
         for (const card of pl.pile()) {
-            score += cardScore(card);
+            score += core.cardScore(card);
         }
     }
     return score;
@@ -575,7 +502,7 @@ async function moveToDiscard(playerIndex, card) {
         const cardInd = players[playerIndex].removeCard(card);
         cardOnBoard = card;
         discardPile.push(card);
-        const newColor = cardColor(card);
+        const newColor = core.cardColor(card);
         if (newColor != 'black') {
             currentColor = newColor;
         }
@@ -698,40 +625,9 @@ function state() {
         dealer,
         currentColor,
         cardOnBoard,
-        color: cardColor(cardOnBoard),
-        type: cardType(cardOnBoard)
+        color: core.cardColor(cardOnBoard),
+        type: core.cardType(cardOnBoard)
     }
-}
-
-function sortByTemplate(pile, sortDirection, colors) {
-    pile.sort((p1, p2) => {
-        const c1 = cardColor(p1);
-        const c2 = cardColor(p2);
-        if (c1 == c2) {
-            if (sortDirection === 'asc') {
-                return cardScore(p1)-cardScore(p2);
-            } else {
-                return cardScore(p2)-cardScore(p1);
-            }
-        }
-        for (const c of colors) {
-            if (c == c1) {
-                if (sortDirection === 'asc') {
-                    return -1;
-                } else {
-                    return 1;
-                }
-            }
-
-            if (c == c2) {
-                if (sortDirection === 'asc') {
-                    return 1;
-                } else {
-                    return -1;
-                }
-            }
-        }
-    });
 }
 
 export default function initCore(settings, rngFunc) {
@@ -762,9 +658,6 @@ export default function initCore(settings, rngFunc) {
         addPlayer,
         size,
         on,
-        cardScore,
-        cardColor,
-        cardType,
         getDealer,
         getCurrentPlayer,
         getCardOnBoard,
@@ -784,7 +677,6 @@ export default function initCore(settings, rngFunc) {
         getDirection,
         state,
         onNewRound,
-        onPass,
-        sortByTemplate
+        onPass
     }
 }

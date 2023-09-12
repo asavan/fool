@@ -33,9 +33,10 @@ export default function netMode(window, document, settings, gameFunction) {
         });
         connection.on('socket_open', () => {
             const grid = document.getElementsByClassName('places')[0];
-            grid.style.backgroundColor = "#AA0000";
+            grid.classList.add('loading');
             connection.on('socket_close', () => {
-                grid.style.backgroundColor = "black";
+                grid.classList.remove('loading');
+                grid.classList.add('flying-cards');
             });
         });
 

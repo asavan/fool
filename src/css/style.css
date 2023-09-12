@@ -29,11 +29,7 @@ body {
 
 ul {
     list-style-type: none;
-    font-size: 3rem;
-}
-
-li {
-    /* border: dashed red; */
+    font-size: 2rem;
 }
 
 .selected {
@@ -59,7 +55,7 @@ li {
    width:100%;
    min-height: 135px;
    box-sizing: border-box;
-   padding: 0 20px;
+   padding: 0 10px;
 }
 
 .player-name {
@@ -81,8 +77,7 @@ img {
    top:50%;
    left:50%;
    text-align:center;
-   margin: -70px;
-   transform: rotate(var(--angle-deg)) translate(140px) rotate(calc(-1 * var(--angle-deg)));
+   transform: rotate(var(--angle-deg)) translate(140px) rotate(calc(-1 * var(--angle-deg))) translate(-50%, -50%);
 }
 
 .direction-back {
@@ -201,6 +196,7 @@ footer {
     height: 100%;
     display: block;
     position:relative;
+    overflow: hidden;
 }
 
 .install {
@@ -212,15 +208,6 @@ footer {
     cursor: pointer;
     border: 0;
     padding: 0;
-}
-
-.grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    grid-template-rows: repeat(6, 1fr);
-    background-color: blueviolet;
-    height: 100%;
-    grid-gap: 3px;
 }
 
 .color-grid {
@@ -242,7 +229,6 @@ footer {
 }
 
 .cancel-color {
-    /*background-color: blueviolet;*/
     opacity: 0.2;
     grid-area: c;
 }
@@ -271,40 +257,16 @@ footer {
     grid-area: r;
 }
 
-.first, .second {
-    grid-row: 2 / 5;
-}
-
-.second {
-    grid-column: 6 / 7;
-}
-
-.third {
-    grid-column: 2 / 6;
-    grid-row: 1 / 2;
-}
-
 .player {
     background-color: aliceblue;
-}
-
-.table {
-    grid-row: 2 / 5;
-    grid-column: 2 / 6;
-    background-color: beige;
-}
-
-.me {
-    grid-column: 1 / 7;
-    grid-row: 5 / 7;
-    background-color: chartreuse;
 }
 
 .qrcode.big {
     position: absolute;
     top: 0;
     left: 0;
-    width: 450px;
+    max-width: 450px;
+    width: 100%;
 }
 
 .qrcode {
@@ -398,3 +360,75 @@ input[type='text']{
     overflow: auto;
 }
 
+@keyframes move-it {
+  0% {
+    background-position: initial;
+  }
+  100% {
+    background-position: 100px 0px;
+  }
+}
+
+.loading {
+  background: repeating-linear-gradient(
+  45deg,
+  #606dbc,
+  #606dbc 5%,
+  #465298 5%,
+  #465298 10%
+);
+  background-size: 100px 100px;
+  animation: move-it 2s linear infinite;
+}
+
+.connected {
+    background-color: #AA0000;
+    height: 350px;
+}
+
+
+.spinner {
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: black;
+  min-height: 100vh;
+}
+
+.spinner:after {
+  animation: changeContent .8s linear infinite;
+  display: block;
+  content: "⠋";
+  font-size: 80px;
+}
+
+@keyframes changeContent {
+  10% { content: "⠙"; }
+  20% { content: "⠹"; }
+  30% { content: "⠸"; }
+  40% { content: "⠼"; }
+  50% { content: "⠴"; }
+  60% { content: "⠦"; }
+  70% { content: "⠧"; }
+  80% { content: "⠇"; }
+  90% { content: "⠏"; }
+}
+
+.flying-cards {
+      /* Create a Responsive Square */
+      padding-bottom: 150%;
+      box-sizing: border-box;
+      height:0;
+
+      /* Set The Sprite as the Background */
+      background-image: url("../images/deck.svg");
+      background-size: 1400%;
+      display:block;
+      animation: flying-cards-animation 3s steps(8, end) infinite;
+}
+
+@keyframes flying-cards-animation {
+    0% { background-position: 300% 800%  }
+    100% { background-position: 300% 0% }
+}

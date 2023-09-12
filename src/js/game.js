@@ -63,21 +63,21 @@ export default function game(window, document, settings) {
     }
 
     const disconnect = (external_id) => {
-        console.log(external_id);
+        console.log("disconnect", external_id);
         const old_size = players.length;
         players = players.filter(p => p.external_id != external_id);
         const new_size = players.length;
-        console.log(players);
+        console.log("disconnect", players);
         choosePlaceFunc(window, document, settings, handlers, players);
         return old_size > new_size;
     }
 
     const start = () => {
         // TODO move to server
-        const qr = document.querySelector(".qrcode");
-        if (qr) {
-            qr.innerHTML = '';
-        }
+//        const qr = document.querySelector(".qrcode");
+//        if (qr) {
+//            qr.innerHTML = '';
+//        }
         handlers['start'](players);
     }
 
@@ -94,7 +94,7 @@ export default function game(window, document, settings) {
         settings.seed = makeCommonSeed(players);
         unoGame = unoGameFunc(window, document, settings, players, handlers);
         const grid = document.getElementsByClassName('places')[0];
-        grid.removeAttribute("style");
+        grid.classList.remove("connected", "loading", "flying-cards");
     }
 
     const startButton = document.querySelector(".start");
@@ -154,14 +154,6 @@ export default function game(window, document, settings) {
         return unoGame.onChangeCurrent(currentData);
     }
 
-    const cardToString = (currentData) => {
-            if (unoGame == null) {
-                console.error("No game");
-                return;
-            }
-            return unoGame.cardToString(currentData);
-        }
-
     const onClearHand = (card) => {
         if (unoGame == null) {
             console.error("No game");
@@ -212,7 +204,6 @@ export default function game(window, document, settings) {
        onClearHand,
        onGameOver,
        disconnect,
-       cardToString,
        onPass
     }
 }

@@ -13,7 +13,7 @@ export default function choosePlace(window, document, settings, handlers, player
     let selected = null;
     function onSelect(e) {
         e.preventDefault();
-        if (!e.target || e.target.dataset.id === null) {
+        if (!e.target || e.target.dataset.id == null) {
             console.log("WRONG TARGET");
             return;
         }

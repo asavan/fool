@@ -1,25 +1,23 @@
 "use strict"; // jshint ;_;
 
-function newPlayer(name, ind, handlers) {
+import core from "./uno/basic.js"
+
+export default function newPlayer(name, ind) {
     const n = name;
     const i = ind;
     const deck = [];
     let score = 0;
 
-    const getName = () => { return n };
-    const getIndex = () => { return i };
-    const addCard = (card) => {
-        deck.push(card);
-    }
+    const getName = () => n;
+    const getIndex = () => i;
+    const addCard = (card) => deck.push(card);
     const pile = () => [...deck];
-    const cleanHand = async () => {
-        deck.length = 0;
-        await handlers['clearPlayer'](i);
-    }
-
+    const cleanHand = () => {deck.length = 0;}
     const updateScore = (s) => { score += s; }
     const setScore = (s) => { score = s; }
-    const getScore = () => { return score; }
+    const getScore = () => score;
+    const hasColor = (color) => core.pileHasColor(deck, color);
+    const hasCard = (card) => deck.includes(card);
 
     const removeCard = (card) => {
         const removeIndex = deck.indexOf(card);
@@ -40,10 +38,8 @@ function newPlayer(name, ind, handlers) {
         removeCard,
         updateScore,
         getScore,
-        setScore
+        setScore,
+        hasColor,
+        hasCard
     };
-}
-
-export default {
-    newPlayer
 }
