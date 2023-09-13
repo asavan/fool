@@ -1,6 +1,4 @@
 "use strict"; // jshint ;_;
-import {assert} from "./helper.js";
-
 
 export default function choosePlace(window, document, settings, handlers, players) {
     const box = document.querySelector(".places");

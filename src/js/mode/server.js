@@ -61,7 +61,7 @@ export default function server(window, document, settings, gameFunction) {
                 queue.enqueue({callback, res, fName: obj.method, id, data});
             }
         });
-        for (const [handlerName, callback] of Object.entries(actions)) {
+        for (const [handlerName,] of Object.entries(actions)) {
             game.on(handlerName, (n) => connection.sendAll(toObjJson(n, handlerName)));
         }
 

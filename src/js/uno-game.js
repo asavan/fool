@@ -1,9 +1,8 @@
 "use strict"; // jshint ;_;
-import {assert, delay} from "./helper.js";
+import {delay} from "./helper.js";
 import coreUnoFunc from "./uno.js";
 import colorChooser from "./choose_color.js";
 import layout from "./layout.js";
-import core from "./uno/basic.js";
 
 import {prng_alea} from 'esm-seedrandom';
 

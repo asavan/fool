@@ -46,7 +46,6 @@ async function report(callbackName, ...args) {
     }
 }
 
-let INITIAL_DEALT = 7;
 let MAX_SCORE = 500;
 let dealer = 0;
 let direction = 1;
@@ -59,7 +58,6 @@ let currentPlayer = null;
 let currentColor = null;
 let cardTaken = 0;
 let cardDiscarded = 0;
-let gameover = false;
 let roundover = true;
 
 
@@ -99,7 +97,7 @@ async function dealToPlayer(deck, playerIndex, external) {
     if (!external) {
         await handlers['draw']({playerIndex, card});
     } else {
-        await handlers['drawExternal']({playerIndex, card});
+        await report('drawExternal', {playerIndex, card});
     }
     return card;
 }
@@ -114,6 +112,7 @@ async function onDraw(playerIndex, card) {
         // return;
     }
     const cardFromDeck = await dealToPlayer(deck, playerIndex, true);
+    console.log("onDraw", cardFromDeck);
     cardTaken++;
     return true;
 }
@@ -135,7 +134,8 @@ async function onDrawPlayer(playerIndex) {
     }
     cardTaken++;
     const cardFromDeck = await dealToPlayer(deck, currentPlayer);
-    return cardFromDeck;
+    console.log("onDrawPlayer", cardFromDeck);
+    return true;
 }
 
 async function pass(playerIndex) {
@@ -173,6 +173,7 @@ async function onDiscard(card) {
     }
 
     const cardFromDeck = deck.deal();
+    localAssert(cardFromDeck === card, "Different cards");
     cardOnBoard = card;
     await handlers['discard'](card);
     const newColor = core.cardColor(card);
@@ -208,10 +209,6 @@ async function dealToDiscard(deck) {
 
 function on(name, f) {
     handlers[name] = f;
-}
-
-function getPlayer(ind) {
-    return players[ind];
 }
 
 function getPlayerIterator() {
@@ -262,7 +259,7 @@ async function chooseDealerInner(rngFunc) {
             const dealIndex = nextPlayer(i, n);
             currentPlayer = candidates[dealIndex].getIndex();
             // await handlers['changeCurrent']({currentPlayer, dealer, direction});
-          	  const card = await dealToPlayer(deck, currentPlayer);
+            const card = await dealToPlayer(deck, currentPlayer);
             const score = core.cardScore(card);
             console.log('>> ' + candidates[dealIndex].getName() + ': Player ' + i + ' draws '
                                 + core.cardToString(card) + ' and gets ' + score + ' points');
@@ -364,11 +361,6 @@ async function dealN(initialDealt, rngFunc) {
     await calcCardEffect(card, currentPlayer);
 }
 
-
-function playerHasCard(playerInd, card) {
-    return players[playerInd].pile().includes(card);
-}
-
 function getCurrentPlayerObj() {
     return players[currentPlayer];
 }
@@ -420,11 +412,11 @@ async function tryMove(playerInd, card) {
         return true;
     }
 
-    if (core.cardColor(card) == currentColor) {
+    if (core.cardColor(card) === currentColor) {
         return true;
     }
 
-    if (core.cardType(card) == cardType(cardOnBoard)) {
+    if (core.cardType(card) === core.cardType(cardOnBoard)) {
         return true;
     }
 
@@ -499,7 +491,7 @@ function calcScore() {
 async function moveToDiscard(playerIndex, card) {
     const res = await tryMove(playerIndex, card);
     if (res) {
-        const cardInd = players[playerIndex].removeCard(card);
+        players[playerIndex].removeCard(card);
         cardOnBoard = card;
         discardPile.push(card);
         const newColor = core.cardColor(card);
@@ -516,7 +508,7 @@ async function moveToDiscard(playerIndex, card) {
     return res;
 }
 
-async function checkGameEnd(playerIndex, maxScore) {
+async function checkGameEnd(playerIndex) {
     const player = players[playerIndex];
     if (player.pile().length === 0) {
         roundover = true;
@@ -558,7 +550,7 @@ function onPass(playerIndex) {
 async function onMoveToDiscard(playerIndex, card, nextColor) {
     const res = await onTryMove(playerIndex, card, nextColor);
     if (res) {
-        const cardInd = players[playerIndex].removeCard(card);
+        players[playerIndex].removeCard(card);
         cardOnBoard = card;
         discardPile.push(card);
         currentColor = nextColor;
@@ -631,7 +623,6 @@ function state() {
 }
 
 function resetToDefaults() {
-    INITIAL_DEALT = 7;
     MAX_SCORE = 500;
     dealer = 0;
     direction = 1;
@@ -644,7 +635,6 @@ function resetToDefaults() {
     currentColor = null;
     cardTaken = 0;
     cardDiscarded = 0;
-    gameover = false;
     roundover = true;
 }
 

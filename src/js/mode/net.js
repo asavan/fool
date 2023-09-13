@@ -3,7 +3,7 @@
 import connectionFunc from "../connection/client.js";
 import actionsFunc from "../actions.js";
 import Queue from "../utils/queue.js";
-import {removeElem, log} from "../helper.js";
+import {log} from "../helper.js";
 
 function toObjJson(v, method) {
     const value = {
@@ -34,7 +34,7 @@ function onConnectionAnimation(document, connection) {
     });
 }
 
-function setupOnData(connection, queue) {
+function setupOnData(connection, queue, actions) {
     connection.on('recv', async (data) => {
         // console.log(data);
         const obj = JSON.parse(data);
@@ -46,9 +46,8 @@ function setupOnData(connection, queue) {
     });
 }
 
-function setupActions(game) {
-    const actions = actionsFunc(game);
-    for (const [handlerName, callback] of Object.entries(actions)) {
+function setupActions(game, actions, connection) {
+    for (const [handlerName,] of Object.entries(actions)) {
         game.on(handlerName, (n) => connection.sendMessage(toObjJson(n, handlerName)));
     }
 }
@@ -83,8 +82,9 @@ export default function netMode(window, document, settings, gameFunction) {
             const queue = Queue();
             settings['externalId'] = myId;
             const game = gameFunction(window, document, settings);
-            setupOnData(connection, queue);
-            setupActions(game);
+            const actions = actionsFunc(game);
+            setupOnData(connection, queue, actions);
+            setupActions(game, actions, connection);
             game.onConnect();
             loop(queue, window);
             resolve(game);

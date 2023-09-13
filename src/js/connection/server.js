@@ -4,7 +4,7 @@ function stub(message) {
     console.log("Stub " + message);
 }
 
-const user = 'server';
+const server = 'server';
 
 const clients = {};
 
@@ -132,7 +132,7 @@ function createSignalingChannel(socketUrl) {
     const ws = new WebSocket(socketUrl);
 
     const send = (type, sdp, to) => {
-        const json = {from: "server", to: to, action: type, data: sdp};
+        const json = {from: server, to: to, action: type, data: sdp};
         logger.log("Sending [server] to [" + to + "]: " + JSON.stringify(sdp));
         return ws.send(JSON.stringify(json));
     };
@@ -203,7 +203,7 @@ const connectionFunc = function (settings, location) {
 
         signaling.onmessage = async function(text) {
             const json = JSON.parse(text);
-            if (json.from === "server") {
+            if (json.from === server) {
                 console.error("same user");
                 return;
             }

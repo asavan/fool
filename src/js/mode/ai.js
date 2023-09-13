@@ -1,9 +1,7 @@
 "use strict";
 
-import {assert} from "../helper.js";
-
 export default function ai(window, document, settings, gameFunction) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         settings.externalId = "client1";
         settings.cardsDeal = 1;
         settings.seed = 'h';
@@ -12,11 +10,11 @@ export default function ai(window, document, settings, gameFunction) {
         const game = gameFunction(window, document, settings);
 
         game.on("move", (move) => console.log(move));
-        game.on("draw", (move) => {});
-        game.on("shuffle", (deck) => {});
-        game.on("discard", (card) => {});
-        game.on("changeCurrent", (pl) => {});
-        game.on("clearPlayer", (pl) => {});
+        game.on("draw", () => {});
+        game.on("shuffle", () => {});
+        game.on("discard", () => {});
+        game.on("changeCurrent", () => {});
+        game.on("clearPlayer", () => {});
         game.join(0, 'server', 'server');
         for (let i = 1; i < 4; ++i) {
             const name = 'client' + i;
@@ -24,7 +22,7 @@ export default function ai(window, document, settings, gameFunction) {
         }
         game.afterAllJoined();
 
-        game.on("gameover", (score) => {
+        game.on("gameover", () => {
             const btnAdd = document.querySelector('.butInstall');
             btnAdd.classList.remove("hidden2");
         });

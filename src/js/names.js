@@ -1,6 +1,4 @@
 "use strict"; // jshint ;_;
-import {assert} from "./helper.js";
-
 
 export default function enterName(window, document, settings, handlers) {
     const formCont = document.querySelector(".name-form-cont");

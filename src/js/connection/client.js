@@ -5,7 +5,6 @@ function stub(message) {
 }
 
 let user = "";
-const user2 = "server";
 
 const handlers = {
     'recv': stub,
@@ -51,7 +50,7 @@ function sendNegotiation(type, sdp, ws) {
 }
 
 
-function createSignalingChannel(socketUrl, networkDebug) {
+function createSignalingChannel(socketUrl) {
     return new Promise((resolve, reject) => {
         const ws = new WebSocket(socketUrl);
 
@@ -67,14 +66,14 @@ function createSignalingChannel(socketUrl, networkDebug) {
         const onmessage = stub;
         const result = {onmessage, send, close};
 
-        ws.onopen = function (e) {
+        ws.onopen = function () {
             logger.log("Websocket opened");
             handlers['socket_open']();
             sendNegotiation("connected", {}, ws);
             resolve(result);
         };
 
-        ws.onclose = function (e) {
+        ws.onclose = function () {
             logger.log("Websocket closed");
             handlers['socket_close']();
         };
@@ -193,6 +192,7 @@ const connectionFunc = function (settings, location, id) {
             } else if (json.action === "answer") {
                 peerConnection.setRemoteDescription(json.data);
             } else if (json.action === "connected") {
+                // WHY we need this?
             } else if (json.action === "close") {
                 // need for server
             } else {
