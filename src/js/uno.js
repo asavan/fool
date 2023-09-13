@@ -630,8 +630,26 @@ function state() {
     }
 }
 
-export default function initCore(settings, rngFunc) {
+function resetToDefaults() {
+     INITIAL_DEALT = 7;
+     MAX_SCORE = 500;
+     dealer = 0;
+     direction = 1;
+     players = [];
+     deck = null;
+     isServer = true;
+     cardOnBoard = null;
+     discardPile = [];
+     currentPlayer = null;
+     currentColor = null;
+     cardTaken = 0;
+     cardDiscarded = 0;
+     gameover = false;
+     roundover = true;
+}
 
+export default function initCore(settings, rngFunc) {
+    resetToDefaults();
     if (settings.maxScore) {
         MAX_SCORE = settings.maxScore;
     }

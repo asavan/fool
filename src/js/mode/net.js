@@ -23,59 +23,75 @@ function makeid(length) {
     return result;
 }
 
+function onConnectionAnimation(document, connection) {
+    connection.on('socket_open', () => {
+        const grid = document.getElementsByClassName('places')[0];
+        grid.classList.add('loading');
+        connection.on('socket_close', () => {
+            grid.classList.remove('loading');
+            grid.classList.add('flying-cards');
+        });
+    });
+}
+
+function setupOnData(connection, queue) {
+    connection.on('recv', async (data) => {
+        // console.log(data);
+        const obj = JSON.parse(data);
+        const res = obj[obj.method];
+        const callback = actions[obj.method];
+        if (typeof callback === 'function') {
+            queue.enqueue({callback, res, fName: obj.method});
+        }
+    });
+}
+
+function setupActions(game) {
+    const actions = actionsFunc(game);
+    for (const [handlerName, callback] of Object.entries(actions)) {
+        game.on(handlerName, (n) => connection.sendMessage(toObjJson(n, handlerName)));
+    }
+}
+
+function loop(queue, window) {
+    let inProgress = false;
+
+    async function step() {
+        if (!queue.isEmpty() && !inProgress) {
+            const {callback, res, fName} = queue.dequeue();
+            console.log("Progress start", fName, inProgress);
+            inProgress = true;
+            await callback(res);
+            console.log("Progress stop", fName, inProgress);
+            inProgress = false;
+        }
+        window.requestAnimationFrame(step);
+    }
+    window.requestAnimationFrame(step);
+}
+
 export default function netMode(window, document, settings, gameFunction) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         const myId = makeid(6);
         const connection = connectionFunc(settings, window.location, myId);
         const logger = document.getElementsByClassName('log')[0];
         connection.on('error', (e) => {
             log(settings, e, logger);
         });
-        connection.on('socket_open', () => {
-            const grid = document.getElementsByClassName('places')[0];
-            grid.classList.add('loading');
-            connection.on('socket_close', () => {
-                grid.classList.remove('loading');
-                grid.classList.add('flying-cards');
-            });
-        });
-
+        onConnectionAnimation(document, connection);
         connection.on('open', () => {
-            settings['externalId'] = myId;
             const queue = Queue();
-            let inProgress = false;
+            settings['externalId'] = myId;
             const game = gameFunction(window, document, settings);
-            const actions = actionsFunc(game);
-            connection.on('recv', async (data) => {
-                // console.log(data);
-                const obj = JSON.parse(data);
-                const res = obj[obj.method];
-                const callback = actions[obj.method];
-                if (typeof callback === 'function') {
-                    queue.enqueue({callback, res, fName: obj.method});
-                }
-            });
-            for (const [handlerName, callback] of Object.entries(actions)) {
-                game.on(handlerName, (n) => connection.sendMessage(toObjJson(n, handlerName)));
-            }
+            setupOnData(connection, queue);
+            setupActions(game);
             game.onConnect();
-            async function step() {
-                if (!queue.isEmpty() && !inProgress) {
-                    const {callback, res, fName} = queue.dequeue();
-                    console.log("Progress start", fName, inProgress);
-                    inProgress = true;
-                    await callback(res);
-                    console.log("Progress stop", fName, inProgress);
-                    inProgress = false;
-                }
-                window.requestAnimationFrame(step);
-            }
-            window.requestAnimationFrame(step);
+            loop(queue, window);
             resolve(game);
         });
 
         try {
-            connection.connect();
+            await connection.connect();
         } catch (e) {
             log(settings, e, logger);
             reject(e);

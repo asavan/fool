@@ -9,7 +9,8 @@ export default function starter(window, document) {
 
     if (settings.mode === 'net') {
         import("./mode/net.js").then(netMode => {
-            netMode.default(window, document, settings, gameFunction);
+            netMode.default(window, document, settings, gameFunction).
+                catch((error) => {console.error(error);});
         });
     } else if (settings.mode === 'server') {
         import("./mode/server.js").then(serverMode => {

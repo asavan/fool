@@ -14,10 +14,6 @@ function toObjJson(v, method) {
     return JSON.stringify(value);
 }
 
-const clients = {};
-let index = 0;
-clients['server'] = {"index": index};
-
 function makeQr(window, document, settings) {
     const staticHost = settings.sh || window.location.href;
     const url = new URL(staticHost);
@@ -26,9 +22,12 @@ function makeQr(window, document, settings) {
 }
 
 export default function server(window, document, settings, gameFunction) {
+    const clients = {};
+    let index = 0;
+    clients['server'] = {"index": index};
+
     return new Promise(async (resolve, reject) => {
         const connection = connectionFunc(settings, window.location);
-        const color = settings.color;
         const logger = document.getElementsByClassName('log')[0];
         connection.on('error', (e) => {
             log(settings, e, logger);
@@ -113,7 +112,7 @@ export default function server(window, document, settings, gameFunction) {
         });
 
         try {
-            connection.connect();
+            await connection.connect();
         } catch (e) {
             log(settings, e, logger);
             reject(e);
