@@ -8,7 +8,7 @@ import connectionFunc from "../connection/server.js";
 
 function toObjJson(v, method) {
     const value = {
-        'method': method
+        "method": method
     };
     value[method] = v;
     return JSON.stringify(value);
@@ -24,15 +24,15 @@ function makeQr(window, document, settings) {
 export default function server(window, document, settings, gameFunction) {
     const clients = {};
     let index = 0;
-    clients['server'] = {"index": index};
+    clients["server"] = {"index": index};
 
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
         const connection = connectionFunc(settings, window.location);
-        const logger = document.getElementsByClassName('log')[0];
-        connection.on('error', (e) => {
+        const logger = document.getElementsByClassName("log")[0];
+        connection.on("error", (e) => {
             log(settings, e, logger);
         });
-        connection.on('socket_open', async () => {
+        connection.on("socket_open", async () => {
             const code = makeQr(window, document, settings);
             //            if (navigator.mediaDevices) {
             //                await navigator.mediaDevices.getUserMedia({
@@ -42,7 +42,7 @@ export default function server(window, document, settings, gameFunction) {
             //            } else {
             //                console.log("No mediaDevices")
             //            }
-            connection.on('socket_close', () => {
+            connection.on("socket_close", () => {
                 removeElem(code);
             });
         });
@@ -52,12 +52,12 @@ export default function server(window, document, settings, gameFunction) {
 
         const game = gameFunction(window, document, settings);
         const actions = actionsFunc(game, clients);
-        connection.on('recv', async (data, id) => {
+        connection.on("recv", async (data, id) => {
             // console.log(data);
             const obj = JSON.parse(data);
             const res = obj[obj.method];
             const callback = actions[obj.method];
-            if (typeof callback === 'function') {
+            if (typeof callback === "function") {
                 queue.enqueue({callback, res, fName: obj.method, id, data});
             }
         });
@@ -65,12 +65,12 @@ export default function server(window, document, settings, gameFunction) {
             game.on(handlerName, (n) => connection.sendAll(toObjJson(n, handlerName)));
         }
 
-        game.on('start', (data) => {
+        game.on("start", (data) => {
             connection.closeSocket();
-            connection.sendAll(toObjJson(data, 'start'));
+            connection.sendAll(toObjJson(data, "start"));
         });
 
-        connection.on('disconnect', (id) => {
+        connection.on("disconnect", (id) => {
             const is_disconnected = game.disconnect(id);
             if (is_disconnected) {
                 --index;
@@ -80,8 +80,8 @@ export default function server(window, document, settings, gameFunction) {
 
         });
 
-        game.on('username', (name) => game.join(0, name, 'server'));
-        game.on('swap', (id1, id2) => game.swap(id1, id2));
+        game.on("username", (name) => game.join(0, name, "server"));
+        game.on("swap", (id1, id2) => game.swap(id1, id2));
 
 
         async function step() {
@@ -106,16 +106,14 @@ export default function server(window, document, settings, gameFunction) {
         game.onConnect();
         resolve(game);
 
-        connection.on('open', async (id) => {
+        connection.on("open", async (id) => {
             ++index;
             clients[id] = {"index": index};
         });
 
-        try {
-            await connection.connect();
-        } catch (e) {
+        connection.connect().catch(e => {
             log(settings, e, logger);
             reject(e);
-        }
+        });
     });
 }

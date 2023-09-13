@@ -4,7 +4,7 @@ export default function ai(window, document, settings, gameFunction) {
     return new Promise((resolve) => {
         settings.externalId = "client1";
         settings.cardsDeal = 1;
-        settings.seed = 'h';
+        settings.seed = "h";
         settings.maxScore = 3;
         settings.clickAll = true;
         const game = gameFunction(window, document, settings);
@@ -15,15 +15,15 @@ export default function ai(window, document, settings, gameFunction) {
         game.on("discard", () => {});
         game.on("changeCurrent", () => {});
         game.on("clearPlayer", () => {});
-        game.join(0, 'server', 'server');
+        game.join(0, "server", "server");
         for (let i = 1; i < 4; ++i) {
-            const name = 'client' + i;
+            const name = "client" + i;
             game.join(i, name, name);
         }
         game.afterAllJoined();
 
         game.on("gameover", () => {
-            const btnAdd = document.querySelector('.butInstall');
+            const btnAdd = document.querySelector(".butInstall");
             btnAdd.classList.remove("hidden2");
         });
 

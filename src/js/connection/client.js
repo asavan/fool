@@ -7,12 +7,12 @@ function stub(message) {
 let user = "";
 
 const handlers = {
-    'recv': stub,
-    'open': stub,
-    'socket_open': stub,
-    'socket_close': stub,
-    'close': stub,
-    'error': stub,
+    "recv": stub,
+    "open": stub,
+    "socket_open": stub,
+    "socket_close": stub,
+    "close": stub,
+    "error": stub,
 };
 
 function stringifyEvent(e) {
@@ -21,10 +21,10 @@ function stringifyEvent(e) {
         obj[k] = e[k];
     }
     return JSON.stringify(obj, (k, v) => {
-        if (v instanceof Node) return 'Node';
-        if (v instanceof Window) return 'Window';
+        if (v instanceof Node) return "Node";
+        if (v instanceof Window) return "Window";
         return v;
-    }, ' ');
+    }, " ");
 }
 
 function logFunction(s) {
@@ -59,7 +59,7 @@ function createSignalingChannel(socketUrl) {
         };
         const close = () => {
         // iphone fires "onerror" on close socket
-            handlers['error'] = stub;
+            handlers["error"] = stub;
             ws.close();
         };
 
@@ -68,14 +68,14 @@ function createSignalingChannel(socketUrl) {
 
         ws.onopen = function () {
             logger.log("Websocket opened");
-            handlers['socket_open']();
+            handlers["socket_open"]();
             sendNegotiation("connected", {}, ws);
             resolve(result);
         };
 
         ws.onclose = function () {
             logger.log("Websocket closed");
-            handlers['socket_close']();
+            handlers["socket_close"]();
         };
 
         ws.onmessage = function (e) {
@@ -91,7 +91,7 @@ function createSignalingChannel(socketUrl) {
         };
         ws.onerror = function (e) {
             console.error(e);
-            handlers['error'](stringifyEvent(e));
+            handlers["error"](stringifyEvent(e));
             reject(e);
         };
         return result;
@@ -114,7 +114,7 @@ const connectionFunc = function (settings, location, id) {
         if (settings.wh) {
             return settings.wh;
         }
-        if (location.protocol === 'https:') {
+        if (location.protocol === "https:") {
             return null;
         }
         return "ws://" + location.hostname + ":" + settings.wsPort;
@@ -132,7 +132,7 @@ const connectionFunc = function (settings, location, id) {
 
         peerConnection.onicecandidate = e => {
             const message = {
-                type: 'candidate',
+                type: "candidate",
                 candidate: null,
             };
             if (e.candidate) {
@@ -156,11 +156,11 @@ const connectionFunc = function (settings, location, id) {
 
         setupDataChannel(dataChannel, signaling);
 
-        const sdpConstraints = {offerToReceiveAudio: false, offerToReceiveVideo: false};
+        // const sdpConstraints = {offerToReceiveAudio: false, offerToReceiveVideo: false};
 
         const offer = await peerConnection.createOffer();
         await peerConnection.setLocalDescription(offer);
-        signaling.send("offer", {type: 'offer', sdp: offer.sdp});
+        signaling.send("offer", {type: "offer", sdp: offer.sdp});
 
 
         signaling.onmessage = async function(text) {
@@ -205,7 +205,7 @@ const connectionFunc = function (settings, location, id) {
     function setupDataChannel(dataChannel, signaling) {
         dataChannel.onmessage = function (e) {
             logger.log("data get " + e.data);
-            handlers['recv'](e.data);
+            handlers["recv"](e.data);
         };
 
         dataChannel.onopen = function () {
@@ -213,7 +213,7 @@ const connectionFunc = function (settings, location, id) {
             isConnected = true;
             signaling.send("close", {});
             signaling.close();
-            handlers['open']();
+            handlers["open"]();
         };
 
         dataChannel.onclose = function () {

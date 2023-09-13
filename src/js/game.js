@@ -1,5 +1,4 @@
 "use strict"; // jshint ;_;
-import {assert, delay} from "./helper.js";
 import enterName from "./names.js";
 import choosePlaceFunc from "./places.js";
 import unoGameFunc from "./uno-game.js";
@@ -13,7 +12,7 @@ function stub1(message) {
 }
 
 function makeCommonSeed(players) {
-    let seed = '';
+    let seed = "";
     for (const pl of players) {
         seed += pl.external_id;
     }
@@ -23,22 +22,22 @@ function makeCommonSeed(players) {
 export default function game(window, document, settings) {
 
     const handlers = {
-        'move': stub,
-        'moveExternal': stub,
-        'drawExternal': stub,
-        'gameover': stub,
-        'username': stub,
-        'start': stub1,
-        'swap': stub1,
-        'pass': stub1,
-        'uno-start': stub1,
-        'shuffle': stub1,
-        'draw': stub1,
-        'discard': stub1,
-        'chooseColor': stub1,
-        'clearPlayer': stub,
-        'changeCurrent': stub,
-        'roundover': stub
+        "move": stub,
+        "moveExternal": stub,
+        "drawExternal": stub,
+        "gameover": stub,
+        "username": stub,
+        "start": stub1,
+        "swap": stub1,
+        "pass": stub1,
+        "uno-start": stub1,
+        "shuffle": stub1,
+        "draw": stub1,
+        "discard": stub1,
+        "chooseColor": stub1,
+        "clearPlayer": stub,
+        "changeCurrent": stub,
+        "roundover": stub
     };
 
     let unoGame = null;
@@ -78,7 +77,7 @@ export default function game(window, document, settings) {
         //        if (qr) {
         //            qr.innerHTML = '';
         //        }
-        handlers['start'](players);
+        handlers["start"](players);
     };
 
     const onDraw = (p, q) => {
@@ -93,7 +92,7 @@ export default function game(window, document, settings) {
         players = p;
         settings.seed = makeCommonSeed(players);
         unoGame = unoGameFunc(window, document, settings, players, handlers);
-        const grid = document.getElementsByClassName('places')[0];
+        const grid = document.getElementsByClassName("places")[0];
         grid.classList.remove("connected", "loading", "flying-cards");
     };
 
@@ -102,7 +101,7 @@ export default function game(window, document, settings) {
         startButton.addEventListener("click", start);
     }
 
-    if (settings.mode != 'ai') {
+    if (settings.mode != "ai") {
         enterName(window, document, settings, handlers);
     }
 
@@ -127,7 +126,7 @@ export default function game(window, document, settings) {
         await unoGame.start();
     };
 
-    on('onSeatsFinished', afterAllJoined);
+    on("onSeatsFinished", afterAllJoined);
 
     const onShuffle = (deck) => {
         if (unoGame == null) {

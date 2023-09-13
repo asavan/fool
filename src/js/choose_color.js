@@ -2,23 +2,18 @@
 
 import core from "./uno/basic.js";
 
-function stub(message) {
-    console.log("Stub " + message);
-}
-
 function chooseColorInternal(document, gameState) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         gameState.inColorChoose = true;
         const box = document.querySelector(".color-picker-holder");
         box.replaceChildren();
         const places = document.createElement("ul");
-        places.classList.add('color-grid');
+        places.classList.add("color-grid");
         box.appendChild(places);
 
         for (const color of core.GOOD_COLORS) {
             const colorItem = document.createElement("li");
             colorItem.classList.add(color);
-            // places.appendChild(colorItem);
             colorItem.addEventListener("click", e => {
                 e.preventDefault();
                 box.replaceChildren();
@@ -28,13 +23,13 @@ function chooseColorInternal(document, gameState) {
             places.appendChild(colorItem);
         }
         const cancel = document.createElement("li");
-        cancel.classList.add('cancel-color');
+        cancel.classList.add("cancel-color");
 
         cancel.addEventListener("click", e => {
             e.preventDefault();
             box.replaceChildren();
             gameState.inColorChoose = false;
-            resolve('black');
+            resolve("black");
         });
         places.appendChild(cancel);
     });

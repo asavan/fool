@@ -3,16 +3,16 @@ import core from "./uno/basic.js";
 
 function drawCard(p, cardItem) {
     const cardClone = cardItem.content.cloneNode(true).firstElementChild;
-    cardClone.style.setProperty('--sprite-x', (1400 - (p%14)*100) + '%');
-    cardClone.style.setProperty('--sprite-y', (800 - Math.floor(p/14)*100) + '%');
+    cardClone.style.setProperty("--sprite-x", (1400 - (p%14)*100) + "%");
+    cardClone.style.setProperty("--sprite-y", (800 - Math.floor(p/14)*100) + "%");
     cardClone.dataset.card = p;
     return cardClone;
 }
 
 function drawHand(document, parent, pile, engine, settings) {
     const hand = document.createElement("ul");
-    const cardItem = document.querySelector('#card');
-    hand.classList.add('hand');
+    const cardItem = document.querySelector("#card");
+    hand.classList.add("hand");
     if (settings && settings.sortByColor) {
         core.sortByTemplate(pile, settings.sortByColor, settings.colorOrder);
     }
@@ -24,17 +24,17 @@ function drawHand(document, parent, pile, engine, settings) {
 
 function drawDeck(document, parent, card, engine, mode, myIndex) {
     const hand = document.createElement("ul");
-    const cardItem = document.querySelector('#card');
-    hand.classList.add('hand');
+    const cardItem = document.querySelector("#card");
+    hand.classList.add("hand");
     hand.appendChild(drawCard(card, cardItem));
 
-    const backItem = document.querySelector('#back');
+    const backItem = document.querySelector("#back");
     const backClone = backItem.content.cloneNode(true).firstElementChild;
     hand.appendChild(backClone);
 
     backClone.addEventListener("click", async (e) => {
         e.preventDefault();
-        if (mode === 'ai') {
+        if (mode === "ai") {
             await engine.drawCurrent();
         } else {
             const res = await engine.onDrawPlayer(myIndex);
@@ -48,13 +48,13 @@ function drawDeck(document, parent, card, engine, mode, myIndex) {
 
 function drawPlayersInner(window, document, engine, myIndex, settings) {
     const root = document.documentElement;
-    root.style.setProperty('--card-width', "40px");
-    root.style.setProperty('--current-color', mapColor(engine.getCurrentColor()));
+    root.style.setProperty("--card-width", "40px");
+    root.style.setProperty("--current-color", mapColor(engine.getCurrentColor()));
 
     const box = document.querySelector(".places");
     box.replaceChildren();
     const places = document.createElement("ul");
-    places.classList.add('circle-wrapper');
+    places.classList.add("circle-wrapper");
     // places.style.position = 'relative';
     box.appendChild(places);
     const increaseDeg = 360 / engine.size();
@@ -78,14 +78,14 @@ function drawPlayersInner(window, document, engine, myIndex, settings) {
         console.log("Draw inner");
         drawHand(document, elem, pl.pile(), engine, settings);
         elem.dataset.id = i;
-        elem.dataset.angle = angleDeg + 'deg';
-        elem.style.setProperty('--angle-deg', angleDeg + 'deg');
-        elem.classList.add('circle', 'player-name');
+        elem.dataset.angle = angleDeg + "deg";
+        elem.style.setProperty("--angle-deg", angleDeg + "deg");
+        elem.classList.add("circle", "player-name");
         if (dealer === i) {
-            elem.classList.add('dealer');
+            elem.classList.add("dealer");
         }
         if (currentPlayer === i) {
-            elem.classList.add('current-player');
+            elem.classList.add("current-player");
         }
 
         places.appendChild(elem);
@@ -96,7 +96,7 @@ function drawPlayersInner(window, document, engine, myIndex, settings) {
         e.preventDefault();
         const cardEl = e.target.parentElement;
 
-        if (cardEl && cardEl.classList.contains('card')) {
+        if (cardEl && cardEl.classList.contains("card")) {
             const playerEl = cardEl.parentElement.parentElement;
             const card = parseInt(cardEl.dataset.card);
             const playerId = parseInt(playerEl.dataset.id);
@@ -123,9 +123,9 @@ function drawCenter(window, document, p, engine, mode, myIndex) {
 
 function drawMyHand(window, document, engine, myIndex, myPlayer, box, settings) {
     const elem = document.createElement("div");
-    elem.classList.add('my-hand');
+    elem.classList.add("my-hand");
     const statusRow = document.createElement("div");
-    statusRow.classList.add('row');
+    statusRow.classList.add("row");
     const nameElem = document.createElement("span");
     let name = myPlayer.getName();
     if (engine.getDealer() === myIndex) {
@@ -142,13 +142,13 @@ function drawMyHand(window, document, engine, myIndex, myPlayer, box, settings) 
     }
 
     const directionElem = document.createElement("span");
-    directionElem.classList.add('sprite-container');
+    directionElem.classList.add("sprite-container");
 
     const directionElem1 = document.createElement("div");
     if (engine.getDirection() > 0) {
-        directionElem1.classList.add('direction-forward');
+        directionElem1.classList.add("direction-forward");
     } else {
-        directionElem1.classList.add('direction-back');
+        directionElem1.classList.add("direction-back");
     }
     directionElem.appendChild(directionElem1);
     statusRow.appendChild(directionElem);
@@ -157,12 +157,10 @@ function drawMyHand(window, document, engine, myIndex, myPlayer, box, settings) 
 
 
     elem.dataset.id = myIndex;
-    elem.classList.add('player-name');
-    const dealer = engine.getDealer();
-    const currentPlayer = engine.getCurrentPlayer();
+    elem.classList.add("player-name");
 
-    if (currentPlayer === myIndex) {
-        elem.classList.add('current-player');
+    if (engine.getCurrentPlayer() === myIndex) {
+        elem.classList.add("current-player");
     }
 
 
@@ -171,7 +169,7 @@ function drawMyHand(window, document, engine, myIndex, myPlayer, box, settings) 
         e.preventDefault();
         const cardEl = e.target.parentElement;
 
-        if (cardEl && cardEl.classList.contains('card')) {
+        if (cardEl && cardEl.classList.contains("card")) {
             const card = parseInt(cardEl.dataset.card);
             await engine.moveToDiscard(myIndex, card);
         }
@@ -183,27 +181,27 @@ function drawMyHand(window, document, engine, myIndex, myPlayer, box, settings) 
 
 function mapColor(color) {
     const colors = {
-        'green': 'rgba(85, 170, 85, 0.4)',
-        'red' : 'rgba(255, 85, 85, 0.4)',
-        'yellow': 'rgba(255, 170, 0, 0.4)',
-        'blue': 'rgba(85, 85, 255, 0.4)',
+        "green": "rgba(85, 170, 85, 0.4)",
+        "red" : "rgba(255, 85, 85, 0.4)",
+        "yellow": "rgba(255, 170, 0, 0.4)",
+        "blue": "rgba(85, 85, 255, 0.4)",
     };
     const c = colors[color];
     if (c != null) {
         return c;
     }
-    return 'aliceblue';
+    return "aliceblue";
 }
 
 
 function drawLayout(window, document, engine, myIndex, settings) {
     const root = document.documentElement;
-    root.style.setProperty('--card-width', "50px");
-    root.style.setProperty('--current-color', mapColor(engine.getCurrentColor()));
+    root.style.setProperty("--card-width", "50px");
+    root.style.setProperty("--current-color", mapColor(engine.getCurrentColor()));
     const box = document.querySelector(".places");
     box.replaceChildren();
     const places = document.createElement("ul");
-    places.classList.add('circle-wrapper');
+    places.classList.add("circle-wrapper");
     box.appendChild(places);
     const increaseDeg = 360 / engine.size();
     // let angleDeg = 90;
@@ -226,7 +224,7 @@ function drawLayout(window, document, engine, myIndex, settings) {
             drawHand(document, elem, pl.pile(), engine, settings);
         } else {
             const pileElem = document.createElement("div");
-            pileElem.classList.add('player-name');
+            pileElem.classList.add("player-name");
 
             pileElem.innerText = pl.pile().length;
             elem.appendChild(pileElem);
@@ -250,11 +248,11 @@ function drawLayout(window, document, engine, myIndex, settings) {
 
 
         elem.dataset.id = i;
-        elem.dataset.angle = angleDeg + 'deg';
-        elem.style.setProperty('--angle-deg', angleDeg + 'deg');
-        elem.classList.add('circle');
+        elem.dataset.angle = angleDeg + "deg";
+        elem.style.setProperty("--angle-deg", angleDeg + "deg");
+        elem.classList.add("circle");
         if (currentPlayer === i) {
-            elem.classList.add('current-player');
+            elem.classList.add("current-player");
         }
         ++i;
 

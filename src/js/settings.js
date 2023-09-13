@@ -10,7 +10,7 @@ export default {
     clickAll: false,
     show: true,
     externalId: "server",
-    colorOrder: ['red', 'yellow', 'green', 'blue', 'black'],
-    sortByColor: '',
-    seed: ''
+    colorOrder: ["red", "yellow", "green", "blue", "black"],
+    sortByColor: "",
+    seed: ""
 };

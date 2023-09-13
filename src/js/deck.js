@@ -15,7 +15,7 @@ async function newShuffledDeck(handlers, rngFunc) {
     let deck = newDeck();
     shuffleArray(deck, rngFunc);
     console.log("New deck");
-    await handlers['shuffle'](deck);
+    await handlers["shuffle"](deck);
 
     return newExternalDeck(deck, handlers, rngFunc);
 }
@@ -47,7 +47,7 @@ function newExternalDeck(d, handlers, rngFunc) {
     async function addCardAndShuffle(card) {
         addCard(card);
         shuffleArray(deck, rngFunc);
-        await handlers['shuffle'](deck);
+        await handlers["shuffle"](deck);
     }
 
     return {deal, addCardAndShuffle, setDeck, checkTop};

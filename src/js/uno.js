@@ -4,6 +4,8 @@ import deckFunc from "./deck.js";
 import newPlayer from "./player.js";
 import core from "./uno/basic.js";
 
+import {assert} from "./helper.js";
+
 function stub(message) {
     console.log("Stub22 " + message);
 }
@@ -13,32 +15,29 @@ function stub1(message) {
 }
 
 function localAssert(condition, message) {
-    if (!condition) {
-        console.log(message);
-    }
+    assert(condition, message);
 }
 
 const handlers = {
-    'shuffle': stub1,
-    'deal': stub1,
-    'draw': stub1,
-    'discard': stub1,
-    'move': stub1,
-    'clearPlayer': stub1,
-    'ready': stub1,
-    'changeCurrent': stub1,
-    'changeDealer': stub1,
-    'gameover': stub1,
-    'roundover': stub1,
-    'pass': stub,
-    'drawExternal': stub,
-    'moveExternal': stub,
-    'chooseColor': getCurrentColor
+    "shuffle": stub1,
+    "deal": stub1,
+    "draw": stub1,
+    "discard": stub1,
+    "move": stub1,
+    "clearPlayer": stub1,
+    "changeCurrent": stub1,
+    "changeDealer": stub1,
+    "gameover": stub1,
+    "roundover": stub1,
+    "pass": stub,
+    "drawExternal": stub,
+    "moveExternal": stub,
+    "chooseColor": getCurrentColor
 };
 
 async function report(callbackName, ...args) {
     const callback = handlers[callbackName];
-    if (typeof(callback) === 'function') {
+    if (typeof(callback) === "function") {
         console.log(callbackName);
         return await callback(...args);
     } else {
@@ -95,9 +94,9 @@ async function dealToPlayer(deck, playerIndex, external) {
     const card = deck.deal();
     players[playerIndex].addCard(card);
     if (!external) {
-        await handlers['draw']({playerIndex, card});
+        await handlers["draw"]({playerIndex, card});
     } else {
-        await report('drawExternal', {playerIndex, card});
+        await report("drawExternal", {playerIndex, card});
     }
     return card;
 }
@@ -154,7 +153,7 @@ async function pass(playerIndex) {
         return;
     }
     await next();
-    await handlers['pass']({playerIndex});
+    await handlers["pass"]({playerIndex});
     return true;
 }
 
@@ -175,9 +174,9 @@ async function onDiscard(card) {
     const cardFromDeck = deck.deal();
     localAssert(cardFromDeck === card, "Different cards");
     cardOnBoard = card;
-    await handlers['discard'](card);
+    await handlers["discard"](card);
     const newColor = core.cardColor(card);
-    if (newColor !== 'black') {
+    if (newColor !== "black") {
         discardPile.push(card);
         currentColor = newColor;
     }
@@ -190,17 +189,17 @@ async function dealToDiscard(deck) {
     roundover = false;
 
     currentPlayer = dealer;
-    await handlers['changeCurrent']({currentPlayer, dealer, direction});
+    await handlers["changeCurrent"]({currentPlayer, dealer, direction});
 
     let card = deck.deal();
     cardOnBoard = card;
-    await handlers['discard'](card);
-    while (core.cardColor(card) === 'black') {
+    await handlers["discard"](card);
+    while (core.cardColor(card) === "black") {
         cardOnBoard = null;
         await deck.addCardAndShuffle(card);
         card = deck.deal();
         cardOnBoard = card;
-        await handlers['discard'](card);
+        await handlers["discard"](card);
     }
     discardPile.push(card);
     currentColor = core.cardColor(card);
@@ -261,8 +260,8 @@ async function chooseDealerInner(rngFunc) {
             // await handlers['changeCurrent']({currentPlayer, dealer, direction});
             const card = await dealToPlayer(deck, currentPlayer);
             const score = core.cardScore(card);
-            console.log('>> ' + candidates[dealIndex].getName() + ': Player ' + i + ' draws '
-                                + core.cardToString(card) + ' and gets ' + score + ' points');
+            console.log(">> " + candidates[dealIndex].getName() + ": Player " + i + " draws "
+                                + core.cardToString(card) + " and gets " + score + " points");
             scores[dealIndex] = score;
             max = Math.max(max, score);
         }
@@ -280,8 +279,8 @@ async function chooseDealerInner(rngFunc) {
         console.error("No cand", candidates);
     }
     currentPlayer = dealer;
-    await handlers['changeCurrent']({currentPlayer, dealer, direction});
-    console.log('dealer was chosen', currentPlayer, dealer);
+    await handlers["changeCurrent"]({currentPlayer, dealer, direction});
+    console.log("dealer was chosen", currentPlayer, dealer);
 }
 
 async function cleanAllHands(rngFunc) {
@@ -289,7 +288,7 @@ async function cleanAllHands(rngFunc) {
     discardPile = [];
     for (const pl of players) {
         pl.cleanHand();
-        await handlers['clearPlayer'](pl.getIndex());
+        await handlers["clearPlayer"](pl.getIndex());
     }
     deck = await deckFunc.newShuffledDeck(handlers, rngFunc);
 }
@@ -298,15 +297,8 @@ async function cleanHand(playerIndex) {
     cardOnBoard = null;
     discardPile = [];
     players[playerIndex].cleanHand();
-    await handlers['clearPlayer'](playerIndex);
+    await handlers["clearPlayer"](playerIndex);
 }
-
-
-function setActivePlayer(ind) {
-    currentPlayer = ind;
-    handlers["ready"](ind);
-}
-
 
 function skip() {
     currentPlayer = calcNextFromCurrent(currentPlayer, players.length);
@@ -318,25 +310,25 @@ async function calcCardEffect(card, playerInd) {
     const type = core.cardType(card);
     console.log("calcCardEffect", playerInd, currentPlayer, type);
 
-    if (type === 'Reverse') {
+    if (type === "Reverse") {
         reverse();
         if (players.length === 2) {
             skip();
         }
     }
 
-    if (type === 'Skip') {
+    if (type === "Skip") {
         skip();
     }
 
-    if (type === 'Draw2') {
+    if (type === "Draw2") {
         skip();
         for (let i = 0; i < 2; ++i) {
             await dealToPlayer(deck, currentPlayer);
         }
     }
 
-    if (type === 'Draw4') {
+    if (type === "Draw4") {
         skip();
         for (let i = 0; i < 4; ++i) {
             await dealToPlayer(deck, currentPlayer);
@@ -387,7 +379,7 @@ async function tryMove(playerInd, card) {
         return false;
     }
 
-    if (core.cardType(card) === 'Wild') {
+    if (core.cardType(card) === "Wild") {
         const newColor = await handlers["chooseColor"](playerInd);
         if (!core.GOOD_COLORS.includes(newColor)) {
             console.error("Wrong color", newColor);
@@ -397,7 +389,7 @@ async function tryMove(playerInd, card) {
         return true;
     }
 
-    if (core.cardType(card) === 'Draw4') {
+    if (core.cardType(card) === "Draw4") {
         if (getCurrentPlayerObj().hasColor(currentColor)) {
             return false;
         }
@@ -451,11 +443,11 @@ async function onTryMove(playerInd, card, nextColor) {
         return false;
     }
 
-    if (core.cardType(card) === 'Wild') {
+    if (core.cardType(card) === "Wild") {
         return true;
     }
 
-    if (core.cardType(card) === 'Draw4') {
+    if (core.cardType(card) === "Draw4") {
         return !getCurrentPlayerObj().hasColor(currentColor);
     }
 
@@ -495,7 +487,7 @@ async function moveToDiscard(playerIndex, card) {
         cardOnBoard = card;
         discardPile.push(card);
         const newColor = core.cardColor(card);
-        if (newColor != 'black') {
+        if (newColor != "black") {
             currentColor = newColor;
         }
         ++cardDiscarded;
@@ -515,9 +507,9 @@ async function checkGameEnd(playerIndex) {
         const diff = calcScore();
         player.updateScore(diff);
         if (player.getScore() >= MAX_SCORE) {
-            await handlers['gameover']({ playerIndex, score: player.getScore(), diff });
+            await handlers["gameover"]({ playerIndex, score: player.getScore(), diff });
         } else {
-            await handlers['roundover']({ playerIndex, score: player.getScore(), diff });
+            await handlers["roundover"]({ playerIndex, score: player.getScore(), diff });
         }
     }
 }
@@ -569,7 +561,7 @@ async function next() {
     cardTaken = 0;
     cardDiscarded = 0;
     console.log("Current change", currentPlayer);
-    await handlers['changeCurrent']({currentPlayer, dealer, direction});
+    await handlers["changeCurrent"]({currentPlayer, dealer, direction});
     return true;
 }
 
@@ -580,7 +572,7 @@ async function nextDealer() {
     roundover = false;
     cardTaken = 0;
     cardDiscarded = 0;
-    return await handlers['changeCurrent']({currentPlayer, dealer, direction});
+    return await handlers["changeCurrent"]({currentPlayer, dealer, direction});
 }
 
 async function drawCurrent() {

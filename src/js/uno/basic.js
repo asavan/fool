@@ -1,6 +1,6 @@
 "use strict";
 
-const GOOD_COLORS = ['red', 'yellow', 'green', 'blue'];
+const GOOD_COLORS = ["red", "yellow", "green", "blue"];
 Object.freeze(GOOD_COLORS);
 
 const GameStage = Object.freeze({
@@ -20,24 +20,24 @@ const GameStage = Object.freeze({
 function cardColor(num) {
     let color;
     if (num % 14 === 13) {
-        return 'black';
+        return "black";
     }
     switch (Math.floor(num / 14)) {
     case 0:
     case 4:
-        color = 'red';
+        color = "red";
         break;
     case 1:
     case 5:
-        color = 'yellow';
+        color = "yellow";
         break;
     case 2:
     case 6:
-        color = 'green';
+        color = "green";
         break;
     case 3:
     case 7:
-        color = 'blue';
+        color = "blue";
         break;
     }
     return color;
@@ -52,19 +52,19 @@ function cardColor(num) {
 function cardType(num) {
     switch (num % 14) {
     case 10: //Skip
-        return 'Skip';
+        return "Skip";
     case 11: //Reverse
-        return 'Reverse';
+        return "Reverse";
     case 12: //Draw 2
-        return 'Draw2';
+        return "Draw2";
     case 13: //Wild or Wild Draw 4
         if (Math.floor(num / 14) >= 4) {
-            return 'Draw4';
+            return "Draw4";
         } else {
-            return 'Wild';
+            return "Wild";
         }
     default:
-        return 'Number ' + (num % 14);
+        return "Number " + (num % 14);
     }
 }
 
@@ -99,7 +99,7 @@ function sortByTemplate(pile, sortDirection, colors) {
         const c1 = cardColor(p1);
         const c2 = cardColor(p2);
         if (c1 === c2) {
-            if (sortDirection === 'asc') {
+            if (sortDirection === "asc") {
                 return cardScore(p1) - cardScore(p2);
             } else {
                 return cardScore(p2) - cardScore(p1);
@@ -107,7 +107,7 @@ function sortByTemplate(pile, sortDirection, colors) {
         }
         for (const c of colors) {
             if (c === c1) {
-                if (sortDirection === 'asc') {
+                if (sortDirection === "asc") {
                     return -1;
                 } else {
                     return 1;
@@ -115,7 +115,7 @@ function sortByTemplate(pile, sortDirection, colors) {
             }
 
             if (c === c2) {
-                if (sortDirection === 'asc') {
+                if (sortDirection === "asc") {
                     return 1;
                 } else {
                     return -1;

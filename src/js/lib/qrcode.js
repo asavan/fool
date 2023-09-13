@@ -1,4 +1,4 @@
-
+/* eslint-disable */
 /**
  * @fileoverview
  * - modified davidshimjs/qrcodejs library for use in node.js

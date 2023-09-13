@@ -5,7 +5,7 @@ export default function enterName(window, document, settings, handlers) {
     const data = window.sessionStorage.getItem("username");
     if (data) {
         console.log("Send name data", data);
-        handlers['username'](data);
+        handlers["username"](data);
         formCont.replaceChildren();
         return;
     }
@@ -13,22 +13,22 @@ export default function enterName(window, document, settings, handlers) {
     if (formCont.childElementCount > 0) {
         return;
     }
-    const formItem = document.querySelector('#nameform');
+    const formItem = document.querySelector("#nameform");
     const formClone = formItem.content.cloneNode(true).firstElementChild;
     formCont.replaceChildren(formClone);
 
     const form = document.querySelector(".nameform");
     const input = document.querySelector(".nameinput");
     const field = document.querySelector(".container");
-    if (settings.mode == 'net') {
-        field.classList.add('hidden');
+    if (settings.mode == "net") {
+        field.classList.add("hidden");
     }
 
     function onName(name) {
-        handlers['username'](name);
+        handlers["username"](name);
         console.log("On name", name);
-        form.classList.add('hidden');
-        field.classList.remove('hidden');
+        form.classList.add("hidden");
+        field.classList.remove("hidden");
         formCont.replaceChildren();
     }
 

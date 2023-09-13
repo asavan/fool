@@ -7,15 +7,15 @@ import {log} from "../helper.js";
 
 function toObjJson(v, method) {
     const value = {
-        'method': method
+        "method": method
     };
     value[method] = v;
     return JSON.stringify(value);
 }
 
 function makeid(length) {
-    let result = '';
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = "";
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     const charactersLength = characters.length;
     for ( let i = 0; i < length; i++ ) {
         result += characters.charAt(Math.floor(Math.random() * charactersLength));
@@ -24,23 +24,23 @@ function makeid(length) {
 }
 
 function onConnectionAnimation(document, connection) {
-    connection.on('socket_open', () => {
-        const grid = document.getElementsByClassName('places')[0];
-        grid.classList.add('loading');
-        connection.on('socket_close', () => {
-            grid.classList.remove('loading');
-            grid.classList.add('flying-cards');
+    connection.on("socket_open", () => {
+        const grid = document.getElementsByClassName("places")[0];
+        grid.classList.add("loading");
+        connection.on("socket_close", () => {
+            grid.classList.remove("loading");
+            grid.classList.add("flying-cards");
         });
     });
 }
 
 function setupOnData(connection, queue, actions) {
-    connection.on('recv', async (data) => {
+    connection.on("recv", async (data) => {
         // console.log(data);
         const obj = JSON.parse(data);
         const res = obj[obj.method];
         const callback = actions[obj.method];
-        if (typeof callback === 'function') {
+        if (typeof callback === "function") {
             queue.enqueue({callback, res, fName: obj.method});
         }
     });
@@ -70,17 +70,17 @@ function loop(queue, window) {
 }
 
 export default function netMode(window, document, settings, gameFunction) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
         const myId = makeid(6);
         const connection = connectionFunc(settings, window.location, myId);
-        const logger = document.getElementsByClassName('log')[0];
-        connection.on('error', (e) => {
+        const logger = document.getElementsByClassName("log")[0];
+        connection.on("error", (e) => {
             log(settings, e, logger);
         });
         onConnectionAnimation(document, connection);
-        connection.on('open', () => {
+        connection.on("open", () => {
             const queue = Queue();
-            settings['externalId'] = myId;
+            settings["externalId"] = myId;
             const game = gameFunction(window, document, settings);
             const actions = actionsFunc(game);
             setupOnData(connection, queue, actions);
@@ -90,11 +90,10 @@ export default function netMode(window, document, settings, gameFunction) {
             resolve(game);
         });
 
-        try {
-            await connection.connect();
-        } catch (e) {
+        connection.connect().catch(e => {
             log(settings, e, logger);
             reject(e);
-        }
+        });
+
     });
 }

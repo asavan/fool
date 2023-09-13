@@ -1,9 +1,9 @@
 "use strict";
 import {hideElem, showElem} from "./helper.js";
 export default function install(window, document) {
-    const btnAdd = document.querySelector('.butInstall');
+    const btnAdd = document.querySelector(".butInstall");
     let deferredPrompt;
-    btnAdd.addEventListener('click', (e) => {
+    btnAdd.addEventListener("click", (e) => {
         e.preventDefault();
         hideElem(btnAdd);
         // Show the prompt
@@ -14,7 +14,7 @@ export default function install(window, document) {
         });
     });
 
-    window.addEventListener('beforeinstallprompt', (e) => {
+    window.addEventListener("beforeinstallprompt", (e) => {
         // Prevent the mini-info bar from appearing.
         e.preventDefault();
         // Stash the event so it can be triggered later.

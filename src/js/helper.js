@@ -20,10 +20,10 @@ export function removeElem(el) {
 
 export function log(settings, message, el) {
     if (settings.logger) {
-        if (typeof message == 'object') {
-            el.innerHTML += (JSON && JSON.stringify ? JSON.stringify(message) : message) + '<br />';
+        if (typeof message == "object") {
+            el.innerHTML += (JSON && JSON.stringify ? JSON.stringify(message) : message) + "<br />";
         } else {
-            el.innerHTML += message + '<br />';
+            el.innerHTML += message + "<br />";
         }
     }
     console.log(message);
@@ -60,6 +60,6 @@ export function assert(b, message) {
     throw message;
 }
 
-export function pluralize(count, noun, suffix = 's'){
-    return `${count} ${noun}${count !== 1 ? suffix : ''}`;
+export function pluralize(count, noun, suffix = "s"){
+    return `${count} ${noun}${count !== 1 ? suffix : ""}`;
 }
