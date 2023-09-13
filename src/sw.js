@@ -1,15 +1,15 @@
 /* eslint-env serviceworker */
 
-const version = "1.0.0";
-const CACHE = 'cache-only-' + version;
+const version = "1.0.2";
+const CACHE = "cache-only-" + version;
 
-self.addEventListener('install', function (evt) {
+self.addEventListener("install", function (evt) {
     evt.waitUntil(precache().then(function () {
         return self.skipWaiting();
     }));
 });
 
-self.addEventListener('activate', function (evt) {
+self.addEventListener("activate", function (evt) {
     evt.waitUntil(
         caches.keys().then(function (cacheNames) {
             return Promise.all(
@@ -25,7 +25,7 @@ self.addEventListener('activate', function (evt) {
     );
 });
 
-self.addEventListener('fetch', function (evt) {
+self.addEventListener("fetch", function (evt) {
     evt.respondWith(networkOrCache(evt.request));
     //     .catch(function () {
     //     return useFallback();
@@ -42,16 +42,16 @@ function networkOrCache(request) {
         });
 }
 
-function useFallback() {
-    return caches.open(CACHE).then(function (cache) {
-        return cache.match('./');
-    });
-}
+//function useFallback() {
+//    return caches.open(CACHE).then(function (cache) {
+//        return cache.match("./");
+//    });
+//}
 
 function fromCache(request) {
     return caches.open(CACHE).then(function (cache) {
         return cache.match(request, {ignoreSearch: true}).then(function (matching) {
-            return matching || Promise.reject('request-not-in-cache');
+            return matching || Promise.reject("request-not-in-cache");
         });
     });
 }

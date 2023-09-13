@@ -6,7 +6,6 @@ function stub(message) {
 
 const server = "server";
 
-const clients = {};
 
 const handlers = {
     "recv": stub,
@@ -46,7 +45,7 @@ function logFunction(s) {
 const logger = logFunction(null);
 
 
-function setupDataChannel(dataChannel, signaling, id) {
+function setupDataChannel(dataChannel, signaling, id, clients) {
     dataChannel.onmessage = function (e) {
         logger.log("get data " + e.data);
         handlers["recv"](e.data, id);
@@ -111,7 +110,7 @@ async function processOffer(offer, peerConnection, signaling, id) {
 }
 
 
-async function ConnectionData(id, signaling) {
+async function ConnectionData(id, signaling, clients) {
     const client = clients[id];
     if (client) {
         // cleanup
@@ -120,7 +119,7 @@ async function ConnectionData(id, signaling) {
     const pc = await SetupFreshConnection(signaling, id);
 
     pc.ondatachannel = (ev) => {
-        setupDataChannel(ev.channel, signaling, id);
+        setupDataChannel(ev.channel, signaling, id, clients);
         clients[id].dc = ev.channel;
     };
     clients[id] = {pc: pc, dc: null};
@@ -175,6 +174,8 @@ function createSignalingChannel(socketUrl) {
 
 const connectionFunc = function (settings, location) {
 
+    const clients = {};
+
     logger.init(settings);
     let signalChannel = null;
 
@@ -224,7 +225,7 @@ const connectionFunc = function (settings, location) {
                 }
 
             } else if (json.action === "offer") {
-                const pc = await ConnectionData(json.from, signaling);
+                const pc = await ConnectionData(json.from, signaling, clients);
                 await processOffer(json.data, pc, signaling, json.from);
             } else if (json.action === "connected") {
                 // TODO delete?

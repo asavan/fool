@@ -1,16 +1,16 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
+import path from "path";
+import { fileURLToPath } from "url";
 
-import HtmlWebpackPlugin from 'html-webpack-plugin';
+import HtmlWebpackPlugin from "html-webpack-plugin";
 import HTMLInlineCSSWebpackPlugin from "html-inline-css-webpack-plugin";
-import MiniCssExtractPlugin from 'mini-css-extract-plugin';
-import TerserJSPlugin from 'terser-webpack-plugin';
-import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
-import {InjectManifest} from 'workbox-webpack-plugin';
-import CopyPlugin from 'copy-webpack-plugin'
-import webpack from 'webpack'
+import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import TerserJSPlugin from "terser-webpack-plugin";
+import CssMinimizerPlugin from "css-minimizer-webpack-plugin";
+import {InjectManifest} from "workbox-webpack-plugin";
+import CopyPlugin from "copy-webpack-plugin";
+import webpack from "webpack";
 
-const prodConfig = (env, argv) => {
+const prodConfig = () => {
     const dirname = path.dirname(fileURLToPath(import.meta.url));
     return {
 
@@ -26,7 +26,7 @@ const prodConfig = (env, argv) => {
                     test: /\.css$/i,
                     use: [{
                         loader: MiniCssExtractPlugin.loader
-                    }, 'css-loader'],
+                    }, "css-loader"],
                 }
             ]
         },
@@ -42,7 +42,7 @@ const prodConfig = (env, argv) => {
         },
         plugins: [
             new MiniCssExtractPlugin({
-                filename: '[name].[contenthash].css'
+                filename: "[name].[contenthash].css"
             }),
             new HtmlWebpackPlugin({
                 template: "./src/index.html",
@@ -50,8 +50,8 @@ const prodConfig = (env, argv) => {
             }),
             new HTMLInlineCSSWebpackPlugin.default(),
             new InjectManifest({
-                swDest: 'sw.js',
-                swSrc: './src/sw.js',
+                swDest: "sw.js",
+                swSrc: "./src/sw.js",
                 exclude: [
                     /index\.html$/,
                     /CNAME$/,
@@ -65,14 +65,14 @@ const prodConfig = (env, argv) => {
             }),
             new CopyPlugin({
                 patterns: [
-                    { from: './src/images', to: './images' },
-                    { from: './github', to: './' },
-                    { from: './src/manifest.json', to: './' },
-                    { from: './.well-known', to: './.well-known' }
+                    { from: "./src/images", to: "./images" },
+                    { from: "./github", to: "./" },
+                    { from: "./src/manifest.json", to: "./" },
+                    { from: "./.well-known", to: "./.well-known" }
                 ],
             })
         ]
-    }
+    };
 };
 
 export default prodConfig;

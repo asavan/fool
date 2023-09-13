@@ -1,6 +1,6 @@
 {
   "name": "fool",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "author": "Alex Sav",
   "description": "Simple uno game",
   "private": true,
@@ -16,8 +16,8 @@
     "all": "npm-run-all -p -r ws start",
     "android": "webpack --config webpack_configs/android.webpack.config.js --mode production",
     "build": "webpack --config webpack_configs/production.webpack.config.js --mode production",
-    "style": "npx eslint ./src/js",
-    "style:fix": "npx eslint ./src/js --fix",
+    "style": "npx eslint .",
+    "style:fix": "npx eslint . --fix",
     "test": "node --test --test-reporter dot",
     "test:verbose": "node --test",
     "test:watch": "node --test --watch ./tests",
