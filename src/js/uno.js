@@ -467,16 +467,16 @@ async function onTryMove(playerInd, card, nextColor) {
         return !getCurrentPlayerObj().hasColor(currentColor);
     }
 
-    if (core.cardColor(card) != nextColor) {
+    if (core.cardColor(card) !== nextColor) {
         console.error("Wrong next color", nextColor, card);
         return false;
     }
 
-    if (core.cardColor(card) == currentColor) {
+    if (core.cardColor(card) === currentColor) {
         return true;
     }
 
-    if (core.cardType(card) == core.cardType(cardOnBoard)) {
+    if (core.cardType(card) === core.cardType(cardOnBoard)) {
         return true;
     }
 
@@ -507,7 +507,7 @@ async function moveToDiscard(playerIndex, card) {
             currentColor = newColor;
         }
         ++cardDiscarded;
-        await handlers["move"]({playerIndex, card, currentColor});
+        await handlers["move"]({ playerIndex, card, currentColor });
         if (isServer) {
             await calcCardEffect(card, currentPlayer);
             await checkGameEnd(playerIndex);
@@ -523,9 +523,9 @@ async function checkGameEnd(playerIndex, maxScore) {
         const diff = calcScore();
         player.updateScore(diff);
         if (player.getScore() >= MAX_SCORE) {
-            await handlers['gameover']({playerIndex, score: player.getScore(), diff});
+            await handlers['gameover']({ playerIndex, score: player.getScore(), diff });
         } else {
-            await handlers['roundover']({playerIndex, score: player.getScore(), diff});
+            await handlers['roundover']({ playerIndex, score: player.getScore(), diff });
         }
     }
 }

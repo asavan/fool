@@ -98,15 +98,15 @@ function sortByTemplate(pile, sortDirection, colors) {
     pile.sort((p1, p2) => {
         const c1 = cardColor(p1);
         const c2 = cardColor(p2);
-        if (c1 == c2) {
+        if (c1 === c2) {
             if (sortDirection === 'asc') {
-                return cardScore(p1)-cardScore(p2);
+                return cardScore(p1) - cardScore(p2);
             } else {
-                return cardScore(p2)-cardScore(p1);
+                return cardScore(p2) - cardScore(p1);
             }
         }
         for (const c of colors) {
-            if (c == c1) {
+            if (c === c1) {
                 if (sortDirection === 'asc') {
                     return -1;
                 } else {
@@ -114,7 +114,7 @@ function sortByTemplate(pile, sortDirection, colors) {
                 }
             }
 
-            if (c == c2) {
+            if (c === c2) {
                 if (sortDirection === 'asc') {
                     return 1;
                 } else {
@@ -142,4 +142,4 @@ export default {
     sortByTemplate,
     pileHasColor,
     cardToString
-}
+};
