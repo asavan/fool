@@ -1,3 +1,5 @@
+/* eslint-env serviceworker */
+
 const version = "1.0.0";
 const CACHE = 'cache-only-' + version;
 
