@@ -7,12 +7,12 @@
     --main-color: #F0F8FF;
     --player-color: chartreuse;
     --field-size: 4;
-    --card-width: 30px;
+    --card-width: 50px;
     --color-green: rgba(85, 170, 85);
     --color-red: rgba(255, 85, 85);
     --color-yellow: rgba(255, 170, 0);
     --color-blue: rgba(85, 85, 255);
-    --current-color: chartreuse;
+    --current-color: aliceblue;
 }
 
 

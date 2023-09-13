@@ -4,7 +4,7 @@ import assert from 'node:assert/strict'
 import core from "../../src/js/uno/basic.js"
 
 test('hello', () => {
-  const message = 'Hello'
+  const message = 'Hello1'
   assert.equal(message, 'Hello', 'checking the greeting')
 });
 
