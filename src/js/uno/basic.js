@@ -4,10 +4,10 @@ const GOOD_COLORS = ['red', 'yellow', 'green', 'blue'];
 Object.freeze(GOOD_COLORS);
 
 const GameStage = Object.freeze({
-  chooseDealer: 1,
-  dealing: 2,
-  round: 3,
-  gameOver: 4
+    chooseDealer: 1,
+    dealing: 2,
+    round: 3,
+    gameOver: 4
 });
 
 
@@ -18,29 +18,29 @@ const GameStage = Object.freeze({
  * @return {String} Card color. Either black, red, yellow, green or blue.
  */
 function cardColor(num) {
-  let color;
-  if (num % 14 === 13) {
-    return 'black';
-  }
-  switch (Math.floor(num / 14)) {
+    let color;
+    if (num % 14 === 13) {
+        return 'black';
+    }
+    switch (Math.floor(num / 14)) {
     case 0:
     case 4:
-      color = 'red';
-      break;
+        color = 'red';
+        break;
     case 1:
     case 5:
-      color = 'yellow';
-      break;
+        color = 'yellow';
+        break;
     case 2:
     case 6:
-      color = 'green';
-      break;
+        color = 'green';
+        break;
     case 3:
     case 7:
-      color = 'blue';
-      break;
-  }
-  return color;
+        color = 'blue';
+        break;
+    }
+    return color;
 }
 
 /**
@@ -50,22 +50,22 @@ function cardColor(num) {
  * @return {String} Card type. Either skip, reverse, draw2, draw4, wild or number.
  */
 function cardType(num) {
-  switch (num % 14) {
+    switch (num % 14) {
     case 10: //Skip
-      return 'Skip';
+        return 'Skip';
     case 11: //Reverse
-      return 'Reverse';
+        return 'Reverse';
     case 12: //Draw 2
-      return 'Draw2';
+        return 'Draw2';
     case 13: //Wild or Wild Draw 4
-      if (Math.floor(num / 14) >= 4) {
-        return 'Draw4';
-      } else {
-        return 'Wild';
-      }
+        if (Math.floor(num / 14) >= 4) {
+            return 'Draw4';
+        } else {
+            return 'Wild';
+        }
     default:
-      return 'Number ' + (num % 14);
-  }
+        return 'Number ' + (num % 14);
+    }
 }
 
 /**
@@ -75,21 +75,21 @@ function cardType(num) {
  * @return {Number} Points value.
  */
 function cardScore(num) {
-  let points;
-  switch (num % 14) {
+    let points;
+    switch (num % 14) {
     case 10: //Skip
     case 11: //Reverse
     case 12: //Draw 2
-      points = 20;
-      break;
+        points = 20;
+        break;
     case 13: //Wild or Wild Draw 4
-      points = 50;
-      break;
+        points = 50;
+        break;
     default:
-      points = num % 14;
-      break;
-  }
-  return points;
+        points = num % 14;
+        break;
+    }
+    return points;
 }
 
 

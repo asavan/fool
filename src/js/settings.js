@@ -13,4 +13,4 @@ export default {
     colorOrder: ['red', 'yellow', 'green', 'blue', 'black'],
     sortByColor: '',
     seed: ''
-}
+};

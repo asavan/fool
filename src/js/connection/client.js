@@ -14,18 +14,18 @@ const handlers = {
     'socket_close': stub,
     'close': stub,
     'error': stub,
-}
+};
 
 function stringifyEvent(e) {
-  const obj = {};
-  for (let k in e) {
-    obj[k] = e[k];
-  }
-  return JSON.stringify(obj, (k, v) => {
-    if (v instanceof Node) return 'Node';
-    if (v instanceof Window) return 'Window';
-    return v;
-  }, ' ');
+    const obj = {};
+    for (let k in e) {
+        obj[k] = e[k];
+    }
+    return JSON.stringify(obj, (k, v) => {
+        if (v instanceof Node) return 'Node';
+        if (v instanceof Window) return 'Window';
+        return v;
+    }, ' ');
 }
 
 function logFunction(s) {
@@ -53,50 +53,50 @@ function sendNegotiation(type, sdp, ws) {
 
 function createSignalingChannel(socketUrl, networkDebug) {
     return new Promise((resolve, reject) => {
-    const ws = new WebSocket(socketUrl);
+        const ws = new WebSocket(socketUrl);
 
-    const send = (type, sdp) => {
-        return sendNegotiation(type, sdp, ws);
-    }
-    const close = () => {
+        const send = (type, sdp) => {
+            return sendNegotiation(type, sdp, ws);
+        };
+        const close = () => {
         // iphone fires "onerror" on close socket
-        handlers['error'] = stub;
-        ws.close();
-    }
+            handlers['error'] = stub;
+            ws.close();
+        };
 
-    const onmessage = stub;
-    const result = {onmessage, send, close};
+        const onmessage = stub;
+        const result = {onmessage, send, close};
 
-    ws.onopen = function (e) {
-        logger.log("Websocket opened");
-        handlers['socket_open']();
-        sendNegotiation("connected", {}, ws);
-        resolve(result);
-    }
+        ws.onopen = function (e) {
+            logger.log("Websocket opened");
+            handlers['socket_open']();
+            sendNegotiation("connected", {}, ws);
+            resolve(result);
+        };
 
-    ws.onclose = function (e) {
-        logger.log("Websocket closed");
-        handlers['socket_close']();
-    }
+        ws.onclose = function (e) {
+            logger.log("Websocket closed");
+            handlers['socket_close']();
+        };
 
-    ws.onmessage = function (e) {
-        if (e.data instanceof Blob) {
-            const reader = new FileReader();
-            reader.onload = () => {
-                result.onmessage(reader.result);
-            };
-            reader.readAsText(e.data);
-        } else {
-            result.onmessage(e.data);
-        }
-    }
-    ws.onerror = function (e) {
-        console.error(e);
-        handlers['error'](stringifyEvent(e));
-        reject(e);
-    }
-    return result;
-});
+        ws.onmessage = function (e) {
+            if (e.data instanceof Blob) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    result.onmessage(reader.result);
+                };
+                reader.readAsText(e.data);
+            } else {
+                result.onmessage(e.data);
+            }
+        };
+        ws.onerror = function (e) {
+            console.error(e);
+            handlers['error'](stringifyEvent(e));
+            reject(e);
+        };
+        return result;
+    });
 }
 
 const connectionFunc = function (settings, location, id) {
@@ -118,11 +118,11 @@ const connectionFunc = function (settings, location, id) {
         if (location.protocol === 'https:') {
             return null;
         }
-        return "ws://" + location.hostname + ":" + settings.wsPort
+        return "ws://" + location.hostname + ":" + settings.wsPort;
     }
 
-// inspired by http://udn.realityripple.com/docs/Web/API/WebRTC_API/Perfect_negotiation#Implementing_perfect_negotiation
-// and https://w3c.github.io/webrtc-pc/#perfect-negotiation-example
+    // inspired by http://udn.realityripple.com/docs/Web/API/WebRTC_API/Perfect_negotiation#Implementing_perfect_negotiation
+    // and https://w3c.github.io/webrtc-pc/#perfect-negotiation-example
     async function connect() {
         const socketUrl = getWebSocketUrl();
         if (socketUrl == null) {
@@ -133,24 +133,24 @@ const connectionFunc = function (settings, location, id) {
 
         peerConnection.onicecandidate = e => {
             const message = {
-              type: 'candidate',
-              candidate: null,
+                type: 'candidate',
+                candidate: null,
             };
             if (e.candidate) {
-              message.candidate = e.candidate.candidate;
-              message.sdpMid = e.candidate.sdpMid;
-              message.sdpMLineIndex = e.candidate.sdpMLineIndex;
+                message.candidate = e.candidate.candidate;
+                message.sdpMid = e.candidate.sdpMid;
+                message.sdpMLineIndex = e.candidate.sdpMLineIndex;
             }
             logger.log({"candidate": e.candidate});
             signaling.send("candidate", message);
-          };
+        };
         // window.pc = peerConnection;
 
         peerConnection.oniceconnectionstatechange = () => {
-          if (peerConnection.iceConnectionState === "failed") {
-            console.error("failed");
+            if (peerConnection.iceConnectionState === "failed") {
+                console.error("failed");
             // peerConnection.restartIce();
-          }
+            }
         };
 
         dataChannel = peerConnection.createDataChannel("gamechannel");
@@ -184,11 +184,11 @@ const connectionFunc = function (settings, location, id) {
 
             if (json.action === "candidate") {
                 logger.log("ON CANDIDATE");
-             if (!json.data.candidate) {
-                await peerConnection.addIceCandidate(null);
-              } else {
-                await peerConnection.addIceCandidate(json.data);
-              }
+                if (!json.data.candidate) {
+                    await peerConnection.addIceCandidate(null);
+                } else {
+                    await peerConnection.addIceCandidate(json.data);
+                }
 
             } else if (json.action === "answer") {
                 peerConnection.setRemoteDescription(json.data);
@@ -198,7 +198,7 @@ const connectionFunc = function (settings, location, id) {
             } else {
                 console.error("Unknown type " + json.action);
             }
-        }
+        };
     }
 
 
@@ -222,7 +222,7 @@ const connectionFunc = function (settings, location, id) {
         };
 
         dataChannel.onerror = function () {
-            console.log("DC ERROR!!!")
+            console.log("DC ERROR!!!");
         };
     }
 

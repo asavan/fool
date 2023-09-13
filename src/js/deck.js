@@ -33,7 +33,7 @@ function newExternalDeck(d, handlers, rngFunc) {
     }
 
     function addCard(card) {
-        deck.push(card)
+        deck.push(card);
     }
 
     function checkTop(card) {
@@ -56,4 +56,4 @@ function newExternalDeck(d, handlers, rngFunc) {
 
 export default {
     newShuffledDeck, newExternalDeck
-}
+};

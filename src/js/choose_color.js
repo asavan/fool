@@ -1,6 +1,6 @@
 "use strict"; // jshint ;_;
 
-import core from "./uno/basic.js"
+import core from "./uno/basic.js";
 
 function stub(message) {
     console.log("Stub " + message);
@@ -42,5 +42,5 @@ function chooseColorInternal(document, gameState) {
 
 export default function chooseColor(window, document, engine, gameState) {
     engine.on("chooseColor", () => chooseColorInternal(document, gameState));
-    return {}
+    return {};
 }

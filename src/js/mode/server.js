@@ -34,14 +34,14 @@ export default function server(window, document, settings, gameFunction) {
         });
         connection.on('socket_open', async () => {
             const code = makeQr(window, document, settings);
-//            if (navigator.mediaDevices) {
-//                await navigator.mediaDevices.getUserMedia({
-//                              audio: true,
-//                              video: true
-//                          });
-//            } else {
-//                console.log("No mediaDevices")
-//            }
+            //            if (navigator.mediaDevices) {
+            //                await navigator.mediaDevices.getUserMedia({
+            //                              audio: true,
+            //                              video: true
+            //                          });
+            //            } else {
+            //                console.log("No mediaDevices")
+            //            }
             connection.on('socket_close', () => {
                 removeElem(code);
             });

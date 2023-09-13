@@ -6,7 +6,7 @@ function stub(message) {
 
 const user = 'server';
 
-const clients = {}
+const clients = {};
 
 const handlers = {
     'recv': stub,
@@ -16,18 +16,18 @@ const handlers = {
     'close': stub,
     'error': stub,
     'disconnect': stub,
-}
+};
 
 function stringifyEvent(e) {
-  const obj = {};
-  for (let k in e) {
-    obj[k] = e[k];
-  }
-  return JSON.stringify(obj, (k, v) => {
-    if (v instanceof Node) return 'Node';
-    if (v instanceof Window) return 'Window';
-    return v;
-  }, ' ');
+    const obj = {};
+    for (let k in e) {
+        obj[k] = e[k];
+    }
+    return JSON.stringify(obj, (k, v) => {
+        if (v instanceof Node) return 'Node';
+        if (v instanceof Window) return 'Window';
+        return v;
+    }, ' ');
 }
 
 function logFunction(s) {
@@ -79,17 +79,17 @@ async function SetupFreshConnection(signaling, id) {
             console.error("No ice");
         }
         const message = {
-          type: 'candidate',
-          candidate: null,
+            type: 'candidate',
+            candidate: null,
         };
         if (e.candidate) {
-          message.candidate = e.candidate.candidate;
-          message.sdpMid = e.candidate.sdpMid;
-          message.sdpMLineIndex = e.candidate.sdpMLineIndex;
+            message.candidate = e.candidate.candidate;
+            message.sdpMid = e.candidate.sdpMid;
+            message.sdpMLineIndex = e.candidate.sdpMLineIndex;
         }
         logger.log({"candidate": e.candidate});
         signaling.send("candidate", message, id);
-      };
+    };
 
     return peerConnection;
 }
@@ -135,13 +135,13 @@ function createSignalingChannel(socketUrl) {
         const json = {from: "server", to: to, action: type, data: sdp};
         logger.log("Sending [server] to [" + to + "]: " + JSON.stringify(sdp));
         return ws.send(JSON.stringify(json));
-    }
+    };
 
     const close = () => {
         // iphone fires "onerror" on close socket
         handlers['error'] = stub;
         ws.close();
-    }
+    };
 
     const onmessage = stub;
     const result = {onmessage, send, close};
@@ -149,11 +149,11 @@ function createSignalingChannel(socketUrl) {
     ws.onopen = function (e) {
         logger.log("Websocket opened");
         handlers['socket_open']();
-    }
+    };
     ws.onclose = function (e) {
         console.log("Websocket closed");
         handlers['socket_close']();
-    }
+    };
 
     ws.onmessage = function (e) {
         if (e.data instanceof Blob) {
@@ -165,11 +165,11 @@ function createSignalingChannel(socketUrl) {
         } else {
             result.onmessage(e.data);
         }
-    }
+    };
     ws.onerror = function (e) {
         console.error(e);
         handlers['error'](stringifyEvent(e));
-    }
+    };
     return result;
 }
 
@@ -189,11 +189,11 @@ const connectionFunc = function (settings, location) {
         if (location.protocol === 'https:') {
             return null;
         }
-        return "ws://" + location.hostname + ":" + settings.wsPort
+        return "ws://" + location.hostname + ":" + settings.wsPort;
     }
 
-// inspired by http://udn.realityripple.com/docs/Web/API/WebRTC_API/Perfect_negotiation#Implementing_perfect_negotiation
-// and https://w3c.github.io/webrtc-pc/#perfect-negotiation-example
+    // inspired by http://udn.realityripple.com/docs/Web/API/WebRTC_API/Perfect_negotiation#Implementing_perfect_negotiation
+    // and https://w3c.github.io/webrtc-pc/#perfect-negotiation-example
     function connect() {
         const socketUrl = getWebSocketUrl();
         if (socketUrl == null) {
@@ -217,11 +217,11 @@ const connectionFunc = function (settings, location) {
                     return;
                 }
                 const pc = client.pc;
-                 if (!json.data.candidate) {
+                if (!json.data.candidate) {
                     await pc.addIceCandidate(null);
-                  } else {
+                } else {
                     await pc.addIceCandidate(json.data);
-                  }
+                }
 
             } else if (json.action === "offer") {
                 const pc = await ConnectionData(json.from, signaling);
@@ -233,7 +233,7 @@ const connectionFunc = function (settings, location) {
             } else {
                 console.error("Unknown type " + json.action);
             }
-        }
+        };
         signalChannel = signaling;
         return signaling;
     }
@@ -251,7 +251,7 @@ const connectionFunc = function (settings, location) {
                 console.error("No connection", client);
             }
         }
-    }
+    };
 
     function closeSocket() {
         if (signalChannel) {

@@ -1,5 +1,5 @@
 "use strict"; // jshint ;_;
-import core from "./uno/basic.js"
+import core from "./uno/basic.js";
 
 function drawCard(p, cardItem) {
     const cardClone = cardItem.content.cloneNode(true).firstElementChild;
@@ -187,7 +187,7 @@ function mapColor(color) {
         'red' : 'rgba(255, 85, 85, 0.4)',
         'yellow': 'rgba(255, 170, 0, 0.4)',
         'blue': 'rgba(85, 85, 255, 0.4)',
-    }
+    };
     const c = colors[color];
     if (c != null) {
         return c;
@@ -278,4 +278,4 @@ export default {
     drawCenter,
     drawPlayers,
     drawLayout
-}
+};

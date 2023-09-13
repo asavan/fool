@@ -3,7 +3,7 @@ import {assert, delay} from "./helper.js";
 import coreUnoFunc from "./uno.js";
 import colorChooser from "./choose_color.js";
 import layout from "./layout.js";
-import core from "./uno/basic.js"
+import core from "./uno/basic.js";
 
 import {prng_alea} from 'esm-seedrandom';
 
@@ -13,7 +13,7 @@ export default function unoGame(window, document, settings, playersExternal, han
     const gameState = {
         inColorChoose: false,
         inExternalMove: false
-    }
+    };
     const engine = coreUnoFunc(settings, myrng);
     let index = 0;
     let myIndex = 0;
@@ -217,15 +217,15 @@ export default function unoGame(window, document, settings, playersExternal, han
     }
 
     return {
-       start,
-       onShuffle,
-       onDraw,
-       onDiscard,
-       onChangeCurrent,
-       onClearHand,
-       onMove,
-       onNewRound,
-       onGameOver,
-       onPass
-    }
+        start,
+        onShuffle,
+        onDraw,
+        onDiscard,
+        onChangeCurrent,
+        onClearHand,
+        onMove,
+        onNewRound,
+        onGameOver,
+        onPass
+    };
 }

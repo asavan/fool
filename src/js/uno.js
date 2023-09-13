@@ -2,7 +2,7 @@
 
 import deckFunc from "./deck.js";
 import newPlayer from "./player.js";
-import core from "./uno/basic.js"
+import core from "./uno/basic.js";
 
 function stub(message) {
     console.log("Stub22 " + message);
@@ -34,7 +34,7 @@ const handlers = {
     'drawExternal': stub,
     'moveExternal': stub,
     'chooseColor': getCurrentColor
-}
+};
 
 async function report(callbackName, ...args) {
     const callback = handlers[callbackName];
@@ -216,22 +216,22 @@ function getPlayer(ind) {
 
 function getPlayerIterator() {
     return  {
-     [Symbol.iterator]() {
-       let i = 0;
-       return {
-         next() {
-           if (i >= players.length){
-            return { done: true, value: i };
-           }
-           return { done: false, value: players[i++] };
-         },
-         return() {
-           console.log("Closing");
-           return { done: true };
-         },
-       };
-     },
-   };
+        [Symbol.iterator]() {
+            let i = 0;
+            return {
+                next() {
+                    if (i >= players.length){
+                        return { done: true, value: i };
+                    }
+                    return { done: false, value: players[i++] };
+                },
+                return() {
+                    console.log("Closing");
+                    return { done: true };
+                },
+            };
+        },
+    };
 }
 
 function size() {
@@ -259,15 +259,15 @@ async function chooseDealerInner(rngFunc) {
         let scores = new Array(n);
         let max = 0;
         for (let i = 0; i < n; i++) {
-              const dealIndex = nextPlayer(i, n);
-              currentPlayer = candidates[dealIndex].getIndex();
-              // await handlers['changeCurrent']({currentPlayer, dealer, direction});
+            const dealIndex = nextPlayer(i, n);
+            currentPlayer = candidates[dealIndex].getIndex();
+            // await handlers['changeCurrent']({currentPlayer, dealer, direction});
           	  const card = await dealToPlayer(deck, currentPlayer);
-              const score = core.cardScore(card);
-              console.log('>> ' + candidates[dealIndex].getName() + ': Player ' + i + ' draws '
+            const score = core.cardScore(card);
+            console.log('>> ' + candidates[dealIndex].getName() + ': Player ' + i + ' draws '
                                 + core.cardToString(card) + ' and gets ' + score + ' points');
-              scores[dealIndex] = score;
-              max = Math.max(max, score);
+            scores[dealIndex] = score;
+            max = Math.max(max, score);
         }
         const newCand = [];
         for (let i = 0; i < n; i++) {
@@ -329,7 +329,7 @@ async function calcCardEffect(card, playerInd) {
     }
 
     if (type === 'Skip') {
-         skip();
+        skip();
     }
 
     if (type === 'Draw2') {
@@ -425,7 +425,7 @@ async function tryMove(playerInd, card) {
     }
 
     if (core.cardType(card) == cardType(cardOnBoard)) {
-         return true;
+        return true;
     }
 
     console.log("Bad card", core.cardType(card), core.cardType(cardOnBoard), currentColor);
@@ -627,25 +627,25 @@ function state() {
         cardOnBoard,
         color: core.cardColor(cardOnBoard),
         type: core.cardType(cardOnBoard)
-    }
+    };
 }
 
 function resetToDefaults() {
-     INITIAL_DEALT = 7;
-     MAX_SCORE = 500;
-     dealer = 0;
-     direction = 1;
-     players = [];
-     deck = null;
-     isServer = true;
-     cardOnBoard = null;
-     discardPile = [];
-     currentPlayer = null;
-     currentColor = null;
-     cardTaken = 0;
-     cardDiscarded = 0;
-     gameover = false;
-     roundover = true;
+    INITIAL_DEALT = 7;
+    MAX_SCORE = 500;
+    dealer = 0;
+    direction = 1;
+    players = [];
+    deck = null;
+    isServer = true;
+    cardOnBoard = null;
+    discardPile = [];
+    currentPlayer = null;
+    currentColor = null;
+    cardTaken = 0;
+    cardDiscarded = 0;
+    gameover = false;
+    roundover = true;
 }
 
 export default function initCore(settings, rngFunc) {
@@ -696,5 +696,5 @@ export default function initCore(settings, rngFunc) {
         state,
         onNewRound,
         onPass
-    }
+    };
 }

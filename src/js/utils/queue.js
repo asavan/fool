@@ -11,7 +11,7 @@ export default function Queue() {
     }
     function dequeue() {
         const item = elements[head];
-    // delete elements[head];
+        // delete elements[head];
         head++;
         return item;
     }
@@ -25,5 +25,5 @@ export default function Queue() {
         return length() === 0;
     }
 
-    return {enqueue, dequeue, peek, length, isEmpty}
+    return {enqueue, dequeue, peek, length, isEmpty};
 }
