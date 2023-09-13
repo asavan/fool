@@ -1,11 +1,10 @@
 "use strict";
 
-import rngFunc from "../utils/random.js";
-
-export default function ai(window, document, settings, gameFunction) {
+export default function test(window, document, settings, gameFunction) {
     return new Promise((resolve) => {
-        settings.externalId = "client1";
-        settings.seed = rngFunc.makeId(6, Math.random);
+        settings.cardsDeal = 1;
+        settings.seed = "h";
+        settings.maxScore = 3;
         settings.clickAll = true;
         const game = gameFunction(window, document, settings);
 

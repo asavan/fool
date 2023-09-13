@@ -67,18 +67,18 @@ export default function unoGame(window, document, settings, playersExternal, han
 
     engine.on("move", async (data) => {
         layout.drawPlayers(window, document, engine, myIndex, settings);
-        await delay(30);
         if (data.playerIndex === myIndex || settings.mode === "server") {
             await handlers["move"](data);
         }
+        await delay(30);
     });
 
     engine.on("moveExternal", async (data) => {
         layout.drawPlayers(window, document, engine, myIndex, settings);
-        await delay(30);
         if (settings.mode === "server") {
             await handlers["move"](data);
         }
+        await delay(30);
     });
 
     engine.on("discard", async (p) => {

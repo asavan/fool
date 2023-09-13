@@ -5,7 +5,7 @@ import {JSDOM} from "jsdom";
 import gameFunction from "../../src/js/game.js";
 import settings from "../../src/js/settings.js";
 
-test("simple ai scenario", async () => {
+test("simple 4 player scenario", async () => {
     const dom = await JSDOM.fromFile("src/index.html", {
         url: "http://localhost/",
     });
@@ -29,10 +29,15 @@ test("simple ai scenario", async () => {
         game.join(i, name, name);
     }
     game.afterAllJoined();
-
-    game.on("gameover", () => {
-        const btnAdd = document.querySelector(".butInstall");
-        btnAdd.classList.remove("hidden2");
+    const gameFinish = new Promise((resolve) => {
+        game.on("gameover", () => {
+            const btnAdd = document.querySelector(".butInstall");
+            btnAdd.classList.remove("hidden2");
+            resolve();
+        });
+    });
+    gameFinish.catch(e => {
+        assert.fail("fail on game over", e);
     });
     assert.ok(true, "Ended well");
 });

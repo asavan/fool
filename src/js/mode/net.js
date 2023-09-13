@@ -3,6 +3,7 @@
 import connectionFunc from "../connection/client.js";
 import actionsFunc from "../actions.js";
 import Queue from "../utils/queue.js";
+import rngFunc from "../utils/random.js";
 import {log} from "../helper.js";
 
 function toObjJson(v, method) {
@@ -14,13 +15,7 @@ function toObjJson(v, method) {
 }
 
 function makeid(length) {
-    let result = "";
-    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    const charactersLength = characters.length;
-    for ( let i = 0; i < length; i++ ) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
+    return rngFunc.makeId(length, Math.random);
 }
 
 function onConnectionAnimation(document, connection) {
