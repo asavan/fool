@@ -5,6 +5,7 @@ import actionsFunc from "../actions_server.js";
 import qrRender from "../lib/qrcode.js";
 import Queue from "../utils/queue.js";
 import connectionFunc from "../connection/server.js";
+import enterName from "../names.js";
 
 function toObjJson(v, method) {
     const value = {
@@ -26,7 +27,10 @@ export default function server(window, document, settings, gameFunction) {
     let index = 0;
     clients["server"] = {"index": index};
 
+
     return new Promise((resolve, reject) => {
+        enterName(window, document, settings);
+
         const connection = connectionFunc(settings, window.location);
         const logger = document.getElementsByClassName("log")[0];
         connection.on("error", (e) => {

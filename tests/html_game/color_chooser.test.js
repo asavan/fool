@@ -4,10 +4,13 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {JSDOM} from "jsdom";
 
+import clicker from "../helper/clicker.js";
+
 import gameFunction from "../../src/js/game.js";
 import settings from "../../src/js/settings.js";
+import {delay, promiseState} from "../../src/js/helper.js";
 
-test("simple 4 player scenario", async () => {
+test("click color scenario", async () => {
     const dom = await JSDOM.fromFile("src/index.html", {
         url: "http://localhost/",
     });
@@ -20,7 +23,6 @@ test("simple 4 player scenario", async () => {
     const game = gameFunction(dom.window, document, settings);
 
     game.on("move", (move) => console.log(move));
-    game.on("draw", () => {});
     game.on("shuffle", () => {});
     game.on("discard", () => {});
     game.on("changeCurrent", () => {});
@@ -35,11 +37,26 @@ test("simple 4 player scenario", async () => {
         game.on("gameover", () => {
             const btnAdd = document.querySelector(".butInstall");
             btnAdd.classList.remove("hidden2");
+            console.log("FINISHED");
             resolve();
         });
     });
     gameFinish.catch(e => {
         assert.fail("fail on game over", e);
     });
+
+    await delay(4000);
+    clicker.clickBySelector(dom, ".current-player > ul > li > div");
+    await delay(500);
+    // cancel choice
+    clicker.clickBySelector(dom, "li.cancel-color");
+    await delay(500);
+    const gameNotFinishedYet = await promiseState(gameFinish);
+    assert.equal(gameNotFinishedYet.status, "pending");
+    // click chooser again
+    clicker.clickBySelector(dom, ".current-player > ul > li > div");
+    await delay(500);
+    clicker.clickBySelector(dom, "li.red");
+    await gameFinish;
     assert.ok(true, "Ended well");
 });

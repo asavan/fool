@@ -72,11 +72,6 @@ export default function game(window, document, settings) {
     };
 
     const start = () => {
-        // TODO move to server
-        //        const qr = document.querySelector(".qrcode");
-        //        if (qr) {
-        //            qr.innerHTML = '';
-        //        }
         handlers["start"](players);
     };
 
@@ -99,10 +94,6 @@ export default function game(window, document, settings) {
     const startButton = document.querySelector(".start");
     if (startButton) {
         startButton.addEventListener("click", start);
-    }
-
-    if (settings.mode != "ai") {
-        enterName(window, document, settings, handlers);
     }
 
     const onConnect = () => {

@@ -54,6 +54,16 @@ export function parseSettings(window, document, settings) {
 
 export const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
+export function promiseState(promise) {
+    const pendingState = { status: "pending" };
+
+    return Promise.race([promise, pendingState]).then(
+        (value) =>
+            value === pendingState ? value : { status: "fulfilled", value },
+        (reason) => ({ status: "rejected", reason }),
+    );
+}
+
 export function assert(b, message) {
     if (b) return;
     console.error(message);

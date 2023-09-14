@@ -4,9 +4,11 @@ export default function enterName(window, document, settings, handlers) {
     const formCont = document.querySelector(".name-form-cont");
     const data = window.sessionStorage.getItem("username");
     if (data) {
-        console.log("Send name data", data);
-        handlers["username"](data);
         formCont.replaceChildren();
+        if (handlers) {
+            console.log("Send name data", data);
+            handlers["username"](data);
+        }
         return;
     }
 
@@ -25,8 +27,10 @@ export default function enterName(window, document, settings, handlers) {
     }
 
     function onName(name) {
-        handlers["username"](name);
         console.log("On name", name);
+        if (handlers) {
+            handlers["username"](name);
+        }
         form.classList.add("hidden");
         field.classList.remove("hidden");
         formCont.replaceChildren();

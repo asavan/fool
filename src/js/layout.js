@@ -46,7 +46,7 @@ function drawDeck(document, parent, card, engine, mode, myIndex) {
     parent.appendChild(hand);
 }
 
-function drawPlayersInner(window, document, engine, myIndex, settings) {
+function drawPlayersInner(window, document, engine, myIndex, settings, marker) {
     const root = document.documentElement;
     root.style.setProperty("--card-width", "40px");
     root.style.setProperty("--current-color", mapColor(engine.getCurrentColor()));
@@ -62,6 +62,12 @@ function drawPlayersInner(window, document, engine, myIndex, settings) {
     let i = 0;
     const dealer = engine.getDealer();
     const currentPlayer = engine.getCurrentPlayer();
+    if (marker) {
+        console.log("Draw inner", marker);
+    } else {
+        console.log("Draw inner");
+    }
+
     for (const pl of players) {
         const angleDeg = 90 + increaseDeg*(i-myIndex);
         const elem = document.createElement("li");
@@ -75,7 +81,6 @@ function drawPlayersInner(window, document, engine, myIndex, settings) {
             scoreElem.innerText = score;
             elem.appendChild(scoreElem);
         }
-        console.log("Draw inner");
         drawHand(document, elem, pl.pile(), engine, settings);
         elem.dataset.id = i;
         elem.dataset.angle = angleDeg + "deg";
@@ -262,10 +267,10 @@ function drawLayout(window, document, engine, myIndex, settings) {
     drawMyHand(window, document, engine, myIndex, myPlayer, box, settings);
 }
 
-function drawPlayers(window, document, engine, myIndex, settings) {
+function drawPlayers(window, document, engine, myIndex, settings, marker) {
 //    console.log("drawPlayers", engine.state());
     if (settings.clickAll) {
-        drawPlayersInner(window, document, engine, myIndex, settings);
+        drawPlayersInner(window, document, engine, myIndex, settings, marker);
         return;
     }
 

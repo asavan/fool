@@ -5,6 +5,7 @@ import actionsFunc from "../actions.js";
 import Queue from "../utils/queue.js";
 import rngFunc from "../utils/random.js";
 import {log} from "../helper.js";
+import enterName from "../names.js";
 
 function toObjJson(v, method) {
     const value = {
@@ -66,6 +67,7 @@ function loop(queue, window) {
 
 export default function netMode(window, document, settings, gameFunction) {
     return new Promise((resolve, reject) => {
+        enterName(window, document, settings);
         const myId = makeid(6);
         const connection = connectionFunc(settings, window.location, myId);
         const logger = document.getElementsByClassName("log")[0];

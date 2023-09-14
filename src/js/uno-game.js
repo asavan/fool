@@ -17,8 +17,8 @@ export default function unoGame(window, document, settings, playersExternal, han
     let index = 0;
     let myIndex = 0;
 
-    function drawScreen() {
-        layout.drawPlayers(window, document, engine, myIndex, settings);
+    function drawScreen(marker) {
+        layout.drawPlayers(window, document, engine, myIndex, settings, marker);
     }
 
     console.log(playersExternal);
@@ -31,7 +31,7 @@ export default function unoGame(window, document, settings, playersExternal, han
     }
 
     engine.on("draw", async ({playerIndex, card}) => {
-        drawScreen();
+        drawScreen("draw");
         const start = Date.now();
         if (playerIndex === myIndex || settings.mode === "server") {
             await handlers["draw"]({playerIndex, card});
@@ -41,7 +41,7 @@ export default function unoGame(window, document, settings, playersExternal, han
     });
 
     engine.on("drawExternal", async ({playerIndex, card}) => {
-        drawScreen();
+        drawScreen("drawExternal");
         const start = Date.now();
         if (settings.mode === "server") {
             await handlers["draw"]({playerIndex, card});
@@ -51,7 +51,7 @@ export default function unoGame(window, document, settings, playersExternal, han
     });
 
     engine.on("changeCurrent", async ({currentPlayer, dealer, direction}) => {
-        layout.drawPlayers(window, document, engine, myIndex, settings);
+        drawScreen("changeCurrent");
         if (settings.mode === "server") {
             await handlers["changeCurrent"]({currentPlayer, dealer, myIndex, direction});
         }
@@ -66,7 +66,7 @@ export default function unoGame(window, document, settings, playersExternal, han
     });
 
     engine.on("move", async (data) => {
-        layout.drawPlayers(window, document, engine, myIndex, settings);
+        drawScreen("move");
         if (data.playerIndex === myIndex || settings.mode === "server") {
             await handlers["move"](data);
         }
@@ -74,7 +74,7 @@ export default function unoGame(window, document, settings, playersExternal, han
     });
 
     engine.on("moveExternal", async (data) => {
-        layout.drawPlayers(window, document, engine, myIndex, settings);
+        drawScreen("moveExternal");
         if (settings.mode === "server") {
             await handlers["move"](data);
         }
@@ -82,20 +82,20 @@ export default function unoGame(window, document, settings, playersExternal, han
     });
 
     engine.on("discard", async (p) => {
-        drawScreen();
+        drawScreen("discard");
         await handlers["discard"](p);
         await delay(30);
     });
 
     engine.on("shuffle", async (deck) => {
         // TODO play shuffle animation
-        drawScreen();
+        drawScreen("shuffle");
         await handlers["shuffle"](deck);
         await delay(300);
     });
 
     engine.on("deal", () => {
-        console.log("deal");
+        console.log("NEVER");
     });
 
     function onGameEnd(message1, message2) {

@@ -1,3 +1,5 @@
+"use strict";
+
 import test from "node:test";
 import assert from "node:assert/strict";
 
@@ -32,4 +34,3 @@ test("client test", async () => {
     assert.strictEqual(engine.getCurrentPlayer(), 0, "Wrong current player after deal");
     assert.ok(true, "Ended well");
 });
-

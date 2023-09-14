@@ -18,10 +18,10 @@
     "build": "webpack --config webpack_configs/production.webpack.config.js --mode production",
     "style": "npx eslint .",
     "style:fix": "npx eslint . --fix",
-    "test": "node --test --test-reporter dot",
-    "test:verbose": "node --test",
+    "test": "node --test --test-reporter dot ./tests",
+    "test:verbose": "node --test ./tests",
     "test:watch": "node --test --watch ./tests",
-    "test:coverage": "c8 node --test"
+    "test:coverage": "c8 node --test ./tests"
   },
   "devDependencies": {
     "c8": "^8.0.1",
