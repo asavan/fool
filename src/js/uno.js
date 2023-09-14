@@ -47,7 +47,7 @@ async function report(callbackName, ...args) {
 
 let MAX_SCORE = 500;
 let dealer = 0;
-let direction = 1;
+let direction = 0;
 let players = [];
 let deck = null;
 let isServer = true;

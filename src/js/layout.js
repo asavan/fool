@@ -48,7 +48,7 @@ function drawDeck(document, parent, card, engine, mode, myIndex) {
 
 function drawPlayersInner(window, document, engine, myIndex, settings, marker) {
     const root = document.documentElement;
-    root.style.setProperty("--card-width", "40px");
+    root.style.setProperty("--card-width", "30px");
     root.style.setProperty("--current-color", mapColor(engine.getCurrentColor()));
 
     const box = document.querySelector(".places");
@@ -126,6 +126,22 @@ function drawCenter(window, document, p, engine, mode, myIndex) {
     }
 }
 
+function addDirectionElem(size, direction, parent, document) {
+    if (size === 2 || direction === 0) {
+        return;
+    }
+    const directionElem = document.createElement("span");
+    directionElem.classList.add("sprite-container");
+
+    const directionElem1 = document.createElement("div");
+    directionElem1.classList.add("direction");
+    if (direction === 1) {
+        directionElem1.classList.add("mirror");
+    }
+    directionElem.appendChild(directionElem1);
+    parent.appendChild(directionElem);
+}
+
 function drawMyHand(window, document, engine, myIndex, myPlayer, box, settings) {
     const elem = document.createElement("div");
     elem.classList.add("my-hand");
@@ -143,18 +159,7 @@ function drawMyHand(window, document, engine, myIndex, myPlayer, box, settings) 
         statusRow.appendChild(scoreElem);
     }
 
-    const directionElem = document.createElement("span");
-    directionElem.classList.add("sprite-container");
-
-    const directionElem1 = document.createElement("div");
-    if (engine.getDirection() > 0) {
-        directionElem1.classList.add("direction-forward");
-    } else {
-        directionElem1.classList.add("direction-back");
-    }
-    directionElem.appendChild(directionElem1);
-    statusRow.appendChild(directionElem);
-
+    addDirectionElem(engine.size(), engine.getDirection(), statusRow, document);
     elem.appendChild(statusRow);
 
 
@@ -167,12 +172,10 @@ function drawMyHand(window, document, engine, myIndex, myPlayer, box, settings) 
         elem.classList.add("dealer");
     }
 
-
     drawHand(document, elem, myPlayer.pile(), engine, settings);
     elem.addEventListener("click", async (e) => {
         e.preventDefault();
         const cardEl = e.target.parentElement;
-
         if (cardEl && cardEl.classList.contains("card")) {
             const card = parseInt(cardEl.dataset.card);
             await engine.moveToDiscard(myIndex, card);
@@ -229,6 +232,7 @@ function drawLayout(window, document, engine, myIndex, settings) {
             const pileElem = document.createElement("div");
 
             pileElem.innerText = pl.pile().length;
+            pileElem.classList.add("card-count");
             elem.appendChild(pileElem);
         }
 
