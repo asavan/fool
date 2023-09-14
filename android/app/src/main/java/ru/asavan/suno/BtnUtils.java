@@ -7,9 +7,12 @@ import android.net.Uri;
 import android.util.Log;
 import android.widget.Button;
 
+import com.google.androidbrowserhelper.trusted.QualityEnforcer;
 import com.google.androidbrowserhelper.trusted.TwaLauncher;
 
 import java.util.Map;
+
+import androidx.browser.trusted.TrustedWebActivityIntentBuilder;
 
 public class BtnUtils {
     private final int staticContentPort;
@@ -69,13 +72,11 @@ public class BtnUtils {
     }
 
 
-
-
     private void launchTwa(String host, Map<String, String> parameters) {
         startServerAndSocket();
         Uri launchUri = Uri.parse(UrlUtils.getLaunchUrl(host, parameters));
         TwaLauncher launcher = new TwaLauncher(activity);
-        launcher.launch(launchUri);
+        launcher.launch(new TrustedWebActivityIntentBuilder(launchUri), new QualityEnforcer(), null, null);
     }
 
     private void startServerAndSocket() {

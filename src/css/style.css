@@ -105,13 +105,13 @@ img {
   transform:scaleX(-1);
 }
 
-
-.dealer {
-    background-color: red;
+.dealer .player-name::after{
+    content: "*";
 }
 
 .current-player {
     background-color: green;
+    color: white;
 }
 
 .sprite-container {

@@ -3,7 +3,7 @@
 export default function test(window, document, settings, gameFunction) {
     return new Promise((resolve) => {
         settings.cardsDeal = 1;
-        settings.seed = "h";
+        settings.seed = "c";
         settings.maxScore = 3;
         settings.clickAll = true;
         const game = gameFunction(window, document, settings);

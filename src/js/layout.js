@@ -73,6 +73,7 @@ function drawPlayersInner(window, document, engine, myIndex, settings, marker) {
         const elem = document.createElement("li");
         const nameElem = document.createElement("span");
         nameElem.innerText = pl.getName();
+        nameElem.classList.add("player-name");
         elem.appendChild(nameElem);
 
         const score = pl.getScore();
@@ -85,7 +86,7 @@ function drawPlayersInner(window, document, engine, myIndex, settings, marker) {
         elem.dataset.id = i;
         elem.dataset.angle = angleDeg + "deg";
         elem.style.setProperty("--angle-deg", angleDeg + "deg");
-        elem.classList.add("circle", "player-name");
+        elem.classList.add("circle");
         if (dealer === i) {
             elem.classList.add("dealer");
         }
@@ -121,7 +122,6 @@ function drawCenter(window, document, p, engine, mode, myIndex) {
         discardPile.replaceChildren();
     }
     if (p !== null) {
-        // drawHand(document, discardPile, [p]);
         drawDeck(document, discardPile, p, engine, mode, myIndex);
     }
 }
@@ -132,11 +132,8 @@ function drawMyHand(window, document, engine, myIndex, myPlayer, box, settings) 
     const statusRow = document.createElement("div");
     statusRow.classList.add("row");
     const nameElem = document.createElement("span");
-    let name = myPlayer.getName();
-    if (engine.getDealer() === myIndex) {
-        name += "*";
-    }
-    nameElem.innerText = name;
+    nameElem.innerText = myPlayer.getName();
+    nameElem.classList.add("player-name");
     statusRow.appendChild(nameElem);
 
     const score = myPlayer.getScore();
@@ -162,10 +159,12 @@ function drawMyHand(window, document, engine, myIndex, myPlayer, box, settings) 
 
 
     elem.dataset.id = myIndex;
-    elem.classList.add("player-name");
 
     if (engine.getCurrentPlayer() === myIndex) {
         elem.classList.add("current-player");
+    }
+    if (engine.getDealer() === myIndex) {
+        elem.classList.add("dealer");
     }
 
 
@@ -209,7 +208,6 @@ function drawLayout(window, document, engine, myIndex, settings) {
     places.classList.add("circle-wrapper");
     box.appendChild(places);
     const increaseDeg = 360 / engine.size();
-    // let angleDeg = 90;
     const players = engine.getPlayerIterator();
     let i = 0;
     const dealer = engine.getDealer();
@@ -229,18 +227,15 @@ function drawLayout(window, document, engine, myIndex, settings) {
             drawHand(document, elem, pl.pile(), engine, settings);
         } else {
             const pileElem = document.createElement("div");
-            pileElem.classList.add("player-name");
 
             pileElem.innerText = pl.pile().length;
             elem.appendChild(pileElem);
         }
 
         const nameElem = document.createElement("div");
-        let name = pl.getName();
-        if (dealer === i) {
-            name += "*";
-        }
-        nameElem.innerText = name;
+        nameElem.classList.add("player-name");
+
+        nameElem.innerText = pl.getName();
         elem.appendChild(nameElem);
 
 
@@ -258,6 +253,9 @@ function drawLayout(window, document, engine, myIndex, settings) {
         elem.classList.add("circle");
         if (currentPlayer === i) {
             elem.classList.add("current-player");
+        }
+        if (dealer === i) {
+            elem.classList.add("dealer");
         }
         ++i;
 

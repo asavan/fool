@@ -29,5 +29,3 @@ test("player score", () => {
     player.updateScore(20);
     assert.equal(player.getScore(), 20, "Wrong score after update");
 });
-
-
