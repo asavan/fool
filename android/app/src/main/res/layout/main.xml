@@ -12,55 +12,7 @@
     </Space>
 
     <Button
-        android:id="@+id/button1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/launch" />
-    <Space
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_weight="1" >
-    </Space>
-
-
-    <Button
-        android:id="@+id/button3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/launch_twa_atenalp" />
-    <Space
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_weight="1" >
-    </Space>
-
-
-    <Button
-        android:id="@+id/button4"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/launch_real_ip" />
-    <Space
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_weight="1" >
-    </Space>
-
-
-
-    <Button
-        android:id="@+id/button5"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/launch_first" />
-    <Space
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_weight="1" >
-    </Space>
-
-    <Button
-        android:id="@+id/button6"
+        android:id="@+id/ai"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/ai" />
@@ -70,12 +22,55 @@
         android:layout_weight="1" >
     </Space>
 
-
     <Button
-        android:id="@+id/button7"
+        android:id="@+id/twa_ai"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/launch_localhost" />
+        android:text="@string/launch_twa_ai" />
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" >
+    </Space>
+
+    <Button
+        android:id="@+id/launch_browser"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/launch_browser" />
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" >
+    </Space>
+
+    <Button
+        android:id="@+id/twa_real_ip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/launch_real_ip" />
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" >
+    </Space>
+
+    <Button
+        android:id="@+id/twa_localhost"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/launch_twa_localhost" />
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" >
+    </Space>
+
+    <Button
+        android:id="@+id/twa_127"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/launch_twa_127" />
     <Space
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -84,7 +79,7 @@
 
 
     <Button
-        android:id="@+id/button8"
+        android:id="@+id/webview_localhost"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/webview_localhost" />
@@ -93,8 +88,9 @@
         android:layout_height="0dp"
         android:layout_weight="1" >
     </Space>
+
     <Button
-        android:id="@+id/button9"
+        android:id="@+id/webview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/webview" />

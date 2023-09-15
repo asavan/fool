@@ -8,10 +8,10 @@
   --player-color: chartreuse;
   --field-size: 4;
   --card-width: 50px;
-  --color-green: rgb(85 170 85);
-  --color-red: rgb(255 85 85);
-  --color-yellow: rgb(255 170 0);
-  --color-blue: rgb(85 85 255);
+  --color-green: #55AA55;
+  --color-red: #FF5555;
+  --color-yellow: #FFAA00;
+  --color-blue: #5555FF;
   --current-color: aliceblue;
   --inverted-color: white;
 }
@@ -65,10 +65,12 @@ ul {
   font-size: 3rem;
 }
 
+/*
 img {
   height:30px;
   width:30px;
 }
+*/
 
 .clickable {
   cursor: pointer;
