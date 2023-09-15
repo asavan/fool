@@ -3,9 +3,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
+import {prng_alea} from "esm-seedrandom";
+
 import coreUnoFunc from "../../src/js/uno.js";
 import settings from "../../src/js/settings.js";
-import {prng_alea} from "esm-seedrandom";
 
 test("positive scenario simple", async () => {
     const myrng = prng_alea("a");

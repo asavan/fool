@@ -110,7 +110,10 @@ export default function game(window, document, settings) {
     const afterAllJoined = async () => {
         start();
         if (!settings.seed) {
+            console.log("settings", settings);
             settings.seed = makeCommonSeed(players);
+        } else {
+            console.log("settings already set", settings.seed);
         }
         unoGame = unoGameFunc(window, document, settings, players, handlers);
         console.log("Game init");

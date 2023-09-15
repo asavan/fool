@@ -60,7 +60,7 @@ public class AndroidWebServerActivity extends Activity {
             b.put("sh", host);
             b.put("mode", "server");
             btnUtils.addButtonTwa(hostUtils.getStaticHost(LOCALHOST), b, R.id.twa_localhost);
-            btnUtils.addButtonTwa(hostUtils.getSocketHost(IpUtils.LOCAL_IP), b, R.id.twa_127);
+            btnUtils.addButtonTwa(hostUtils.getStaticHost(IpUtils.LOCAL_IP), b, R.id.twa_127);
             btnUtils.addButtonWebView(hostUtils.getStaticHost(LOCALHOST), b, R.id.webview_localhost);
             btnUtils.addButtonWebView(WEB_VIEW_URL, b, R.id.webview);
         }
