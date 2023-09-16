@@ -2,6 +2,7 @@
 
 import {removeElem, log} from "../helper.js";
 import actionsFunc from "../actions_server.js";
+import actionsFuncUno from "../actions_uno_server.js";
 import qrRender from "../lib/qrcode.js";
 import Queue from "../utils/queue.js";
 import connectionFunc from "../connection/server.js";
@@ -22,6 +23,18 @@ function makeQr(window, document, settings) {
     return qrRender(url.toString(), document.querySelector(".qrcode"));
 }
 
+function setupProtocol(connection, actions, queue) {
+    connection.on("recv", async (data, id) => {
+        // console.log(data);
+        const obj = JSON.parse(data);
+        const res = obj[obj.method];
+        const callback = actions[obj.method];
+        if (typeof callback === "function") {
+            queue.enqueue({callback, res, fName: obj.method, id, data});
+        }
+    });
+}
+
 export default function server(window, document, settings, gameFunction) {
     const clients = {};
     let index = 0;
@@ -29,7 +42,6 @@ export default function server(window, document, settings, gameFunction) {
 
 
     return new Promise((resolve, reject) => {
-        enterName(window, document, settings);
 
         const connection = connectionFunc(settings, window.location);
         const logger = document.getElementsByClassName("log")[0];
@@ -55,24 +67,30 @@ export default function server(window, document, settings, gameFunction) {
         let inProgress = false;
 
         const game = gameFunction(window, document, settings);
-        const actions = actionsFunc(game, clients);
-        connection.on("recv", async (data, id) => {
-            // console.log(data);
-            const obj = JSON.parse(data);
-            const res = obj[obj.method];
-            const callback = actions[obj.method];
-            if (typeof callback === "function") {
-                queue.enqueue({callback, res, fName: obj.method, id, data});
-            }
+        game.on("username", (n, id) => {
+            console.log("User joined", n, id);
+            const client = clients[id];
+            client.username = n;
+            return game.join(client.index, n, id);
         });
-        for (const [handlerName,] of Object.entries(actions)) {
+        enterName(window, document, settings, game.getHandlers());
+        const actions = actionsFunc(game, clients);
+        setupProtocol(connection, actions, queue);
+        console.log("SEND", game.actionKeys());
+        for (const handlerName of game.actionKeys()) {
             game.on(handlerName, (n) => connection.sendAll(toObjJson(n, handlerName)));
         }
+        console.log("getHandlers", game.getHandlers());
 
-        game.on("start", (data) => {
+        game.on("start", ({players, engine}) => {
             connection.closeSocket();
-            connection.sendAll(toObjJson(data, "start"));
+            const unoActions = actionsFuncUno(engine);
+            setupProtocol(connection, unoActions, queue);
+            console.log(players);
+            connection.sendAll(toObjJson(players, "start"));
         });
+
+        game.on("onSeatsFinished", () => game.afterAllJoined());
 
         connection.on("disconnect", (id) => {
             const is_disconnected = game.disconnect(id);
@@ -84,9 +102,7 @@ export default function server(window, document, settings, gameFunction) {
 
         });
 
-        game.on("username", (name) => game.join(0, name, "server"));
         game.on("swap", (id1, id2) => game.swap(id1, id2));
-
 
         async function step() {
             if (!queue.isEmpty() && !inProgress) {

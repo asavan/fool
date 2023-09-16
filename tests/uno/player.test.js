@@ -29,3 +29,33 @@ test("player score", () => {
     player.updateScore(20);
     assert.equal(player.getScore(), 20, "Wrong score after update");
 });
+
+test("player remove card", () => {
+    const pile = [0, 1, 110];
+    const player = newPlayer("sasha", 3);
+
+    for (const card of pile) {
+        player.addCard(card);
+    }
+
+    let index = player.removeCard(2);
+    assert.equal(index, -1, "Not delete non existing card");
+    assert.equal(player.pile().length, 3, "Not delete non existing card");
+
+    index = player.removeCard(1);
+    assert.equal(index, 1, "Delete existing card");
+    assert.equal(player.pile().length, 2, "Delete existing card");
+
+    index = player.removeCard(0);
+    assert.equal(index, 0, "Delete existing card");
+    assert.equal(player.pile().length, 1, "Delete existing card");
+
+    index = player.removeCard(110);
+    assert.equal(index, 0, "Delete existing card");
+    assert.equal(player.pile().length, 0, "Delete existing card");
+
+    index = player.removeCard(110);
+    assert.equal(index, -1, "Not delete non existing card");
+    assert.equal(player.pile().length, 0, "Not delete non existing card");
+
+});

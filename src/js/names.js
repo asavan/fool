@@ -7,7 +7,8 @@ export default function enterName(window, document, settings, handlers) {
         formCont.replaceChildren();
         if (handlers) {
             console.log("Send name data", data);
-            handlers["username"](data);
+            // remove "server" from here
+            handlers["username"](data, "server");
         }
         return;
     }
@@ -27,9 +28,10 @@ export default function enterName(window, document, settings, handlers) {
     }
 
     function onName(name) {
-        console.log("On name", name);
+        console.log("On name", name, handlers);
         if (handlers) {
-            handlers["username"](name);
+            // remove "server" from here
+            handlers["username"](name, "server");
         }
         form.classList.add("hidden");
         field.classList.remove("hidden");

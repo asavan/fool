@@ -6,10 +6,6 @@ function init(game) {
             console.log("try to move " + JSON.stringify(data));
             return game.onChange(data);
         },
-        "dealer": (n) => {
-            console.log("try to set dealer " + JSON.stringify(n));
-            return game.setDealer(n);
-        },
         "username": false,
         "start": (p) => {
             console.log(p);
@@ -19,7 +15,6 @@ function init(game) {
             console.log(p);
             return game.onShuffle(p);
         },
-
         "draw": ({playerIndex, card}) => {
             console.log({playerIndex, card});
             return game.onDraw(playerIndex, card);

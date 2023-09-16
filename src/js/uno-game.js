@@ -17,6 +17,10 @@ export default function unoGame(window, document, settings, playersExternal, han
     let index = 0;
     let myIndex = 0;
 
+    function on(name, f) {
+        handlers[name] = f;
+    }
+
     function drawScreen(marker) {
         layout.drawPlayers(window, document, engine, myIndex, settings, marker);
     }
@@ -127,6 +131,7 @@ export default function unoGame(window, document, settings, playersExternal, han
 
     engine.on("clearPlayer", async (playerIndex) => {
         await handlers["clearPlayer"](playerIndex);
+        drawScreen();
     });
 
     colorChooser(window, document, engine, gameState);
@@ -144,6 +149,7 @@ export default function unoGame(window, document, settings, playersExternal, han
     });
 
     async function start() {
+        await handlers["start"]({players: playersExternal, engine});
         await engine.chooseDealer();
         await delay(1000);
         if (settings.showAll) {
@@ -193,7 +199,6 @@ export default function unoGame(window, document, settings, playersExternal, han
 
     async function onClearHand(playerIndex) {
         await engine.cleanHand(playerIndex);
-        drawScreen();
     }
 
     async function onNewRound(data) {
@@ -215,7 +220,10 @@ export default function unoGame(window, document, settings, playersExternal, han
         return engine.onPass(data.playerIndex);
     }
 
+    const getEngine = () => engine;
+
     return {
+        on,
         start,
         onShuffle,
         onDraw,
@@ -225,6 +233,7 @@ export default function unoGame(window, document, settings, playersExternal, han
         onMove,
         onNewRound,
         onGameOver,
-        onPass
+        onPass,
+        getEngine
     };
 }

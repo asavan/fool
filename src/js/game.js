@@ -23,21 +23,18 @@ export default function game(window, document, settings) {
 
     const handlers = {
         "move": stub,
-        "moveExternal": stub,
-        "drawExternal": stub,
-        "gameover": stub,
         "username": stub,
+        "draw": stub1,
+        "pass": stub1,
+        "changeCurrent": stub,
+        "discard": stub1,
+        "shuffle": stub1,
+        "clearPlayer": stub,
+        "roundover": stub,
+        "gameover": stub,
         "start": stub1,
         "swap": stub1,
-        "pass": stub1,
-        "uno-start": stub1,
-        "shuffle": stub1,
-        "draw": stub1,
-        "discard": stub1,
-        "chooseColor": stub1,
-        "clearPlayer": stub,
-        "changeCurrent": stub,
-        "roundover": stub
+        "onSeatsFinished": stub1
     };
 
     let unoGame = null;
@@ -56,6 +53,7 @@ export default function game(window, document, settings) {
     }
 
     const join = (ind, name, external_id) => {
+        console.log("Before choosePlaceFunc");
         players[ind] = {"name": name, "external_id": external_id};
         choosePlaceFunc(window, document, settings, handlers, players);
         return true;
@@ -72,7 +70,6 @@ export default function game(window, document, settings) {
     };
 
     const start = () => {
-        handlers["start"](players);
     };
 
     const onDraw = (p, q) => {
@@ -91,11 +88,6 @@ export default function game(window, document, settings) {
         grid.classList.remove("connected", "loading", "flying-cards");
     };
 
-    const startButton = document.querySelector(".start");
-    if (startButton) {
-        startButton.addEventListener("click", start);
-    }
-
     const onConnect = () => {
         enterName(window, document, settings, handlers);
     };
@@ -108,7 +100,6 @@ export default function game(window, document, settings) {
     };
 
     const afterAllJoined = async () => {
-        start();
         if (!settings.seed) {
             console.log("settings", settings);
             settings.seed = makeCommonSeed(players);
@@ -120,7 +111,6 @@ export default function game(window, document, settings) {
         await unoGame.start();
     };
 
-    on("onSeatsFinished", afterAllJoined);
 
     const onShuffle = (deck) => {
         if (unoGame == null) {
@@ -179,6 +169,12 @@ export default function game(window, document, settings) {
         return unoGame.onPass(data);
     };
 
+    function actionKeys() {
+        return Object.keys(handlers);
+    }
+
+    // TODO remove this
+    const getHandlers = () => handlers;
 
     return {
         on,
@@ -197,6 +193,8 @@ export default function game(window, document, settings) {
         onClearHand,
         onGameOver,
         disconnect,
-        onPass
+        onPass,
+        actionKeys,
+        getHandlers
     };
 }

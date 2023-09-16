@@ -12,20 +12,20 @@ function init(game, clients) {
             client.username = n;
             return game.join(client.index, n, id);
         },
-        "shuffle": false,
         "draw": ({playerIndex, card}) => {
             console.log({playerIndex, card});
             return game.onDraw(playerIndex, card);
-        },
-        "discard": false,
-        "changeCurrent": () => {
-            console.error("Change current disabled");
-            // return game.onChangeCurrent(currentData);
         },
         "pass": (currentData) => {
             console.log("on pass");
             return game.onPass(currentData);
         },
+        "changeCurrent": () => {
+            console.error("Change current disabled");
+            // return game.onChangeCurrent(currentData);
+        },
+        "discard": false,
+        "shuffle": false,
         "clearPlayer": false,
         "roundover": false,
         "gameover": false
