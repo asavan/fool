@@ -4,11 +4,11 @@ import choosePlaceFunc from "./places.js";
 import unoGameFunc from "./uno-game.js";
 
 function stub(message) {
-    console.log("Stub " + message);
+    console.trace("Stub " + message);
 }
 
 function stub1(message) {
-    console.log(message);
+    console.trace(message);
 }
 
 function makeCommonSeed(players) {
@@ -69,9 +69,6 @@ export default function game(window, document, settings) {
         return old_size > new_size;
     };
 
-    const start = () => {
-    };
-
     const onDraw = (p, q) => {
         if (unoGame == null) {
             console.error("No game");
@@ -89,6 +86,7 @@ export default function game(window, document, settings) {
     };
 
     const onConnect = () => {
+        console.log("onConnect", handlers);
         enterName(window, document, settings, handlers);
     };
 
@@ -110,7 +108,6 @@ export default function game(window, document, settings) {
         console.log("Game init");
         await unoGame.start();
     };
-
 
     const onShuffle = (deck) => {
         if (unoGame == null) {
@@ -169,9 +166,7 @@ export default function game(window, document, settings) {
         return unoGame.onPass(data);
     };
 
-    function actionKeys() {
-        return Object.keys(handlers);
-    }
+    const actionKeys = () => Object.keys(handlers);
 
     // TODO remove this
     const getHandlers = () => handlers;
@@ -180,7 +175,6 @@ export default function game(window, document, settings) {
         on,
         onChange,
         join,
-        start,
         onConnect,
         swap,
         onStart,

@@ -23,8 +23,30 @@ function makeQr(window, document, settings) {
     return qrRender(url.toString(), document.querySelector(".qrcode"));
 }
 
+function loop(queue, window) {
+    let inProgress = false;
+
+    async function step() {
+        if (!queue.isEmpty() && !inProgress) {
+            const {callback, res, fName, id, data} = queue.dequeue();
+            console.log("Progress start", fName, inProgress);
+            inProgress = true;
+            const validate = await callback(res, id);
+            if (validate) {
+                // connection.sendAll(data);
+            } else {
+                console.error("Bad move", data);
+            }
+            // console.log("Progress stop", fName, inProgress);
+            inProgress = false;
+        }
+        window.requestAnimationFrame(step);
+    }
+    window.requestAnimationFrame(step);
+}
+
 function setupProtocol(connection, actions, queue) {
-    connection.on("recv", async (data, id) => {
+    connection.on("recv", (data, id) => {
         // console.log(data);
         const obj = JSON.parse(data);
         const res = obj[obj.method];
@@ -35,11 +57,21 @@ function setupProtocol(connection, actions, queue) {
     });
 }
 
+//function setupMedia() {
+//    if (navigator.mediaDevices) {
+//        return navigator.mediaDevices.getUserMedia({
+//            audio: true,
+//            video: true
+//        });
+//    } else {
+//        console.log("No mediaDevices");
+//    }
+//}
+
 export default function server(window, document, settings, gameFunction) {
     const clients = {};
     let index = 0;
     clients["server"] = {"index": index};
-
 
     return new Promise((resolve, reject) => {
 
@@ -50,37 +82,20 @@ export default function server(window, document, settings, gameFunction) {
         });
         connection.on("socket_open", async () => {
             const code = makeQr(window, document, settings);
-            //            if (navigator.mediaDevices) {
-            //                await navigator.mediaDevices.getUserMedia({
-            //                              audio: true,
-            //                              video: true
-            //                          });
-            //            } else {
-            //                console.log("No mediaDevices")
-            //            }
             connection.on("socket_close", () => {
                 removeElem(code);
             });
         });
 
         const queue = Queue();
-        let inProgress = false;
-
         const game = gameFunction(window, document, settings);
-        game.on("username", (n, id) => {
-            console.log("User joined", n, id);
-            const client = clients[id];
-            client.username = n;
-            return game.join(client.index, n, id);
-        });
-        enterName(window, document, settings, game.getHandlers());
         const actions = actionsFunc(game, clients);
         setupProtocol(connection, actions, queue);
-        console.log("SEND", game.actionKeys());
         for (const handlerName of game.actionKeys()) {
             game.on(handlerName, (n) => connection.sendAll(toObjJson(n, handlerName)));
         }
-        console.log("getHandlers", game.getHandlers());
+
+        game.on("username", actions["username"]);
 
         game.on("start", ({players, engine}) => {
             connection.closeSocket();
@@ -91,6 +106,8 @@ export default function server(window, document, settings, gameFunction) {
         });
 
         game.on("onSeatsFinished", () => game.afterAllJoined());
+        game.on("swap", (id1, id2) => game.swap(id1, id2));
+        enterName(window, document, settings, game.getHandlers());
 
         connection.on("disconnect", (id) => {
             const is_disconnected = game.disconnect(id);
@@ -99,37 +116,16 @@ export default function server(window, document, settings, gameFunction) {
                 delete clients[id];
             }
             console.log(id, index);
-
         });
-
-        game.on("swap", (id1, id2) => game.swap(id1, id2));
-
-        async function step() {
-            if (!queue.isEmpty() && !inProgress) {
-                const {callback, res, fName, id, data} = queue.dequeue();
-                console.log("Progress start", fName, inProgress);
-                inProgress = true;
-                const validate = await callback(res, id);
-                if (validate) {
-                    // connection.sendAll(data);
-                } else {
-                    console.error("Bad move", data);
-                }
-                console.log("Progress stop", fName, inProgress);
-                inProgress = false;
-            }
-            window.requestAnimationFrame(step);
-        }
-        window.requestAnimationFrame(step);
-
-
-        game.onConnect();
-        resolve(game);
 
         connection.on("open", async (id) => {
             ++index;
             clients[id] = {"index": index};
         });
+
+        game.onConnect();
+        loop(queue, window);
+        resolve(game);
 
         connection.connect().catch(e => {
             log(settings, e, logger);

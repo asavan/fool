@@ -18,12 +18,7 @@ function init(engine) {
             console.log("on pass", data);
             return engine.onPass(data.playerIndex);
         },
-        "changeCurrent": shouldNotHappen,
-        "shuffle": false,
-        "discard": false,
-        "clearPlayer": false,
-        "roundover": false,
-        "gameover": false
+        "changeCurrent": shouldNotHappen
     };
 }
 

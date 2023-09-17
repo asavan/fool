@@ -13,9 +13,6 @@ export default function enterName(window, document, settings, handlers) {
         return;
     }
 
-    if (formCont.childElementCount > 0) {
-        return;
-    }
     const formItem = document.querySelector("#nameform");
     const formClone = formItem.content.cloneNode(true).firstElementChild;
     formCont.replaceChildren(formClone);
@@ -23,12 +20,14 @@ export default function enterName(window, document, settings, handlers) {
     const form = document.querySelector(".nameform");
     const input = document.querySelector(".nameinput");
     const field = document.querySelector(".container");
-    if (settings.mode == "net") {
+    if (settings.mode === "net") {
         field.classList.add("hidden");
     }
 
     function onName(name) {
         console.log("On name", name, handlers);
+        window.sessionStorage.setItem("username", name);
+
         if (handlers) {
             // remove "server" from here
             handlers["username"](name, "server");
@@ -40,7 +39,6 @@ export default function enterName(window, document, settings, handlers) {
 
     form.addEventListener("submit", function(evt) {
         evt.preventDefault();
-        window.sessionStorage.setItem("username", input.value);
         onName(input.value);
     });
 }

@@ -86,7 +86,7 @@ function drawPlayersInner(window, document, engine, myIndex, settings, marker) {
         elem.dataset.id = i;
         elem.dataset.angle = angleDeg + "deg";
         elem.style.setProperty("--angle-deg", angleDeg + "deg");
-        elem.classList.add("circle");
+        elem.classList.add("circle", "player-hand");
         if (dealer === i) {
             elem.classList.add("dealer");
         }

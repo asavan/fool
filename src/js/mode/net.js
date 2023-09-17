@@ -42,8 +42,8 @@ function setupOnData(connection, queue, actions) {
     });
 }
 
-function setupActions(game, actions, connection) {
-    for (const [handlerName,] of Object.entries(actions)) {
+function setupActions(game, connection) {
+    for (const handlerName of game.actionKeys()) {
         game.on(handlerName, (n) => connection.sendMessage(toObjJson(n, handlerName)));
     }
 }
@@ -79,9 +79,9 @@ export default function netMode(window, document, settings, gameFunction) {
             const queue = Queue();
             settings["externalId"] = myId;
             const game = gameFunction(window, document, settings);
+            setupActions(game, connection);
             const actions = actionsFunc(game);
             setupOnData(connection, queue, actions);
-            setupActions(game, actions, connection);
             game.onConnect();
             loop(queue, window);
             resolve(game);
