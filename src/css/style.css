@@ -65,13 +65,6 @@ ul {
   font-size: 3rem;
 }
 
-/*
-img {
-  height:30px;
-  width:30px;
-}
-*/
-
 .clickable {
   cursor: pointer;
 }
@@ -92,6 +85,7 @@ img {
 
 .player-hand {
   min-height: 172px;
+  background-color: var(--current-color);
 }
 
 /* stylelint-disable property-no-vendor-prefix */
@@ -123,6 +117,10 @@ img {
 
 .sprite-container {
   width: var(--card-width);
+}
+
+.show-all {
+  --card-width: 30px;
 }
 
 .blank {
@@ -225,6 +223,19 @@ footer {
   position:relative;
   overflow: hidden;
 }
+
+/*
+@media (width >= 900px) {
+  .container {
+    max-width: 3000px;
+  }
+
+  .circle {
+    transform: rotate(var(--angle-deg)) translate(300px) rotate(calc(-1 * var(--angle-deg))) translate(-50%, -50%);
+    max-width: 300px;
+  }
+}
+*/
 
 .install {
   background-color: var(--main-color);

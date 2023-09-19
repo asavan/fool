@@ -62,7 +62,7 @@ function drawDeck(document, parent, card, engine, mode, myIndex) {
 
 function drawPlayersInner(window, document, engine, myIndex, settings, marker) {
     const root = document.documentElement;
-    root.style.setProperty("--card-width", "30px");
+    // root.style.setProperty("--card-width", "30px");
     root.style.setProperty("--current-color", mapColor(engine.getCurrentColor()));
 
     const box = document.querySelector(".places");
@@ -87,6 +87,7 @@ function drawPlayersInner(window, document, engine, myIndex, settings, marker) {
     for (const pl of players) {
         const angleDeg = 90 + increaseDeg*(i-myIndex);
         const elem = document.createElement("li");
+        elem.classList.add("show-all");
         const nameElem = document.createElement("span");
         nameElem.innerText = pl.getName();
         nameElem.classList.add("player-name");
@@ -227,7 +228,6 @@ function mapColor(color) {
 
 function drawLayout(window, document, engine, myIndex, settings) {
     const root = document.documentElement;
-    root.style.setProperty("--card-width", "50px");
     root.style.setProperty("--current-color", mapColor(engine.getCurrentColor()));
     const box = document.querySelector(".places");
     box.replaceChildren();
@@ -252,6 +252,7 @@ function drawLayout(window, document, engine, myIndex, settings) {
         const elem = document.createElement("li");
 
         if (settings.show) {
+            // elem.classList.add("show-all");
             drawHand(document, elem, pl.pile(), engine, settings);
         } else {
             const pileElem = document.createElement("div");
