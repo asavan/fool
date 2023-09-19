@@ -14,6 +14,8 @@ import java.util.Map;
 
 import androidx.browser.trusted.TrustedWebActivityIntentBuilder;
 
+import static com.google.androidbrowserhelper.trusted.TwaLauncher.WEBVIEW_FALLBACK_STRATEGY;
+
 public class BtnUtils {
     private final int staticContentPort;
     private final int webSocketPort;
@@ -76,7 +78,7 @@ public class BtnUtils {
         startServerAndSocket();
         Uri launchUri = Uri.parse(UrlUtils.getLaunchUrl(host, parameters));
         TwaLauncher launcher = new TwaLauncher(activity);
-        launcher.launch(new TrustedWebActivityIntentBuilder(launchUri), new QualityEnforcer(), null, null);
+        launcher.launch(new TrustedWebActivityIntentBuilder(launchUri), new QualityEnforcer(), null, null, WEBVIEW_FALLBACK_STRATEGY);
     }
 
     private void startServerAndSocket() {
