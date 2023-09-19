@@ -21,7 +21,8 @@
     "test": "node --test --test-reporter dot ./tests",
     "test:verbose": "node --test ./tests",
     "test:watch": "node --test --watch ./tests",
-    "test:coverage": "c8 node --test ./tests"
+    "test:coverage": "c8 node --test --test-reporter dot ./tests",
+    "updates": "npx ncu"
   },
   "devDependencies": {
     "c8": "^8.0.1",
@@ -29,12 +30,11 @@
     "css-loader": "^6.8.1",
     "css-minimizer-webpack-plugin": "^5.0.1",
     "eslint": "^8.49.0",
-    "eslint-config-google": "^0.14.0",
     "html-inline-css-webpack-plugin": "^1.11.2",
     "html-webpack-plugin": "^5.5.3",
     "jsdom": "^22.1.0",
     "mini-css-extract-plugin": "^2.7.6",
-    "npm-check-updates": "^16.11.1",
+    "npm-check-updates": "^16.14.4",
     "npm-run-all": "^4.1.5",
     "stylelint": "^15.10.3",
     "stylelint-config-standard": "^34.0.0",
@@ -43,7 +43,7 @@
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.1",
     "workbox-webpack-plugin": "^7.0.0",
-    "ws": "8.13.0"
+    "ws": "8.14.1"
   },
   "dependencies": {
     "esm-seedrandom": "^3.0.5"

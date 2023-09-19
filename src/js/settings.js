@@ -10,7 +10,9 @@ export default {
     clickAll: false,
     show: true,
     externalId: "server",
+    applyEffects: true,
     colorOrder: ["red", "yellow", "green", "blue", "black"],
     sortByColor: "",
+    direction: ["center"],
     seed: ""
 };

@@ -9,6 +9,12 @@ function drawCard(p, cardItem) {
     return cardClone;
 }
 
+function drawBlank(document) {
+    const blank = document.createElement("li");
+    blank.classList.add("blank");
+    return blank;
+}
+
 function drawHand(document, parent, pile, engine, settings) {
     const hand = document.createElement("ul");
     const cardItem = document.querySelector("#card");
@@ -26,23 +32,31 @@ function drawDeck(document, parent, card, engine, mode, myIndex) {
     const hand = document.createElement("ul");
     const cardItem = document.querySelector("#card");
     hand.classList.add("hand");
-    hand.appendChild(drawCard(card, cardItem));
+    if (card !== null) {
+        hand.appendChild(drawCard(card, cardItem));
+    } else {
+        hand.appendChild(drawBlank(document));
+    }
 
-    const backItem = document.querySelector("#back");
-    const backClone = backItem.content.cloneNode(true).firstElementChild;
-    hand.appendChild(backClone);
-
-    backClone.addEventListener("click", async (e) => {
-        e.preventDefault();
-        if (mode === "ai") {
-            await engine.drawCurrent();
-        } else {
-            const res = await engine.onDrawPlayer(myIndex);
-            if (res == null) {
-                await engine.pass(myIndex);
+    if (engine.deckSize() === 0) {
+        hand.appendChild(drawBlank(document));
+    } else {
+        const backItem = document.querySelector("#back");
+        const backClone = backItem.content.cloneNode(true).firstElementChild;
+        backClone.addEventListener("click", async (e) => {
+            e.preventDefault();
+            if (mode === "ai") {
+                await engine.drawCurrent();
+            } else {
+                const res = await engine.onDrawPlayer(myIndex);
+                if (!res) {
+                    await engine.pass(myIndex);
+                }
             }
-        }
-    });
+        });
+        hand.appendChild(backClone);
+    }
+
     parent.appendChild(hand);
 }
 
@@ -53,6 +67,8 @@ function drawPlayersInner(window, document, engine, myIndex, settings, marker) {
 
     const box = document.querySelector(".places");
     box.replaceChildren();
+    drawCenterCircle(box, document, engine);
+
     const places = document.createElement("ul");
     places.classList.add("circle-wrapper");
     // places.style.position = 'relative';
@@ -111,6 +127,10 @@ function drawPlayersInner(window, document, engine, myIndex, settings, marker) {
     });
 }
 
+function drawCenterCircle(box, document, engine) {
+    addDirectionElem(engine.size(), engine.getDirection(), box, document, "big-circle", engine.getCurrentColor());
+}
+
 function drawCenter(window, document, p, engine, mode, myIndex) {
     const box = document.querySelector(".places");
     let discardPile = box.querySelector(".center-pile");
@@ -121,20 +141,22 @@ function drawCenter(window, document, p, engine, mode, myIndex) {
     } else {
         discardPile.replaceChildren();
     }
-    if (p !== null) {
-        drawDeck(document, discardPile, p, engine, mode, myIndex);
-    }
+    drawDeck(document, discardPile, p, engine, mode, myIndex);
 }
 
-function addDirectionElem(size, direction, parent, document) {
+function addDirectionElem(size, direction, parent, document, className, className2) {
     if (size === 2 || direction === 0) {
         return;
     }
     const directionElem = document.createElement("span");
-    directionElem.classList.add("sprite-container");
+    directionElem.classList.add(className);
 
     const directionElem1 = document.createElement("div");
     directionElem1.classList.add("direction");
+    if (className2) {
+        directionElem1.classList.add(className2);
+    }
+
     if (direction === 1) {
         directionElem1.classList.add("mirror");
     }
@@ -159,7 +181,9 @@ function drawMyHand(window, document, engine, myIndex, myPlayer, box, settings) 
         statusRow.appendChild(scoreElem);
     }
 
-    addDirectionElem(engine.size(), engine.getDirection(), statusRow, document);
+    if (settings.direction && settings.direction.includes("hand")) {
+        addDirectionElem(engine.size(), engine.getDirection(), statusRow, document, "sprite-container");
+    }
     elem.appendChild(statusRow);
 
 
@@ -207,6 +231,7 @@ function drawLayout(window, document, engine, myIndex, settings) {
     root.style.setProperty("--current-color", mapColor(engine.getCurrentColor()));
     const box = document.querySelector(".places");
     box.replaceChildren();
+    drawCenterCircle(box, document, engine);
     const places = document.createElement("ul");
     places.classList.add("circle-wrapper");
     box.appendChild(places);

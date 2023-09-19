@@ -8,7 +8,7 @@ import {prng_alea} from "esm-seedrandom";
 
 export default function unoGame(window, document, settings, playersExternal, handlers) {
 
-    let myrng = prng_alea(settings.seed);
+    const myrng = prng_alea(settings.seed);
     const gameState = {
         inColorChoose: false,
         inExternalMove: false

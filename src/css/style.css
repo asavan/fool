@@ -100,11 +100,12 @@ img {
   mask-image: url("../images/reload.svg");
   -webkit-mask-size: cover;
   mask-size: cover;
-  width: 50px;
-  height: 50px;
   display: block;
-  background-color: black;
+  width: 100%;
+  aspect-ratio: 1/1;
+  background-color: #9cf;
 }
+
 /* stylelint-enable property-no-vendor-prefix */
 
 .dealer .player-name::after{
@@ -123,6 +124,25 @@ img {
 .sprite-container {
   width: var(--card-width);
 }
+
+.blank {
+  width: var(--card-width);
+  aspect-ratio: 2 / 3;
+  background-color: var(--current-color);
+}
+
+.big-circle {
+  display:block;
+  position:absolute;
+  top:50%;
+  left:50%;
+  margin: calc(var(--card-width) * -2);
+  box-sizing: border-box;
+  text-align:center;
+  width: calc(var(--card-width) * 4);
+  aspect-ratio: 1 / 1;
+}
+
 
 .sprite {
   /* Create a Responsive Square */
@@ -182,7 +202,7 @@ img {
   position:absolute;
   top:50%;
   left:50%;
-  margin: 0 calc(var(--card-width) * -1);
+  margin: calc(var(--card-width) * -0.75) calc(var(--card-width) * -1);
   box-sizing: border-box;
   text-align:center;
 }

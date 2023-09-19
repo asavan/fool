@@ -7,14 +7,13 @@ import {JSDOM} from "jsdom";
 import clicker from "../helper/clicker.js";
 
 import gameFunction from "../../src/js/game.js";
-import settings from "../../src/js/settings.js";
+import settingsOriginal from "../../src/js/settings.js";
 import {delay, promiseState} from "../../src/js/helper.js";
 
 test("click color scenario", async () => {
-    const dom = await JSDOM.fromFile("src/index.html", {
-        url: "http://localhost/",
-    });
+    const dom = await JSDOM.fromFile("src/index.html");
     const document = dom.window.document;
+    const settings = {...settingsOriginal};
     settings.externalId = "client1";
     settings.cardsDeal = 1;
     settings.seed = "h";

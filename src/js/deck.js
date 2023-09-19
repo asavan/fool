@@ -12,9 +12,8 @@ function newDeck() {
 }
 
 async function newShuffledDeck(handlers, rngFunc) {
-    let deck = newDeck();
+    const deck = newDeck();
     shuffleArray(deck, rngFunc);
-    console.log("New deck");
     await handlers["shuffle"](deck);
 
     return newExternalDeck(deck, handlers, rngFunc);
@@ -37,22 +36,32 @@ function newExternalDeck(d, handlers, rngFunc) {
     }
 
     function checkTop(card) {
+        if (deck.length === 0) {
+            console.log("empty deck");
+            return false;
+        }
         const res = deck.at(-1) === card;
         if (!res) {
-            console.log("bad deck", deck.at(-1), card);
+            console.trace("bad deck", deck.at(-1), card, deck);
         }
         return res;
     }
 
-    async function addCardAndShuffle(card) {
+    function addCardAndShuffle(card) {
         addCard(card);
         shuffleArray(deck, rngFunc);
-        await handlers["shuffle"](deck);
+        return handlers["shuffle"](deck);
     }
 
-    return {deal, addCardAndShuffle, setDeck, checkTop};
-}
+    function shuffle() {
+        shuffleArray(deck, rngFunc);
+        return handlers["shuffle"](deck);
+    }
 
+    const size = () => deck.length;
+
+    return {deal, addCardAndShuffle, setDeck, checkTop, size, shuffle};
+}
 
 export default {
     newShuffledDeck, newExternalDeck

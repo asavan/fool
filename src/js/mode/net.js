@@ -78,6 +78,7 @@ export default function netMode(window, document, settings, gameFunction) {
         connection.on("open", () => {
             const queue = Queue();
             settings["externalId"] = myId;
+            settings.applyEffects = false;
             const game = gameFunction(window, document, settings);
             setupActions(game, connection);
             const actions = actionsFunc(game);

@@ -1,7 +1,7 @@
 "use strict";
 
 export default function Queue() {
-    let elements = {};
+    const elements = {};
     let head = 0;
     let tail = 0;
 

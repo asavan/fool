@@ -50,7 +50,7 @@ let dealer = 0;
 let direction = 0;
 let players = [];
 let deck = null;
-let isServer = true;
+let applyEffects = true;
 let cardOnBoard = null;
 let discardPile = [];
 let currentPlayer = null;
@@ -90,13 +90,32 @@ function addPlayer(name) {
     return true;
 }
 
+function reshuffleDiscard() {
+    const onTop = discardPile.pop();
+    deck.setDeck(discardPile);
+    discardPile = [onTop];
+    return deck.shuffle();
+}
+
 async function dealToPlayer(deck, playerIndex, external) {
+    if (deck == null || deck.size() === 0) {
+        console.warn("deck is empty");
+        return null;
+    }
     const card = deck.deal();
+    if (card == null) {
+        console.error("deck is empty, should never happen");
+        return null;
+    }
     players[playerIndex].addCard(card);
     if (!external) {
         await handlers["draw"]({playerIndex, card});
     } else {
         await report("drawExternal", {playerIndex, card});
+    }
+    if (deck.size() === 0) {
+        console.log("reshuffle discard");
+        await reshuffleDiscard();
     }
     return card;
 }
@@ -104,7 +123,7 @@ async function dealToPlayer(deck, playerIndex, external) {
 async function onDraw(playerIndex, card) {
     if (!deck.checkTop(card)) {
         console.error("Different engines");
-        return;
+        return false;
     }
     if (playerIndex !== currentPlayer) {
         console.error("draw not for current player");
@@ -119,7 +138,7 @@ async function onDraw(playerIndex, card) {
 async function onDrawPlayer(playerIndex) {
     if (playerIndex !== currentPlayer) {
         console.log("draw not for current player");
-        return;
+        return false;
     }
 
     if (roundover) {
@@ -129,12 +148,12 @@ async function onDrawPlayer(playerIndex) {
 
     if (cardTaken > 0) {
         console.log("alreadyDrawn");
-        return;
+        return false;
     }
     cardTaken++;
     const cardFromDeck = await dealToPlayer(deck, currentPlayer);
     console.log("onDrawPlayer", cardFromDeck);
-    return true;
+    return cardFromDeck != null;
 }
 
 async function pass(playerIndex) {
@@ -166,7 +185,7 @@ async function onMove(playerIndex, card, nextColor) {
 }
 
 async function onDiscard(card) {
-    if (!deck.checkTop(card)) {
+    if (deck == null || !deck.checkTop(card)) {
         console.error("Different engines");
         return;
     }
@@ -247,16 +266,17 @@ function reverse() {
 }
 
 async function chooseDealerInner(rngFunc) {
+    console.trace("chooseDealerInner");
     deck = await deckFunc.newShuffledDeck(handlers, rngFunc);
     let candidates = [...players];
 
     while (candidates.length > 1) {
         const n = candidates.length;
-        let scores = new Array(n);
+        const scores = new Array(n);
         let max = 0;
         for (let i = 0; i < n; i++) {
             const dealIndex = nextPlayer(i, n);
-            currentPlayer = candidates[dealIndex].getIndex();
+            const currentPlayer = candidates[dealIndex].getIndex();
             // await handlers['changeCurrent']({currentPlayer, dealer, direction});
             const card = await dealToPlayer(deck, currentPlayer);
             const score = core.cardScore(card);
@@ -337,8 +357,7 @@ async function calcCardEffect(card, playerInd) {
     await next();
 }
 
-async function dealN(initialDealt, rngFunc) {
-    await cleanAllHands(rngFunc);
+async function dealN(initialDealt) {
     for (let round = 0; round < initialDealt; ++round) {
         const n = players.length;
         for (let i = 0; i < n; i++) {
@@ -349,6 +368,7 @@ async function dealN(initialDealt, rngFunc) {
         }
     }
     const card = await dealToDiscard(deck);
+    currentPlayer = dealer;
     console.log("deal finished", currentPlayer, core.cardToString(card));
     await calcCardEffect(card, currentPlayer);
 }
@@ -492,7 +512,7 @@ async function moveToDiscard(playerIndex, card) {
         }
         ++cardDiscarded;
         await handlers["move"]({ playerIndex, card, currentColor });
-        if (isServer) {
+        if (applyEffects) {
             await calcCardEffect(card, currentPlayer);
             await checkGameEnd(playerIndex);
         }
@@ -548,7 +568,7 @@ async function onMoveToDiscard(playerIndex, card, nextColor) {
         currentColor = nextColor;
         ++cardDiscarded;
         await handlers["moveExternal"]({playerIndex, card, currentColor});
-        if (isServer) {
+        if (applyEffects) {
             await calcCardEffect(card, currentPlayer);
             await checkGameEnd(playerIndex);
         }
@@ -620,7 +640,7 @@ function resetToDefaults() {
     direction = 1;
     players = [];
     deck = null;
-    isServer = true;
+    applyEffects = true;
     cardOnBoard = null;
     discardPile = [];
     currentPlayer = null;
@@ -630,20 +650,28 @@ function resetToDefaults() {
     roundover = true;
 }
 
+function deckSize() {
+    if (deck == null) {
+        return 0;
+    }
+    return deck.size();
+}
+
 export default function initCore(settings, rngFunc) {
     resetToDefaults();
+    applyEffects = settings.applyEffects;
     if (settings.maxScore) {
         MAX_SCORE = settings.maxScore;
     }
     function chooseDealer() {
         return chooseDealerInner(rngFunc);
     }
-    function deal() {
-        return dealN(settings.cardsDeal, rngFunc);
+    async function deal() {
+        await cleanAllHands(rngFunc);
+        return dealN(settings.cardsDeal);
     }
 
     function setDeck(d) {
-        isServer = false;
         if (deck == null) {
             deck = deckFunc.newExternalDeck(d, handlers, rngFunc);
         } else {
@@ -654,6 +682,7 @@ export default function initCore(settings, rngFunc) {
     return {
         chooseDealer,
         deal,
+        dealN,
         getPlayerIterator,
         addPlayer,
         size,
@@ -677,6 +706,7 @@ export default function initCore(settings, rngFunc) {
         getDirection,
         state,
         onNewRound,
-        onPass
+        onPass,
+        deckSize
     };
 }

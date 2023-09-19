@@ -92,36 +92,29 @@ function cardScore(num) {
     return points;
 }
 
-
-
 function sortByTemplate(pile, sortDirection, colors) {
+    const sign = sortDirection === "asc" ? 1 : -1;
     pile.sort((p1, p2) => {
         const c1 = cardColor(p1);
         const c2 = cardColor(p2);
         if (c1 === c2) {
-            if (sortDirection === "asc") {
-                return cardScore(p1) - cardScore(p2);
-            } else {
-                return cardScore(p2) - cardScore(p1);
+            const scoreDiff = cardScore(p1) - cardScore(p2);
+            if (scoreDiff === 0) {
+                return (p1 - p2) * sign;
             }
+            return scoreDiff * sign;
         }
         for (const c of colors) {
             if (c === c1) {
-                if (sortDirection === "asc") {
-                    return -1;
-                } else {
-                    return 1;
-                }
+                return -1;
             }
 
             if (c === c2) {
-                if (sortDirection === "asc") {
-                    return 1;
-                } else {
-                    return -1;
-                }
+                return 1;
             }
         }
+        // should not happen
+        return 0;
     });
 }
 

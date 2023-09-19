@@ -16,8 +16,8 @@ android {
         applicationId = "ru.asavan.suno"
         minSdk = 24
         targetSdk = 34
-        versionCode = 10
-        versionName = "1.3.3"
+        versionCode = 12
+        versionName = "1.3.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

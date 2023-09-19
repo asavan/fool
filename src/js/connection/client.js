@@ -17,7 +17,7 @@ const handlers = {
 
 function stringifyEvent(e) {
     const obj = {};
-    for (let k in e) {
+    for (const k in e) {
         obj[k] = e[k];
     }
     return JSON.stringify(obj, (k, v) => {
