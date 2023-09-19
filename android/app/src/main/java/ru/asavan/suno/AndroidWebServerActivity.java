@@ -29,7 +29,8 @@ public class AndroidWebServerActivity extends Activity {
             Map<String, String> mainParams = new LinkedHashMap<>();
             mainParams.put("mode", "ai");
             mainParams.put("showAll", "true");
-            btnUtils.launchWebView(WEB_VIEW_URL, mainParams);
+            HostUtils hostUtils = new HostUtils(STATIC_CONTENT_PORT, WEB_SOCKET_PORT, secure);
+            btnUtils.launchWebView(hostUtils.getStaticHost(LOCALHOST), mainParams);
         } catch (Exception e) {
             Log.e(MAIN_LOG_TAG, "main", e);
         }
@@ -59,10 +60,8 @@ public class AndroidWebServerActivity extends Activity {
             b.put("wh", hostUtils.getSocketHost(IpUtils.LOCAL_IP));
             b.put("sh", host);
             b.put("mode", "server");
-            btnUtils.addButtonTwa(hostUtils.getStaticHost(LOCALHOST), b, R.id.twa_localhost);
             btnUtils.addButtonTwa(hostUtils.getStaticHost(IpUtils.LOCAL_IP), b, R.id.twa_127);
-            btnUtils.addButtonWebView(hostUtils.getStaticHost(LOCALHOST), b, R.id.webview_localhost);
-            btnUtils.addButtonWebView(WEB_VIEW_URL, b, R.id.webview);
+            btnUtils.addButtonWebView(hostUtils.getStaticHost(IpUtils.LOCALHOST), b, R.id.webview_localhost);
         }
     }
 

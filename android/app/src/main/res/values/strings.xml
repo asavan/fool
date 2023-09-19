@@ -29,7 +29,7 @@
     </string>
     <string name="ai">Ai in webview</string>
     <string name="launch_twa_ai">Launch ai newest version</string>
-    <string name="launch_browser">Launch in browser</string>
+    <string name="launch_browser">Browser</string>
     <string name="launch_real_ip">Real IP</string>
     <string name="launch_twa_localhost">Twa localhost</string>
     <string name="launch_twa_127">Twa 127.0.0.1</string>

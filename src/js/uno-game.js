@@ -211,8 +211,9 @@ export default function unoGame(window, document, settings, playersExternal, han
     async function onGameOver(data) {
         console.log("onGameOver", data);
         drawScreen();
-        // const res = await engine.onNewRound(data);
-        onGameEnd("", "with score " + data.score);
+        const name = playersExternal[data.playerIndex].name;
+        console.log(name);
+        onGameEnd(name + " wins", "with score " + data.score);
         return true;
     }
 

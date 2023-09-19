@@ -3,6 +3,7 @@
     <style name="ButtonColor" parent="@android:style/Widget.Button">
         <item name="android:textColor">@color/colorText</item>
         <item name="android:backgroundTint">@color/colorPrimary</item>
+        <item name="android:background">@color/colorPrimary</item>
     </style>
     <style name="Theme.Suno" parent="@android:style/Theme.Light.NoTitleBar">
         <!-- Primary brand color. -->
