@@ -19,7 +19,11 @@ public class WebViewActivity extends Activity {
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
+        // webSettings.setAllowUniversalAccessFromFileURLs(true);
+        // webSettings.setAllowFileAccess(true);
+        webSettings.setAllowFileAccessFromFileURLs(true);
         webView.setBackgroundColor(Color.TRANSPARENT);
+        // webView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
         String url = getIntent().getStringExtra("url");
         webView.loadUrl(url);
     }

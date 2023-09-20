@@ -43,3 +43,9 @@
 21) звук УНО! когда осталась одна карта (задается в настройках)
 22) история ходов
 23) починить окно о победе +
+24) Использовать https://developer.android.com/reference/androidx/webkit/WebViewAssetLoader вместо file://
+    https://joshuatz.com/posts/2021/webviewassetloader-webviewclient-kotlin/
+    https://developer.android.com/develop/ui/views/layout/webapps/load-local-content
+25) при выигрыше карты падают как в солитере
+26) защита от клика (сначала выбираем карту которой ходить, потом вторым кликом ходим) (настройка)
+27) научиться сервить файлы из Internal Storage

@@ -34,6 +34,18 @@
     </Space>
 
     <Button
+        android:id="@+id/ai_localhost"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="@string/ai" />
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" >
+    </Space>
+
+
+    <Button
         android:id="@+id/launch_browser"
         android:layout_width="match_parent"
         android:layout_height="60dp"
@@ -71,7 +83,7 @@
         android:id="@+id/webview_localhost"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:text="@string/webview_localhost" />
+        android:text="@string/webview" />
     <Space
         android:layout_width="0dp"
         android:layout_height="0dp"
