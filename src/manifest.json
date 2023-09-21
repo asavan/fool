@@ -3,9 +3,9 @@
 	"short_name": "suno",
     "icons": [
         {
-          "src": "./images/icon512.png",
-          "sizes": "512x512",
-          "type": "image/png",
+          "src": "./images/reverse_6cf.svg",
+          "sizes": "any",
+          "type": "image/svg+xml",
           "purpose": "any maskable"
         },
         {
