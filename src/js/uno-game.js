@@ -181,7 +181,7 @@ export default function unoGame(window, document, settings, playersExternal, han
         return engine.onDiscard(card);
     }
 
-    async function onChangeCurrent(data) {
+    function onChangeCurrent(data) {
         if (engine.getCurrentPlayer() !== data.myIndex && settings.mode == "server") {
             console.log("Wrong player", engine.getCurrentPlayer(), data.myIndex);
             return;
@@ -197,8 +197,8 @@ export default function unoGame(window, document, settings, playersExternal, han
         drawScreen();
     }
 
-    async function onClearHand(playerIndex) {
-        await engine.cleanHand(playerIndex);
+    function onClearHand(playerIndex) {
+        return engine.cleanHand(playerIndex);
     }
 
     async function onNewRound(data) {
@@ -208,7 +208,7 @@ export default function unoGame(window, document, settings, playersExternal, han
         return res;
     }
 
-    async function onGameOver(data) {
+    function onGameOver(data) {
         console.log("onGameOver", data);
         drawScreen();
         const name = playersExternal[data.playerIndex].name;

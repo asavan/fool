@@ -230,7 +230,7 @@ function on(name, f) {
 }
 
 function getPlayerIterator() {
-    return  {
+    return {
         [Symbol.iterator]() {
             let i = 0;
             return {
@@ -436,7 +436,7 @@ async function tryMove(playerInd, card) {
     return false;
 }
 
-async function onTryMove(playerInd, card, nextColor) {
+function onTryMove(playerInd, card, nextColor) {
     if (playerInd !== currentPlayer) {
         console.log("Wrong player", currentPlayer, playerInd);
         return false;
@@ -534,7 +534,7 @@ async function checkGameEnd(playerIndex) {
     }
 }
 
-async function onNewRound(data) {
+function onNewRound(data) {
     const player = players[data.playerIndex];
     const oldScore = player.getScore();
     cardTaken = 0;

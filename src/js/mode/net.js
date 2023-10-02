@@ -31,7 +31,7 @@ function onConnectionAnimation(document, connection) {
 }
 
 function setupOnData(connection, queue, actions) {
-    connection.on("recv", async (data) => {
+    connection.on("recv", (data) => {
         // console.log(data);
         const obj = JSON.parse(data);
         const res = obj[obj.method];

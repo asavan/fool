@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Fool</title>
+    <meta name="description" content="Fool">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="theme-color" content="#ffffff">
+    <style>
+        body { font-family: sans-serif; }
+
+.scene {
+  width: 200px;
+  height: 260px;
+  border: 1px solid #CCC;
+  margin: 40px 0;
+  perspective: 600px;
+}
+
+.card {
+  width: 100%;
+  height: 100%;
+  transition: transform 1s;
+  transform-style: preserve-3d;
+  transform-origin: calc(100% + 5px) 0%;
+  cursor: pointer;
+  position: relative;
+}
+
+.card.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.card__face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  line-height: 260px;
+  color: white;
+  text-align: center;
+  font-weight: bold;
+  font-size: 40px;
+}
+
+.card__face--front {
+  backface-visibility: visible;
+  background: red;
+}
+
+.card__face--back {
+   background: blue;
+  transform: rotateY(180deg);
+    -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+    </style>
+
+
+</head>
+
+<body>
+<div class="scene scene--card">
+    <div class="card">
+        <div class="card__face card__face--front">front</div>
+        <div class="card__face card__face--back">back</div>
+    </div>
+</div>
+
+<script>
+    var card = document.querySelector('.card');
+    card.addEventListener( 'click', function() {
+        card.classList.toggle('is-flipped');
+    });
+</script>
+
+
+</body>
+</html>

@@ -58,7 +58,7 @@ test("empty deck", async () => {
     assert.ok(!res, "No such card 2");
 });
 
-test("deck reshuffle",  async () => {
+test("deck reshuffle", async () => {
     const myrng = prng_alea("a");
     const engine = coreUnoFunc(settings, myrng);
     const players = ["server", "player1"];
@@ -124,7 +124,7 @@ test("reverse", {only: true}, async () => {
     await engine.dealN(1);
     assert.strictEqual(engine.getCurrentPlayer(), player1, "player changed after deal");
     assert.strictEqual(engine.getDirection(), 1, "direction left");
-    let res = await engine.moveToDiscard(player1, 11);
+    const res = await engine.moveToDiscard(player1, 11);
     assert.ok(res, "Move 11 card");
     assert.strictEqual(engine.getCurrentPlayer(), player0, "player changed after move");
     assert.strictEqual(engine.getDirection(), -1, "direction rignt");

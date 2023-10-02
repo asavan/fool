@@ -4,7 +4,11 @@
 
 [![Test covered](https://github.com/asavan/fool/actions/workflows/static.yml/badge.svg)](https://github.com/asavan/fool/actions/workflows/static.yml)
 
+### Правила
+1) Из коробки с игрой https://service.mattel.com/instruction_sheets/42001pr.pdf
+2) Альтернативные https://www.unorules.com/
 
+### Реализация
 когда все игроки присоединились сервер нажимает done и приступает к расстановке игроков.
 игроки присоединяются по очереди в порядке сканирования кода.
 
@@ -18,7 +22,7 @@
 
 имя можно передать через настройки, тогда оно перетрет то что находится в sessionStorage
 
-Исправить:
+#### Исправить:
 
 1) Убрать имя игрока из движка, оставить только в презентере.
 2) Починить несколько заходов одного клиента подряд (убирать разорванные коннекшены) +
@@ -49,3 +53,9 @@
 25) при выигрыше карты падают как в солитере
 26) защита от клика (сначала выбираем карту которой ходить, потом вторым кликом ходим) (настройка)
 27) научиться сервить файлы из Internal Storage
+
+#### Другие реализации
+1) React and Socket.IO https://github.com/mizanxali/uno-online
+2) Canvas + Socket.IO https://eperezcosano.github.io/uno-part2
+
+

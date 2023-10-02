@@ -69,7 +69,7 @@ function setupDataChannel(dataChannel, signaling, id, clients) {
 }
 
 
-async function SetupFreshConnection(signaling, id) {
+function SetupFreshConnection(signaling, id) {
     const peerConnection = new RTCPeerConnection(null);
     // window.pc = peerConnection;
 
@@ -110,13 +110,13 @@ async function processOffer(offer, peerConnection, signaling, id) {
 }
 
 
-async function ConnectionData(id, signaling, clients) {
+function ConnectionData(id, signaling, clients) {
     const client = clients[id];
     if (client) {
         // cleanup
         client.pc.close();
     }
-    const pc = await SetupFreshConnection(signaling, id);
+    const pc = SetupFreshConnection(signaling, id);
 
     pc.ondatachannel = (ev) => {
         setupDataChannel(ev.channel, signaling, id, clients);
@@ -225,7 +225,7 @@ const connectionFunc = function (settings, location) {
                 }
 
             } else if (json.action === "offer") {
-                const pc = await ConnectionData(json.from, signaling, clients);
+                const pc = ConnectionData(json.from, signaling, clients);
                 await processOffer(json.data, pc, signaling, json.from);
             } else if (json.action === "connected") {
                 // TODO delete?

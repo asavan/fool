@@ -80,7 +80,7 @@ export default function server(window, document, settings, gameFunction) {
         connection.on("error", (e) => {
             log(settings, e, logger);
         });
-        connection.on("socket_open", async () => {
+        connection.on("socket_open", () => {
             const code = makeQr(window, document, settings);
             connection.on("socket_close", () => {
                 removeElem(code);
@@ -118,7 +118,7 @@ export default function server(window, document, settings, gameFunction) {
             console.log(id, index);
         });
 
-        connection.on("open", async (id) => {
+        connection.on("open", (id) => {
             ++index;
             clients[id] = {"index": index};
         });
