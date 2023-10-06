@@ -7,7 +7,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="theme-color" content="#ffffff">
     <style>
-        body { font-family: sans-serif; }
+body { font-family: sans-serif; }
+ul {
+  list-style-type: none;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+    background: aliceblue;
+}
 
 .scene {
   width: 200px;
@@ -20,7 +32,7 @@
 .card {
   width: 100%;
   height: 100%;
-  transition: transform 1s;
+  transition: transform 2s;
   transform-style: preserve-3d;
   transform-origin: calc(100% + 5px) 0%;
   cursor: pointer;
@@ -50,7 +62,6 @@
 .card__face--back {
    background: blue;
   transform: rotateY(180deg);
-    -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
 
@@ -61,10 +72,10 @@
 
 <body>
 <div class="scene scene--card">
-    <div class="card">
-        <div class="card__face card__face--front">front</div>
-        <div class="card__face card__face--back">back</div>
-    </div>
+    <ul class="card is-flipped">
+        <li class="card__face card__face--front">front</li>
+        <li class="card__face card__face--back">back</li>
+    </ul>
 </div>
 
 <script>

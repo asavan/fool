@@ -1,5 +1,6 @@
 "use strict"; // jshint ;_;
 import core from "./uno/basic.js";
+import {delay} from "./helper.js";
 
 function drawCard(p, cardItem) {
     const cardClone = cardItem.content.cloneNode(true).firstElementChild;
@@ -13,6 +14,12 @@ function drawBlank(document) {
     const blank = document.createElement("li");
     blank.classList.add("blank");
     return blank;
+}
+
+function drawBack(document) {
+    const backItem = document.querySelector("#back");
+    const backClone = backItem.content.cloneNode(true).firstElementChild;
+    return backClone;
 }
 
 function drawHand(document, parent, pile, engine, settings) {
@@ -29,6 +36,7 @@ function drawHand(document, parent, pile, engine, settings) {
 }
 
 function drawDeck(document, parent, card, engine, mode, myIndex) {
+    console.log("drawDeck");
     const hand = document.createElement("ul");
     const cardItem = document.querySelector("#card");
     hand.classList.add("hand");
@@ -41,8 +49,7 @@ function drawDeck(document, parent, card, engine, mode, myIndex) {
     if (engine.deckSize() === 0) {
         hand.appendChild(drawBlank(document));
     } else {
-        const backItem = document.querySelector("#back");
-        const backClone = backItem.content.cloneNode(true).firstElementChild;
+        const backClone = drawBack(document);
         backClone.addEventListener("click", async (e) => {
             e.preventDefault();
             if (mode === "ai") {
@@ -103,7 +110,7 @@ function drawPlayersInner(window, document, engine, myIndex, settings, marker) {
         elem.dataset.id = i;
         elem.dataset.angle = angleDeg + "deg";
         elem.style.setProperty("--angle-deg", angleDeg + "deg");
-        elem.classList.add("circle", "player-hand");
+        elem.classList.add("circle", "player-hand", "js-player");
         if (dealer === i) {
             elem.classList.add("dealer");
         }
@@ -167,7 +174,7 @@ function addDirectionElem(size, direction, parent, document, className, classNam
 
 function drawMyHand(window, document, engine, myIndex, myPlayer, box, settings) {
     const elem = document.createElement("div");
-    elem.classList.add("my-hand");
+    elem.classList.add("my-hand", "js-player");
     const statusRow = document.createElement("div");
     statusRow.classList.add("row");
     const nameElem = document.createElement("span");
@@ -222,7 +229,7 @@ function mapColor(color) {
     if (c != null) {
         return c;
     }
-    return "aliceblue";
+    return "rgba(240, 248, 255, 0.3)"; // aliceblue;
 }
 
 
@@ -250,6 +257,7 @@ function drawLayout(window, document, engine, myIndex, settings) {
         const angleDeg = 90 + increaseDeg*(i-myIndex);
 
         const elem = document.createElement("li");
+        elem.classList.add("js-player");
 
         if (settings.show) {
             // elem.classList.add("show-all");
@@ -305,8 +313,54 @@ function drawPlayers(window, document, engine, myIndex, settings, marker) {
     drawLayout(window, document, engine, myIndex, settings);
 }
 
+async function drawDiscard(window, document, engine, myIndex) {
+    const centerPile = document.querySelector(".center-pile");
+    const list = centerPile.querySelector(".hand");
+
+    const flipItem = document.querySelector("#flip-card");
+    const flipClone = flipItem.content.cloneNode(true).firstElementChild;
+    const flipList = flipClone.querySelector(".card-flip");
+    const cardItem = document.querySelector("#card");
+    const newCard = drawCard(engine.getCardOnBoard(), cardItem);
+    newCard.classList.add("card-face");
+    const backClone = drawBack(document);
+    backClone.classList.add("card-face", "card-face-back");
+    flipList.appendChild(newCard);
+    flipList.appendChild(backClone);
+    list.appendChild(flipClone);
+    await delay(200);
+    flipList.classList.remove("is-flipped");
+    await delay(1000);
+    drawCenter(window, document, engine.getCardOnBoard(), engine, "net", myIndex);
+}
+
+function drawCurrent(window, document, engine, myIndex) {
+    const players = document.querySelectorAll(".js-player");
+    let i = 0;
+    for (const player of players) {
+        player.classList.remove("current-player");
+        const shift = i-myIndex;
+        let num = shift;
+        if (shift >= 0) {
+            num += 1;
+        } else {
+            num += players.length;
+        }
+        if (engine.getCurrentPlayer() === num) {
+            player.classList.add("current-player");
+        }
+        ++i;
+    }
+    if (engine.getCurrentPlayer() === myIndex) {
+        const player = players[players.length - 1];
+        player.classList.add("current-player");
+    }
+}
+
 export default {
     drawCenter,
     drawPlayers,
-    drawLayout
+    drawLayout,
+    drawDiscard,
+    drawCurrent
 };

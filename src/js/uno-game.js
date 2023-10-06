@@ -55,7 +55,7 @@ export default function unoGame(window, document, settings, playersExternal, han
     });
 
     engine.on("changeCurrent", async ({currentPlayer, dealer, direction}) => {
-        drawScreen("changeCurrent");
+        // drawScreen("changeCurrent");
         if (settings.mode === "server") {
             await handlers["changeCurrent"]({currentPlayer, dealer, myIndex, direction});
         }
@@ -86,9 +86,9 @@ export default function unoGame(window, document, settings, playersExternal, han
     });
 
     engine.on("discard", async (p) => {
-        drawScreen("discard");
-        await handlers["discard"](p);
-        await delay(30);
+        // drawScreen("discard");
+        const draw = layout.drawDiscard(window, document, engine, myIndex, settings);
+        await Promise.all([draw, handlers["discard"](p)]);
     });
 
     engine.on("shuffle", async (deck) => {
