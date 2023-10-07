@@ -7,8 +7,8 @@ function stub(message) {
     console.trace("Stub " + message);
 }
 
-function stub1(message) {
-    console.trace(message);
+function stub1() {
+    // console.trace(message);
 }
 
 function makeCommonSeed(players) {

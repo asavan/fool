@@ -205,7 +205,6 @@ async function onDiscard(card) {
 
 async function dealToDiscard(deck) {
     console.log("dealToDiscard");
-    roundover = false;
 
     currentPlayer = dealer;
     await handlers["changeCurrent"]({currentPlayer, dealer, direction});
@@ -222,6 +221,8 @@ async function dealToDiscard(deck) {
     }
     discardPile.push(card);
     currentColor = core.cardColor(card);
+    roundover = false;
+    console.log("dealToDiscardEnd");
     return card;
 }
 
@@ -266,7 +267,7 @@ function reverse() {
 }
 
 async function chooseDealerInner(rngFunc) {
-    console.trace("chooseDealerInner");
+    // console.trace("chooseDealerInner");
     deck = await deckFunc.newShuffledDeck(handlers, rngFunc);
     let candidates = [...players];
 

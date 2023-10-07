@@ -56,6 +56,7 @@ export default function unoGame(window, document, settings, playersExternal, han
 
     engine.on("changeCurrent", async ({currentPlayer, dealer, direction}) => {
         // drawScreen("changeCurrent");
+        layout.drawCurrent(window, document, engine, myIndex, settings);
         if (settings.mode === "server") {
             await handlers["changeCurrent"]({currentPlayer, dealer, myIndex, direction});
         }

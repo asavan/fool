@@ -96,14 +96,14 @@ function drawPlayersInner(window, document, engine, myIndex, settings, marker) {
         const elem = document.createElement("li");
         elem.classList.add("show-all");
         const nameElem = document.createElement("span");
-        nameElem.innerText = pl.getName();
+        nameElem.textContent = pl.getName();
         nameElem.classList.add("player-name");
         elem.appendChild(nameElem);
 
         const score = pl.getScore();
         if (score > 0) {
             const scoreElem = document.createElement("span");
-            scoreElem.innerText = score;
+            scoreElem.textContent = score;
             elem.appendChild(scoreElem);
         }
         drawHand(document, elem, pl.pile(), engine, settings);
@@ -178,14 +178,14 @@ function drawMyHand(window, document, engine, myIndex, myPlayer, box, settings) 
     const statusRow = document.createElement("div");
     statusRow.classList.add("row");
     const nameElem = document.createElement("span");
-    nameElem.innerText = myPlayer.getName();
+    nameElem.textContent = myPlayer.getName();
     nameElem.classList.add("player-name");
     statusRow.appendChild(nameElem);
 
     const score = myPlayer.getScore();
     if (score > 0) {
         const scoreElem = document.createElement("span");
-        scoreElem.innerText = score;
+        scoreElem.textContent = score;
         statusRow.appendChild(scoreElem);
     }
 
@@ -265,7 +265,7 @@ function drawLayout(window, document, engine, myIndex, settings) {
         } else {
             const pileElem = document.createElement("div");
 
-            pileElem.innerText = pl.pile().length;
+            pileElem.textContent = pl.pile().length;
             pileElem.classList.add("card-count");
             elem.appendChild(pileElem);
         }
@@ -273,14 +273,14 @@ function drawLayout(window, document, engine, myIndex, settings) {
         const nameElem = document.createElement("div");
         nameElem.classList.add("player-name");
 
-        nameElem.innerText = pl.getName();
+        nameElem.textContent = pl.getName();
         elem.appendChild(nameElem);
 
 
         const score = pl.getScore();
         if (score > 0) {
             const scoreElem = document.createElement("div");
-            scoreElem.innerText = score;
+            scoreElem.textContent = score;
             elem.appendChild(scoreElem);
         }
 
@@ -334,26 +334,17 @@ async function drawDiscard(window, document, engine, myIndex) {
     drawCenter(window, document, engine.getCardOnBoard(), engine, "net", myIndex);
 }
 
-function drawCurrent(window, document, engine, myIndex) {
+function drawCurrent(window, document, engine) {
     const players = document.querySelectorAll(".js-player");
-    let i = 0;
     for (const player of players) {
-        player.classList.remove("current-player");
-        const shift = i-myIndex;
-        let num = shift;
-        if (shift >= 0) {
-            num += 1;
-        } else {
-            num += players.length;
-        }
-        if (engine.getCurrentPlayer() === num) {
+        player.classList.remove("current-player", "dealer");
+        const playerId = parseInt(player.dataset.id);
+        if (engine.getCurrentPlayer() === playerId) {
             player.classList.add("current-player");
         }
-        ++i;
-    }
-    if (engine.getCurrentPlayer() === myIndex) {
-        const player = players[players.length - 1];
-        player.classList.add("current-player");
+        if (engine.getDealer() === playerId) {
+            player.classList.add("dealer");
+        }
     }
 }
 

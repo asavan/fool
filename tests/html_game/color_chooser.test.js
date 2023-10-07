@@ -31,7 +31,6 @@ test("click color scenario", async () => {
         const name = "client" + i;
         game.join(i, name, name);
     }
-    game.afterAllJoined();
     const gameFinish = new Promise((resolve) => {
         game.on("gameover", () => {
             const btnAdd = document.querySelector(".butInstall");
@@ -44,7 +43,7 @@ test("click color scenario", async () => {
         assert.fail("fail on game over", e);
     });
 
-    await delay(4000);
+    await game.afterAllJoined();
     clicker.clickBySelector(dom, ".current-player > ul > li > div");
     await delay(500);
     // cancel choice
