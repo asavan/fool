@@ -144,7 +144,7 @@ export default function unoGame(window, document, settings, playersExternal, han
         }
         console.log("roundover");
         await handlers["roundover"](data);
-        await delay(300);
+        await delay(1000);
         await engine.nextDealer();
         await engine.deal();
     });

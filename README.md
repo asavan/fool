@@ -1,8 +1,10 @@
-# fool
+# Suno
 
 ### Мультиплеерная игра поверх web-rtc.
 
 [![Test covered](https://github.com/asavan/fool/actions/workflows/static.yml/badge.svg)](https://github.com/asavan/fool/actions/workflows/static.yml)
+
+![Suno](/screenshots/screen_green.png "Suno")
 
 ### Правила
 1) Из коробки с игрой https://service.mattel.com/instruction_sheets/42001pr.pdf

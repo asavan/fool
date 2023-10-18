@@ -61,6 +61,9 @@ export default function game(window, document, settings) {
 
     const disconnect = (external_id) => {
         console.log("disconnect", external_id);
+        if (unoGame != null) {
+            return false;
+        }
         const old_size = players.length;
         players = players.filter(p => p.external_id != external_id);
         const new_size = players.length;

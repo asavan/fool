@@ -1,6 +1,6 @@
 "use strict";
 
-import {removeElem, log} from "../helper.js";
+import {removeElem, logHtml} from "../helper.js";
 import actionsFunc from "../actions_server.js";
 import actionsFuncUno from "../actions_uno_server.js";
 import qrRender from "../lib/qrcode.js";
@@ -76,9 +76,9 @@ export default function server(window, document, settings, gameFunction) {
     return new Promise((resolve, reject) => {
 
         const connection = connectionFunc(settings, window.location);
-        const logger = document.getElementsByClassName("log")[0];
+        const logger = document.querySelector(settings.loggerInMode);
         connection.on("error", (e) => {
-            log(settings, e, logger);
+            logHtml(e, logger);
         });
         connection.on("socket_open", () => {
             const code = makeQr(window, document, settings);
@@ -115,7 +115,7 @@ export default function server(window, document, settings, gameFunction) {
                 --index;
                 delete clients[id];
             }
-            console.log(id, index);
+            logHtml({id, index}, logger);
         });
 
         connection.on("open", (id) => {
@@ -128,7 +128,7 @@ export default function server(window, document, settings, gameFunction) {
         resolve(game);
 
         connection.connect().catch(e => {
-            log(settings, e, logger);
+            logHtml(e, logger);
             reject(e);
         });
     });

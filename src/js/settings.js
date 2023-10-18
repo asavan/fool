@@ -3,6 +3,7 @@ export default {
     mode: "net",
     wsPort : 8088,
     logger: true,
+    loggerInMode: ".log",
     networkDebug: true,
     cardsDeal: 7,
     maxScore: 500,
