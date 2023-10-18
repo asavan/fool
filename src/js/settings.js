@@ -15,5 +15,6 @@ export default {
     colorOrder: ["red", "yellow", "green", "blue", "black"],
     sortByColor: "",
     direction: ["center"],
-    seed: ""
+    seed: "",
+    dealAnim: 500
 };

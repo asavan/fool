@@ -34,24 +34,24 @@ export default function unoGame(window, document, settings, playersExternal, han
         ++index;
     }
 
-    engine.on("draw", async ({playerIndex, card}) => {
-        drawScreen("draw");
-        const start = Date.now();
+    engine.on("draw", ({playerIndex, card}) => {
+        layout.drawPlayersDeal(window, document, engine, myIndex, settings, "draw", card, playerIndex);
+        const pause = delay(150);
+        let external = Promise.resolve();
         if (playerIndex === myIndex || settings.mode === "server") {
-            await handlers["draw"]({playerIndex, card});
+            external = handlers["draw"]({playerIndex, card});
         }
-        const end = Date.now();
-        await delay(150 - end + start);
+        return Promise.all([pause, external]);
     });
 
-    engine.on("drawExternal", async ({playerIndex, card}) => {
-        drawScreen("drawExternal");
-        const start = Date.now();
+    engine.on("drawExternal", ({playerIndex, card}) => {
+        layout.drawPlayersDeal(window, document, engine, myIndex, settings, "drawExternal", card, playerIndex);
+        const pause = delay(150);
+        let external = Promise.resolve();
         if (settings.mode === "server") {
-            await handlers["draw"]({playerIndex, card});
+            external = handlers["draw"]({playerIndex, card});
         }
-        const end = Date.now();
-        await delay(200 - end + start);
+        return Promise.all([pause, external]);
     });
 
     engine.on("changeCurrent", async ({currentPlayer, dealer, direction}) => {

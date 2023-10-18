@@ -126,7 +126,7 @@ async function onDraw(playerIndex, card) {
         return false;
     }
     if (playerIndex !== currentPlayer) {
-        console.error("draw not for current player");
+        console.error("draw not for current player", playerIndex, currentPlayer);
         // return;
     }
     const cardFromDeck = await dealToPlayer(deck, playerIndex, true);
@@ -137,7 +137,7 @@ async function onDraw(playerIndex, card) {
 
 async function onDrawPlayer(playerIndex) {
     if (playerIndex !== currentPlayer) {
-        console.log("draw not for current player");
+        console.log("draw not for current player", playerIndex, currentPlayer);
         return false;
     }
 
@@ -158,7 +158,7 @@ async function onDrawPlayer(playerIndex) {
 
 async function pass(playerIndex) {
     if (playerIndex !== currentPlayer) {
-        console.log("pass not for current player");
+        console.log("pass not for current player", playerIndex, currentPlayer);
         return;
     }
 
@@ -193,12 +193,12 @@ async function onDiscard(card) {
     const cardFromDeck = deck.deal();
     localAssert(cardFromDeck === card, "Different cards");
     cardOnBoard = card;
-    await handlers["discard"](card);
     const newColor = core.cardColor(card);
     if (newColor !== "black") {
         discardPile.push(card);
         currentColor = newColor;
     }
+    await handlers["discard"](card);
 
     // calcCardEffect(card, currentPlayer);
 }
@@ -211,16 +211,16 @@ async function dealToDiscard(deck) {
 
     let card = deck.deal();
     cardOnBoard = card;
-    await handlers["discard"](card);
     while (core.cardColor(card) === "black") {
+        await handlers["discard"](card);
         cardOnBoard = null;
         await deck.addCardAndShuffle(card);
         card = deck.deal();
         cardOnBoard = card;
-        await handlers["discard"](card);
     }
     discardPile.push(card);
     currentColor = core.cardColor(card);
+    await handlers["discard"](card);
     roundover = false;
     console.log("dealToDiscardEnd");
     return card;

@@ -35,8 +35,7 @@ function drawHand(document, parent, pile, engine, settings) {
     parent.appendChild(hand);
 }
 
-function drawDeck(document, parent, card, engine, mode, myIndex) {
-    console.log("drawDeck");
+function drawDeck(document, parent, card, engine, clickAll, myIndex) {
     const hand = document.createElement("ul");
     const cardItem = document.querySelector("#card");
     hand.classList.add("hand");
@@ -50,9 +49,11 @@ function drawDeck(document, parent, card, engine, mode, myIndex) {
         hand.appendChild(drawBlank(document));
     } else {
         const backClone = drawBack(document);
+        console.log("add clicker");
         backClone.addEventListener("click", async (e) => {
             e.preventDefault();
-            if (mode === "ai") {
+            console.log("click backClone");
+            if (clickAll) {
                 await engine.drawCurrent();
             } else {
                 const res = await engine.onDrawPlayer(myIndex);
@@ -74,7 +75,9 @@ function drawPlayersInner(window, document, engine, myIndex, settings, marker) {
 
     const box = document.querySelector(".places");
     box.replaceChildren();
-    drawCenterCircle(box, document, engine);
+    if (settings.direction.includes("center")) {
+        drawCenterCircle(box, document, engine);
+    }
 
     const places = document.createElement("ul");
     places.classList.add("circle-wrapper");
@@ -121,7 +124,7 @@ function drawPlayersInner(window, document, engine, myIndex, settings, marker) {
         places.appendChild(elem);
         ++i;
     }
-    drawCenter(window, document, engine.getCardOnBoard(), engine, "ai", myIndex);
+    drawCenter(window, document, engine.getCardOnBoard(), engine, settings, myIndex);
     places.addEventListener("click", async (e) => {
         e.preventDefault();
         const cardEl = e.target.parentElement;
@@ -136,10 +139,10 @@ function drawPlayersInner(window, document, engine, myIndex, settings, marker) {
 }
 
 function drawCenterCircle(box, document, engine) {
-    addDirectionElem(engine.size(), engine.getDirection(), box, document, "big-circle", engine.getCurrentColor());
+    addDirectionElem(engine.size(), engine.getDirection(), box, document, "big-circle");
 }
 
-function drawCenter(window, document, p, engine, mode, myIndex) {
+function drawCenter(window, document, p, engine, settings, myIndex) {
     const box = document.querySelector(".places");
     let discardPile = box.querySelector(".center-pile");
     if (!discardPile) {
@@ -149,12 +152,16 @@ function drawCenter(window, document, p, engine, mode, myIndex) {
     } else {
         discardPile.replaceChildren();
     }
-    drawDeck(document, discardPile, p, engine, mode, myIndex);
+    drawDeck(document, discardPile, p, engine, settings.clickAll, myIndex);
 }
 
 function addDirectionElem(size, direction, parent, document, className, className2) {
     if (size === 2 || direction === 0) {
         return;
+    }
+    const old = parent.querySelector("." + className);
+    if (old) {
+        old.remove();
     }
     const directionElem = document.createElement("span");
     directionElem.classList.add(className);
@@ -238,7 +245,9 @@ function drawLayout(window, document, engine, myIndex, settings) {
     root.style.setProperty("--current-color", mapColor(engine.getCurrentColor()));
     const box = document.querySelector(".places");
     box.replaceChildren();
-    drawCenterCircle(box, document, engine);
+    if (settings.direction.includes("center")) {
+        drawCenterCircle(box, document, engine);
+    }
     const places = document.createElement("ul");
     places.classList.add("circle-wrapper");
     box.appendChild(places);
@@ -299,12 +308,12 @@ function drawLayout(window, document, engine, myIndex, settings) {
 
         places.appendChild(elem);
     }
-    drawCenter(window, document, engine.getCardOnBoard(), engine, "net", myIndex);
+    drawCenter(window, document, engine.getCardOnBoard(), engine, settings, myIndex);
     drawMyHand(window, document, engine, myIndex, myPlayer, box, settings);
 }
 
 function drawPlayers(window, document, engine, myIndex, settings, marker) {
-//    console.log("drawPlayers", engine.state());
+    console.log("drawPlayers", marker);
     if (settings.clickAll) {
         drawPlayersInner(window, document, engine, myIndex, settings, marker);
         return;
@@ -313,7 +322,7 @@ function drawPlayers(window, document, engine, myIndex, settings, marker) {
     drawLayout(window, document, engine, myIndex, settings);
 }
 
-async function drawDiscard(window, document, engine, myIndex) {
+async function drawDiscard(window, document, engine, myIndex, settings) {
     const centerPile = document.querySelector(".center-pile");
     const list = centerPile.querySelector(".hand");
 
@@ -330,8 +339,8 @@ async function drawDiscard(window, document, engine, myIndex) {
     list.appendChild(flipClone);
     await delay(200);
     flipList.classList.remove("is-flipped");
-    await delay(1000);
-    drawCenter(window, document, engine.getCardOnBoard(), engine, "net", myIndex);
+    await delay(800);
+    drawCenter(window, document, engine.getCardOnBoard(), engine, settings, myIndex);
 }
 
 function drawCurrent(window, document, engine) {
@@ -346,6 +355,60 @@ function drawCurrent(window, document, engine) {
             player.classList.add("dealer");
         }
     }
+    if (engine.getCurrentColor()) {
+        document.documentElement.style.setProperty("--current-color", mapColor(engine.getCurrentColor()));
+        const box = document.querySelector(".places");
+        drawCenterCircle(box, document, engine);
+    }
+}
+
+async function drawDeal(window, document, card, animTime) {
+    const centerPile = document.querySelector(".center-pile");
+    const list = centerPile.querySelector(".hand");
+
+    const flipItem = document.querySelector("#flip-card");
+    const flipClone = flipItem.content.cloneNode(true).firstElementChild;
+    const flipList = flipClone.querySelector(".card-flip");
+    const cardItem = document.querySelector("#card");
+    const newCard = drawCard(card, cardItem);
+    newCard.classList.add("card-face");
+    const backClone = drawBack(document);
+    backClone.classList.add("card-face", "card-face-back");
+    flipList.appendChild(newCard);
+    flipList.appendChild(backClone);
+    list.appendChild(flipClone);
+
+    const myHand = document.querySelector(".my-hand .hand");
+    const newCard1 = drawCard(card, cardItem);
+    newCard1.classList.add("transparent");
+    myHand.appendChild(newCard1);
+
+    const dx = newCard1.getBoundingClientRect().x - flipList.getBoundingClientRect().x;
+    const dy = newCard1.getBoundingClientRect().y - flipList.getBoundingClientRect().y;
+
+    const newspaperSpinning = [
+        { transform: "rotateY(180deg)" },
+        { transform: `rotateY(0) translate(calc(${dx}px + 100%), ${dy}px)` },
+    ];
+
+    const newspaperTiming = {
+        duration: animTime,
+        easing: "ease-out",
+        fill: "forwards"
+    };
+    flipList.animate(newspaperSpinning, newspaperTiming);
+    await delay(animTime);
+    flipClone.remove();
+    newCard1.classList.remove("transparent");
+}
+
+function drawPlayersDeal(window, document, engine, myIndex, settings, marker, card, playerIndex) {
+    if (playerIndex != myIndex || settings.clickAll) {
+        drawPlayers(window, document, engine, myIndex, settings, marker);
+        return;
+    }
+
+    return drawDeal(window, document, card, settings.dealAnim);
 }
 
 export default {
@@ -353,5 +416,7 @@ export default {
     drawPlayers,
     drawLayout,
     drawDiscard,
-    drawCurrent
+    drawCurrent,
+    drawDeal,
+    drawPlayersDeal
 };

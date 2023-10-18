@@ -97,7 +97,8 @@ ul {
   display: block;
   width: 100%;
   aspect-ratio: 1/1;
-  background-color: #9cf;
+  background-color: var(--current-color);
+  transition: background-color 1000ms linear;
 }
 
 /* stylelint-enable property-no-vendor-prefix */
@@ -139,6 +140,7 @@ ul {
   text-align:center;
   width: calc(var(--card-width) * 4);
   aspect-ratio: 1 / 1;
+  z-index: -1;
 }
 
 
@@ -217,6 +219,7 @@ footer {
 
 .container {
   background-color: var(--current-color);
+  transition: background-color 500ms linear;
   width: 100%;
   max-width: 500px;
   height: 100%;
@@ -477,6 +480,11 @@ footer {
   transform-origin: 100% 0%;
   cursor: pointer;
   position: relative;
+  z-index: 1;
+}
+
+.transparent {
+  opacity: 0;
 }
 
 .card-flip.is-flipped {
