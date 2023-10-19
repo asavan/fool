@@ -1,0 +1,72 @@
+<html lang="en" style="--current-color: rgba(240, 248, 255, 0.3);"><head>
+    <meta charset="utf-8">
+    <title>Fool</title>
+    <meta name="description" content="Fool">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ffffff">
+    <link id="favicon" rel="icon" href="./images/icon_reverse.svg" sizes="any" type="image/svg+xml">
+    <link href="./css/style.css" rel="stylesheet"></head>
+    <script type="module" src="./js/layout.js"></script>
+<body>
+
+<div class="name-form-cont"></div>
+
+<div class="container" data-background="lime">
+    <div class="places"><span class="big-circle"><div class="direction mirror"></div></span><ul class="circle-wrapper"></ul><div class="center-pile"><ul class="hand"><li class="sprite-container card" data-card="109" style="--sprite-x: 300%; --sprite-y: 100%;">
+        <div class="sprite"></div>
+    </li><li class="sprite-container">
+        <div class="sprite-back"></div>
+    </li></ul></div><div class="my-hand js-player current-player dealer" data-id="0"><div class="row"><span class="player-name">server</span></div><ul class="hand"><li class="sprite-container card" data-card="72" style="--sprite-x: 1200%; --sprite-y: 300%;">
+        <div class="sprite"></div>
+    </li><li class="sprite-container card" data-card="16" style="--sprite-x: 1200%; --sprite-y: 700%;">
+        <div class="sprite"></div>
+    </li><li class="sprite-container card" data-card="54" style="--sprite-x: 200%; --sprite-y: 500%;">
+        <div class="sprite"></div>
+    </li><li class="sprite-container card" data-card="102" style="--sprite-x: 1000%; --sprite-y: 100%;">
+        <div class="sprite"></div>
+    </li><li class="sprite-container card" data-card="47" style="--sprite-x: 900%; --sprite-y: 500%;">
+        <div class="sprite"></div>
+    </li><li class="sprite-container card" data-card="29" style="--sprite-x: 1300%; --sprite-y: 600%;">
+        <div class="sprite"></div>
+    </li><li class="sprite-container card" data-card="57" style="--sprite-x: 1300%; --sprite-y: 400%;">
+        <div class="sprite"></div>
+    </li></ul></div></div>
+    <div class="color-picker-holder"></div>
+</div>
+
+<div class="log"></div>
+
+<div class="qrcontainerserver"></div>
+<div id="popup1" class="overlay">
+    <div class="popup">
+        <h2>You win</h2>
+        <a class="close" href="#">×</a>
+        <div class="content">
+            Result 0
+        </div>
+    </div>
+</div>
+<footer>
+    <button id="butInstall" class="butInstall install hidden hidden2">Install as app</button>
+</footer>
+
+<template id="card">
+    <li class="sprite-container card">
+        <div class="sprite"></div>
+    </li>
+</template>
+
+<template id="back">
+    <li class="sprite-container">
+        <div class="sprite-back"></div>
+    </li>
+</template>
+
+<template id="flip-card">
+    <li class="flip-class-cont">
+        <ul class="card-flip is-flipped">
+        </ul>
+    </li>
+</template>
+
+</body></html>

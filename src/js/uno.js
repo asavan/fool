@@ -378,6 +378,10 @@ function getCurrentPlayerObj() {
     return players[currentPlayer];
 }
 
+function getPlayerByIndex(ind) {
+    return players[ind];
+}
+
 async function tryMove(playerInd, card) {
     if (playerInd !== currentPlayer) {
         console.log("Wrong player", currentPlayer, playerInd);
@@ -685,6 +689,7 @@ export default function initCore(settings, rngFunc) {
         deal,
         dealN,
         getPlayerIterator,
+        getPlayerByIndex,
         addPlayer,
         size,
         on,

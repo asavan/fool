@@ -16,5 +16,6 @@ export default {
     sortByColor: "",
     direction: ["center"],
     seed: "",
-    dealAnim: 500
+    dealAnim: 500,
+    moveAnim: 250
 };

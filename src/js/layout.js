@@ -10,6 +10,13 @@ function drawCard(p, cardItem) {
     return cardClone;
 }
 
+function repaintCard(p, cardEl) {
+    cardEl.style.setProperty("--sprite-x", (1400 - (p%14)*100) + "%");
+    cardEl.style.setProperty("--sprite-y", (800 - Math.floor(p/14)*100) + "%");
+    cardEl.dataset.card = p;
+    return cardEl;
+}
+
 function drawBlank(document) {
     const blank = document.createElement("li");
     blank.classList.add("blank");
@@ -313,7 +320,11 @@ function drawLayout(window, document, engine, myIndex, settings) {
 }
 
 function drawPlayers(window, document, engine, myIndex, settings, marker) {
-    console.log("drawPlayers", marker);
+    if (marker) {
+        console.log("drawPlayers", marker);
+    } else {
+        console.trace("drawPlayers", marker);
+    }
     if (settings.clickAll) {
         drawPlayersInner(window, document, engine, myIndex, settings, marker);
         return;
@@ -402,14 +413,155 @@ async function drawDeal(window, document, card, animTime) {
     newCard1.classList.remove("transparent");
 }
 
+async function drawDealOther(window, document, card, animTime, target, newCount) {
+    if (!target) {
+        console.trace("No target");
+        return;
+    }
+    const centerPile = document.querySelector(".center-pile");
+    const list = centerPile.querySelector(".hand");
+
+    const flipItem = document.querySelector("#flip-card");
+    const flipClone = flipItem.content.cloneNode(true).firstElementChild;
+    const flipList = flipClone.querySelector(".card-flip");
+    const cardItem = document.querySelector("#card");
+    const newCard = drawCard(card, cardItem);
+    newCard.classList.add("card-face");
+    console.log(newCard, card);
+    const backClone = drawBack(document);
+    backClone.classList.add("card-face", "card-face-back");
+    flipList.appendChild(newCard);
+    flipList.appendChild(backClone);
+    list.appendChild(flipClone);
+
+    console.log(target.getBoundingClientRect());
+    const dx = -target.getBoundingClientRect().x + flipList.getBoundingClientRect().x - target.getBoundingClientRect().width/2;
+    const dy = target.getBoundingClientRect().y - flipList.getBoundingClientRect().y + target.getBoundingClientRect().height/2;
+
+    const newspaperSpinning = [
+        { transform: "rotateY(180deg)" },
+        { transform: `rotateY(180deg) translate(calc(${dx}px), ${dy}px) scale(0)`},
+    ];
+
+    const newspaperTiming = {
+        duration: animTime,
+        easing: "ease-out",
+        fill: "forwards"
+    };
+    flipList.animate(newspaperSpinning, newspaperTiming);
+    await delay(animTime - 30);
+    target.textContent = newCount;
+    flipClone.remove();
+}
+
+
+async function drawMove(window, document, newCard1, animTime) {
+    const centerPile = document.querySelector(".center-pile");
+    const list = centerPile.querySelector(".hand");
+
+    const card = parseInt(newCard1.dataset.card, 10);
+
+    const flipItem = document.querySelector("#flip-card");
+    const flipClone = flipItem.content.cloneNode(true).firstElementChild;
+    const flipList = flipClone.querySelector(".card-flip");
+    const cardItem = document.querySelector("#card");
+    const newCard = drawCard(card, cardItem);
+    newCard.classList.add("card-face");
+    const backClone = drawBack(document);
+    backClone.classList.add("card-face", "card-face-back");
+    flipList.appendChild(newCard);
+    flipList.appendChild(backClone);
+    list.appendChild(flipClone);
+
+
+    const dx = newCard1.getBoundingClientRect().x - flipList.getBoundingClientRect().x;
+    const dy = newCard1.getBoundingClientRect().y - flipList.getBoundingClientRect().y;
+    newCard1.classList.add("transparent");
+
+    const slide = [
+        { transform: `translate(calc(${dx}px + 100%), ${dy}px)` },
+        { transform: "translate(0, 0)" }
+    ];
+
+    const shrink = [
+        {},
+        { width: "0%" }
+    ];
+
+    const timing = {
+        duration: animTime,
+        easing: "linear",
+        fill: "forwards"
+    };
+    flipList.animate(slide, timing);
+    newCard1.animate(shrink, timing);
+
+    await delay(animTime);
+    const cardToRepaint = list.querySelector(".card");
+    repaintCard(card, cardToRepaint);
+    newCard1.remove();
+    flipClone.remove();
+}
+
+function drawMoveByCard(window, document, card, animTime) {
+    const myHand = document.querySelector(".my-hand .hand");
+    const cardEl = myHand.querySelector(`[data-card="${card}"]`);
+    return drawMove(window, document, cardEl, animTime);
+}
+
 function drawPlayersDeal(window, document, engine, myIndex, settings, marker, card, playerIndex) {
-    if (playerIndex != myIndex || settings.clickAll) {
+    if (settings.show) {
         drawPlayers(window, document, engine, myIndex, settings, marker);
         return;
     }
 
+    if (playerIndex != myIndex) {
+        const player = document.querySelector(`[data-id="${playerIndex}"]`);
+        const pl = engine.getPlayerByIndex(playerIndex);
+        return drawDealOther(window, document, card, settings.moveAnim, player.querySelector(".card-count"), pl.pile().length);
+    }
+
     return drawDeal(window, document, card, settings.dealAnim);
 }
+
+function drawPlayersMove(window, document, engine, myIndex, settings, marker, card, playerIndex) {
+    if (settings.clickAll || playerIndex != myIndex) {
+        drawPlayers(window, document, engine, myIndex, settings, marker);
+        return;
+    }
+
+    return drawMoveByCard(window, document, card, settings.moveAnim);
+}
+
+function setup() {
+    const centerPile = document.querySelector(".center-pile");
+    if (!centerPile) return;
+    centerPile.onclick = () => {
+        drawDeal(window, document, 5, 500);
+    };
+    const myHand = document.querySelector(".my-hand");
+    if (!myHand) return;
+    myHand.addEventListener("click", async (e) => {
+        e.preventDefault();
+        const cardEl = e.target.parentElement;
+        if (cardEl && cardEl.classList.contains("card")) {
+            await drawMove(window, document, cardEl, 200);
+        }
+    });
+
+    const activePlayer = document.querySelector(".current-player");
+    if (!activePlayer) return;
+    const dealer = document.querySelector(".dealer");
+    if (!dealer) return;
+    let counter = 7;
+    activePlayer.onclick = (e) => {
+        e.preventDefault();
+        ++counter;
+        return drawDealOther(window, document, 35, 1000, activePlayer.querySelector(".card-count"), counter);
+    };
+}
+
+setup();
 
 export default {
     drawCenter,
@@ -418,5 +570,6 @@ export default {
     drawDiscard,
     drawCurrent,
     drawDeal,
-    drawPlayersDeal
+    drawPlayersDeal,
+    drawPlayersMove
 };

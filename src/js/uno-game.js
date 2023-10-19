@@ -70,20 +70,28 @@ export default function unoGame(window, document, settings, playersExternal, han
         await handlers["pass"]({playerIndex, myIndex});
     });
 
-    engine.on("move", async (data) => {
-        drawScreen("move");
+    engine.on("move", (data) => {
+        // drawScreen("move");
+        console.log("move", data);
+        layout.drawPlayersMove(window, document, engine, myIndex, settings, "drawExternal", data.card, data.playerIndex);
+        // layout.drawPlayersMove(window, document, engine, myIndex, settings, data.card, data.playerIndex);
+        const pause = delay(150);
+        let external = Promise.resolve();
         if (data.playerIndex === myIndex || settings.mode === "server") {
-            await handlers["move"](data);
+            external = handlers["move"](data);
         }
-        await delay(30);
+        return Promise.all([pause, external]);
     });
 
-    engine.on("moveExternal", async (data) => {
+    engine.on("moveExternal", (data) => {
         drawScreen("moveExternal");
+        const pause = delay(150);
+        let external = Promise.resolve();
+
         if (settings.mode === "server") {
-            await handlers["move"](data);
+            external = handlers["move"](data);
         }
-        await delay(30);
+        return Promise.all([pause, external]);
     });
 
     engine.on("discard", async (p) => {
@@ -195,7 +203,8 @@ export default function unoGame(window, document, settings, playersExternal, han
 
         console.log("Change current", data.currentPlayer, data.dealer);
         engine.setCurrent(data.currentPlayer, data.dealer, data.direction);
-        drawScreen();
+        return layout.drawCurrent(window, document, engine, myIndex, settings);
+        // drawScreen("onChangeCurrent");
     }
 
     function onClearHand(playerIndex) {

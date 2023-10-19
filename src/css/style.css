@@ -63,6 +63,11 @@ ul {
   box-sizing: border-box;
   padding: 0 10px;
   font-size: 3rem;
+  transition: background-color 200ms linear;
+}
+
+.my-hand .card {
+  cursor: pointer;
 }
 
 .clickable {
@@ -175,6 +180,9 @@ ul {
   border: solid 0.3px;
 }
 
+.center-pile .sprite-back {
+  cursor: pointer;
+}
 
 .hand {
   display: flex;
