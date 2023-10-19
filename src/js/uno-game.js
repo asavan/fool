@@ -160,8 +160,8 @@ export default function unoGame(window, document, settings, playersExternal, han
     async function start() {
         await handlers["start"]({players: playersExternal, engine});
         await engine.chooseDealer();
-        await delay(1000);
-        if (settings.showAll) {
+        await delay(700);
+        if (settings.showAll || settings.clickAll) {
             settings.show = true;
         } else {
             settings.show = false;
@@ -195,7 +195,7 @@ export default function unoGame(window, document, settings, playersExternal, han
             console.log("Wrong player", engine.getCurrentPlayer(), data.myIndex);
             return;
         }
-        if (settings.showAll) {
+        if (settings.showAll || settings.clickAll) {
             settings.show = true;
         } else {
             settings.show = false;
