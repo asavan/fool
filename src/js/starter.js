@@ -4,27 +4,21 @@ import settings from "./settings.js";
 import gameFunction from "./game.js";
 import {parseSettings, assert} from "./helper.js";
 
-export default function starter(window, document) {
+export default async function starter(window, document) {
     parseSettings(window, document, settings);
 
+    let mode = null;
     if (settings.mode === "net") {
-        import("./mode/net.js").then(mode => {
-            mode.default(window, document, settings, gameFunction).
-                catch((error) => {console.error(error);});
-        });
+        mode = await import("./mode/net.js");
     } else if (settings.mode === "server") {
-        import("./mode/server.js").then(mode => {
-            mode.default(window, document, settings, gameFunction);
-        });
+        mode = await import("./mode/server.js");
     } else if (settings.mode === "ai") {
-        import("./mode/ai.js").then(mode => {
-            mode.default(window, document, settings, gameFunction);
-        });
+        mode = await import("./mode/ai.js");
     } else if (settings.mode === "test") {
-        import("./mode/test.js").then(mode => {
-            mode.default(window, document, settings, gameFunction);
-        });
+        mode = await import("./mode/test.js");
     } else {
         assert(false, "Unsupported mode");
     }
+    mode.default(window, document, settings, gameFunction).
+        catch((error) => {console.error(error);});
 }
