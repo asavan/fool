@@ -36,9 +36,15 @@ export default function enterName(window, document, settings, handlers) {
         field.classList.remove("hidden");
         formCont.replaceChildren();
     }
+    function checkName(name) {
+        if (name.length > settings.maxNameLen) {
+            throw "Choose shorter name!";
+        }
+    }
 
     form.addEventListener("submit", function(evt) {
         evt.preventDefault();
+        checkName(input.value);
         onName(input.value);
     });
 }
