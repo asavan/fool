@@ -24,7 +24,19 @@ export default function enterName(window, document, settings, handlers) {
         field.classList.add("hidden");
     }
 
+    function checkName(name) {
+        if (name.length > settings.maxNameLen) {
+            alert("Choose shorter name!");
+            return false;
+        }
+        return true;
+    }
+
     function onName(name) {
+        if (!checkName(input.value)) {
+            return;
+        }
+
         console.log("On name", name, handlers);
         window.sessionStorage.setItem("username", name);
 
@@ -36,15 +48,9 @@ export default function enterName(window, document, settings, handlers) {
         field.classList.remove("hidden");
         formCont.replaceChildren();
     }
-    function checkName(name) {
-        if (name.length > settings.maxNameLen) {
-            throw "Choose shorter name!";
-        }
-    }
 
     form.addEventListener("submit", function(evt) {
         evt.preventDefault();
-        checkName(input.value);
         onName(input.value);
     });
 }
