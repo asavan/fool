@@ -17,5 +17,6 @@ export default {
     direction: ["center"],
     seed: "",
     dealAnim: 500,
-    moveAnim: 250
+    moveAnim: 250,
+    maxNameLen: 15
 };
