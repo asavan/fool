@@ -14,10 +14,10 @@ export default function test(window, document, settings, gameFunction) {
         game.on("discard", () => {});
         game.on("changeCurrent", () => {});
         game.on("clearPlayer", () => {});
-        game.join(0, "server", "server");
+        game.join("server", "server");
         for (let i = 1; i < 4; ++i) {
             const name = "client" + i;
-            game.join(i, name, name);
+            game.join(name, name);
         }
         game.afterAllJoined();
 
