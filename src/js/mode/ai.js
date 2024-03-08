@@ -18,7 +18,7 @@ export default function ai(window, document, settings, gameFunction) {
         game.join(0, "server", "server");
         for (let i = 1; i < 4; ++i) {
             const name = "client" + i;
-            game.join(i, name, name);
+            game.join(name, name);
         }
         game.afterAllJoined();
 

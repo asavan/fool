@@ -52,9 +52,17 @@ export default function game(window, document, settings) {
         handlers[name] = f;
     }
 
-    const join = (ind, name, external_id) => {
+    const join = (name, external_id) => {
         console.log("Before choosePlaceFunc");
-        players[ind] = {"name": name, "external_id": external_id};
+
+        const found = players.findIndex(player => player.external_id === external_id);
+
+        if (found === -1) {
+            players.push({"name": name, "external_id": external_id});
+        } else {
+            players[found].name = name;
+        }
+
         choosePlaceFunc(window, document, settings, handlers, players);
         return true;
     };

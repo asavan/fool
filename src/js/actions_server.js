@@ -6,7 +6,7 @@ function init(game, clients) {
             console.log("User joined", n, id);
             const client = clients[id];
             client.username = n;
-            return game.join(client.index, n, id);
+            return game.join(n, id);
         }
     };
 }
