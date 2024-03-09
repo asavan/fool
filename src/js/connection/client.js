@@ -160,7 +160,6 @@ const connectionFunc = function (settings, location, id) {
 
         const offer = await peerConnection.createOffer();
         await peerConnection.setLocalDescription(offer);
-        signaling.send("offer", {type: "offer", sdp: offer.sdp});
 
 
         signaling.onmessage = async function(text) {
@@ -199,8 +198,9 @@ const connectionFunc = function (settings, location, id) {
                 console.error("Unknown type " + json.action);
             }
         };
-    }
 
+        return signaling.send("offer", {type: "offer", sdp: offer.sdp});
+    }
 
     function setupDataChannel(dataChannel, signaling) {
         dataChannel.onmessage = function (e) {
