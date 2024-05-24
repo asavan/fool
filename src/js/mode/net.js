@@ -2,18 +2,13 @@
 
 import connectionFunc from "../connection/client.js";
 import actionsFunc from "../actions.js";
-import Queue from "../utils/queue.js";
 import rngFunc from "../utils/random.js";
 import {log} from "../helper.js";
 import enterName from "../names.js";
+import PromiseQueue from "../utils/async-queue.js";
 
-function toObjJson(v, method) {
-    const value = {
-        "method": method
-    };
-    value[method] = v;
-    return JSON.stringify(value);
-}
+const OTHER_SIDE_ID = "server";
+
 
 function makeid(length) {
     return rngFunc.makeId(length, Math.random);
@@ -30,39 +25,10 @@ function onConnectionAnimation(document, connection) {
     });
 }
 
-function setupOnData(connection, queue, actions) {
-    connection.on("recv", (data) => {
-        // console.log(data);
-        const obj = JSON.parse(data);
-        const res = obj.data;
-        const callback = actions[obj.action];
-        if (typeof callback === "function") {
-            queue.enqueue({callback, res, fName: obj.action});
-        }
-    });
-}
-
 function setupActions(game, connection) {
     for (const handlerName of game.actionKeys()) {
-        game.on(handlerName, (n) => connection.sendMessage(toObjJson(n, handlerName)));
+        game.on(handlerName, (n) => connection.sendRawTo(handlerName, n, OTHER_SIDE_ID));
     }
-}
-
-function loop(queue, window) {
-    let inProgress = false;
-
-    async function step() {
-        if (!queue.isEmpty() && !inProgress) {
-            const {callback, res, fName} = queue.dequeue();
-            console.log("Progress start", fName, inProgress);
-            inProgress = true;
-            await callback(res);
-            console.log("Progress stop", fName, inProgress);
-            inProgress = false;
-        }
-        window.requestAnimationFrame(step);
-    }
-    window.requestAnimationFrame(step);
 }
 
 export default function netMode(window, document, settings, gameFunction) {
@@ -76,15 +42,14 @@ export default function netMode(window, document, settings, gameFunction) {
         });
         onConnectionAnimation(document, connection);
         connection.on("open", () => {
-            const queue = Queue();
+            const queue = PromiseQueue(console);
             settings["externalId"] = myId;
             settings.applyEffects = false;
             const game = gameFunction(window, document, settings);
             setupActions(game, connection);
             const actions = actionsFunc(game);
-            setupOnData(connection, queue, actions);
+            connection.registerHandler(queue, actions);
             game.onConnect();
-            loop(queue, window);
             resolve(game);
         });
 

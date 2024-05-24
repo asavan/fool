@@ -277,7 +277,19 @@ const connectionFunc = function (settings, location) {
         return client.dc.send(JSON.stringify(json));
     };
 
-    return {connect, sendAll, on, closeSocket, sendRawAll, sendRawTo};
+    function registerHandler(queue, actions) {
+        on("recv", (data) => {
+            // console.log(data);
+            const obj = JSON.parse(data);
+            const res = obj.data;
+            const callback = actions[obj.action];
+            if (typeof callback === "function") {
+                queue.add(() => callback(res, obj.from));
+            }
+        });
+    }
+
+    return {connect, sendAll, on, closeSocket, sendRawAll, sendRawTo, registerHandler};
 };
 
 export default connectionFunc;

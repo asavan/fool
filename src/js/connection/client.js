@@ -140,7 +140,7 @@ const connectionFunc = function (settings, location, id) {
             }
         };
 
-        dataChannel = peerConnection.createDataChannel("gamechannel");
+        dataChannel = peerConnection.createDataChannel("gamechannel"+id);
 
         setupDataChannel(dataChannel, signaling);
 
@@ -228,7 +228,31 @@ const connectionFunc = function (settings, location, id) {
         return isConnected;
     }
 
-    return {connect, sendMessage, on};
+    const sendRawTo = (action, data, to) => {
+        if (!dataChannel) {
+            return false;
+        }
+        if (!isConnected) {
+            console.error("Not connected");
+            return false;
+        }
+        const json = {from: id, to, action, data};
+        return dataChannel.send(JSON.stringify(json));
+    };
+
+    function registerHandler(queue, actions) {
+        on("recv", (data) => {
+            // console.log(data);
+            const obj = JSON.parse(data);
+            const res = obj.data;
+            const callback = actions[obj.action];
+            if (typeof callback === "function") {
+                queue.add(() => callback(res, obj.from));
+            }
+        });
+    }  
+
+    return {connect, sendMessage, on, sendRawTo, registerHandler};
 };
 
 export default connectionFunc;
