@@ -6,13 +6,7 @@ import core from "./uno/basic.js";
 
 import {assert} from "./helper.js";
 
-function stub(message) {
-    console.log("Stub22 " + message);
-}
-
-async function stub1(message) {
-    await console.log(message);
-}
+import handlersFunc from "./utils/handlers.js";
 
 function localAssert(condition, message) {
     assert(condition, message);
@@ -34,26 +28,26 @@ export default function initCore(settings, rngFunc) {
         "gameover",
         "roundover",
         "pass",
-        "drawExternal"
+        "drawExternal",
+        "moveExternal"
     ];
 
-    const handlers = Object.fromEntries(commands.map((key) => [key, stub1]));
+    const handlers = handlersFunc(commands);
 
-    async function report(callbackName, ...args) {
-        const callback = handlers[callbackName];
-        if (typeof(callback) === "function") {
-            console.log(callbackName);
-            return await callback(...args);
-        } else {
-            stub(callbackName);
-        }
+    
+    function on(name, f) {
+        return handlers.on(name, f);
+    }
+
+    function report(callbackName, data) {
+        return handlers.call(callbackName, data);
     }
 
     let MAX_SCORE = 500;
     let dealer = 0;
     let direction = 0;
     let players = [];
-    let deck = null;
+    let deck;
     let applyEffects = true;
     let cardOnBoard = null;
     let discardPile = [];
@@ -90,7 +84,7 @@ export default function initCore(settings, rngFunc) {
             return false;
         }
         const n = players.length;
-        players.push(newPlayer(name, n, handlers));
+        players.push(newPlayer(name, n));
         return true;
     }
 
@@ -113,7 +107,7 @@ export default function initCore(settings, rngFunc) {
         }
         players[playerIndex].addCard(card);
         if (!external) {
-            await handlers["draw"]({playerIndex, card});
+            await report("draw", {playerIndex, card});
         } else {
             await report("drawExternal", {playerIndex, card});
         }
@@ -176,7 +170,7 @@ export default function initCore(settings, rngFunc) {
             return;
         }
         await next();
-        await handlers["pass"]({playerIndex});
+        await report("pass", {playerIndex});
         return true;
     }
 
@@ -202,7 +196,7 @@ export default function initCore(settings, rngFunc) {
             discardPile.push(card);
             currentColor = newColor;
         }
-        await handlers["discard"](card);
+        await report("discard", card);
 
     // calcCardEffect(card, currentPlayer);
     }
@@ -211,12 +205,12 @@ export default function initCore(settings, rngFunc) {
         console.log("dealToDiscard");
 
         currentPlayer = dealer;
-        await handlers["changeCurrent"]({currentPlayer, dealer, direction});
+        await report("changeCurrent", {currentPlayer, dealer, direction});
 
         let card = deck.deal();
         cardOnBoard = card;
         while (core.cardColor(card) === "black") {
-            await handlers["discard"](card);
+            await report("discard", card);
             cardOnBoard = null;
             await deck.addCardAndShuffle(card);
             card = deck.deal();
@@ -224,14 +218,10 @@ export default function initCore(settings, rngFunc) {
         }
         discardPile.push(card);
         currentColor = core.cardColor(card);
-        await handlers["discard"](card);
+        await report("discard", card);
         roundover = false;
         console.log("dealToDiscardEnd");
         return card;
-    }
-
-    function on(name, f) {
-        handlers[name] = f;
     }
 
     function getPlayerIterator() {
@@ -304,7 +294,7 @@ export default function initCore(settings, rngFunc) {
             console.error("No cand", candidates);
         }
         currentPlayer = dealer;
-        await handlers["changeCurrent"]({currentPlayer, dealer, direction});
+        await report("changeCurrent", {currentPlayer, dealer, direction});
         console.log("dealer was chosen", currentPlayer, dealer);
     }
 
@@ -313,7 +303,7 @@ export default function initCore(settings, rngFunc) {
         discardPile = [];
         for (const pl of players) {
             pl.cleanHand();
-            await handlers["clearPlayer"](pl.getIndex());
+            await report("clearPlayer", pl.getIndex());
         }
         deck = await deckFunc.newShuffledDeck(handlers, rngFunc);
     }
@@ -322,7 +312,7 @@ export default function initCore(settings, rngFunc) {
         cardOnBoard = null;
         discardPile = [];
         players[playerIndex].cleanHand();
-        await handlers["clearPlayer"](playerIndex);
+        await report("clearPlayer", playerIndex);
     }
 
     function skip() {
@@ -520,7 +510,7 @@ export default function initCore(settings, rngFunc) {
                 currentColor = newColor;
             }
             ++cardDiscarded;
-            await handlers["move"]({ playerIndex, card, currentColor });
+            await report("move", { playerIndex, card, currentColor });
             if (applyEffects) {
                 await calcCardEffect(card, currentPlayer);
                 await checkGameEnd(playerIndex);
@@ -537,9 +527,9 @@ export default function initCore(settings, rngFunc) {
             player.updateScore(diff);
             const score = player.getScore();
             if (score >= MAX_SCORE) {
-                await handlers["gameover"]({ playerIndex, score, diff });
+                await report("gameover", { playerIndex, score, diff });
             } else {
-                await handlers["roundover"]({ playerIndex, score, diff });
+                await report("roundover", { playerIndex, score, diff });
             }
         }
     }
@@ -577,7 +567,7 @@ export default function initCore(settings, rngFunc) {
             discardPile.push(card);
             currentColor = nextColor;
             ++cardDiscarded;
-            await handlers["moveExternal"]({playerIndex, card, currentColor});
+            await report("moveExternal", {playerIndex, card, currentColor});
             if (applyEffects) {
                 await calcCardEffect(card, currentPlayer);
                 await checkGameEnd(playerIndex);
@@ -591,7 +581,7 @@ export default function initCore(settings, rngFunc) {
         cardTaken = 0;
         cardDiscarded = 0;
         console.log("Current change", currentPlayer);
-        await handlers["changeCurrent"]({currentPlayer, dealer, direction});
+        await report("changeCurrent", {currentPlayer, dealer, direction});
         return true;
     }
 
@@ -602,7 +592,7 @@ export default function initCore(settings, rngFunc) {
         roundover = false;
         cardTaken = 0;
         cardDiscarded = 0;
-        return await handlers["changeCurrent"]({currentPlayer, dealer, direction});
+        return await report("changeCurrent", {currentPlayer, dealer, direction});
     }
 
     async function drawCurrent() {

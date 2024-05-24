@@ -25,7 +25,7 @@ test("simple 4 player scenario", async () => {
     game.on("discard", () => {});
     game.on("changeCurrent", () => {});
     game.on("clearPlayer", () => {});
-    game.join( "server", "server");
+    game.join("server", "server");
     for (let i = 1; i < 4; ++i) {
         const name = "client" + i;
         game.join(name, name);
