@@ -40,7 +40,7 @@ test("click color scenario", async () => {
         });
     });
     gameFinish.catch(error => {
-        console.error(error)
+        console.error(error);
         assert.fail("fail on game over");
     });
 
