@@ -77,9 +77,22 @@ export function promiseState(promise) {
 export function assert(b, message) {
     if (b) return;
     console.error(message);
+    console.trace(message);
     throw message;
 }
 
 export function pluralize(count, noun, suffix = "s"){
     return `${count} ${noun}${count !== 1 ? suffix : ""}`;
+}
+
+export function stringifyEvent(e) {
+    const obj = {};
+    for (const k in e) {
+        obj[k] = e[k];
+    }
+    return JSON.stringify(obj, (k, v) => {
+        if (v instanceof Node) return "Node";
+        if (v instanceof Window) return "Window";
+        return v;
+    }, " ");
 }

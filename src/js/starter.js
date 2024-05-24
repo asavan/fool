@@ -7,7 +7,7 @@ import {parseSettings, assert} from "./helper.js";
 export default async function starter(window, document) {
     parseSettings(window, document, settings);
 
-    let mode = null;
+    let mode;
     if (settings.mode === "net") {
         mode = await import("./mode/net.js");
     } else if (settings.mode === "server") {

@@ -1,5 +1,3 @@
-"use strict"; // jshint ;_;
-
 import core from "./uno/basic.js";
 
 function chooseColorInternal(document, gameState) {
@@ -36,6 +34,6 @@ function chooseColorInternal(document, gameState) {
 }
 
 export default function chooseColor(window, document, engine, gameState) {
-    engine.on("chooseColor", () => chooseColorInternal(document, gameState));
+    engine.setColorChooser(() => chooseColorInternal(document, gameState));
     return {};
 }

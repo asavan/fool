@@ -79,6 +79,7 @@ export default function server(window, document, settings, gameFunction) {
         const logger = document.querySelector(settings.loggerInMode);
         connection.on("error", (e) => {
             logHtml(e, logger);
+            reject(e);
         });
         connection.on("socket_open", () => {
             const code = makeQr(window, document, settings);
@@ -127,9 +128,11 @@ export default function server(window, document, settings, gameFunction) {
         loop(queue, window);
         resolve(game);
 
-        connection.connect().catch(e => {
+        try {
+            connection.connect();
+        } catch(e) {
             logHtml(e, logger);
             reject(e);
-        });
+        }
     });
 }

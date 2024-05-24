@@ -15,18 +15,6 @@ const handlers = {
     "error": stub,
 };
 
-function stringifyEvent(e) {
-    const obj = {};
-    for (const k in e) {
-        obj[k] = e[k];
-    }
-    return JSON.stringify(obj, (k, v) => {
-        if (v instanceof Node) return "Node";
-        if (v instanceof Window) return "Window";
-        return v;
-    }, " ");
-}
-
 function logFunction(s) {
     let settings = s;
     function init(set) {
@@ -91,7 +79,7 @@ function createSignalingChannel(socketUrl) {
         };
         ws.onerror = function (e) {
             console.error(e);
-            handlers["error"](stringifyEvent(e));
+            handlers["error"](e);
             reject(e);
         };
         return result;

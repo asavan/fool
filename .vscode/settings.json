@@ -1,0 +1,7 @@
+{
+    "search.exclude": {
+        "android/": true,
+        "coverage/": true,
+        "docs/": true
+    }
+}

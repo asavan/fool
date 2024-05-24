@@ -1,7 +1,6 @@
 "use strict";
 
-const GOOD_COLORS = ["red", "yellow", "green", "blue"];
-Object.freeze(GOOD_COLORS);
+const GOOD_COLORS = Object.freeze(["red", "yellow", "green", "blue"]);
 
 const GameStage = Object.freeze({
     chooseDealer: 1,

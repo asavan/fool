@@ -38,8 +38,9 @@ test("simple 4 player scenario", async () => {
             resolve();
         });
     });
-    gameFinish.catch(e => {
-        assert.fail("fail on game over", e);
+    gameFinish.catch(error => {
+        console.error(error);
+        assert.fail("fail on game over");
     });
     assert.ok(true, "Ended well");
 });

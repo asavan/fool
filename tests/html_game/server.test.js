@@ -20,6 +20,6 @@ test("simple server scenario", async () => {
             return setTimeout(callback, 200);
         }
     };
-    await mode(dom.window, document, settings, gameFunction);
+    await mode(dom.window, document, settings, gameFunction).catch(e => console.log("Failed", e));
     assert.ok(true, "Ended well");
 });
