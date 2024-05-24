@@ -1,166 +1,165 @@
-"use strict";
-
 function stub(message) {
     console.log("Stub " + message);
 }
 
-const server = "server";
-
-
-const handlers = {
-    "recv": stub,
-    "open": stub,
-    "socket_open": stub,
-    "socket_close": stub,
-    "close": stub,
-    "error": stub,
-    "disconnect": stub,
-};
-
-function logFunction(s) {
-    let settings = s;
-    function init(set) {
-        settings = set;
-    }
-    function log(obj) {
-        if (settings && settings.networkDebug) {
-            console.log(obj);
-        }
-    }
-    return {init, log};
-}
-
-const logger = logFunction(null);
-
-
-function setupDataChannel(dataChannel, signaling, id, clients) {
-    dataChannel.onmessage = function (e) {
-        logger.log("get data " + e.data);
-        handlers["recv"](e.data, id);
-    };
-
-    dataChannel.onopen = function () {
-        logger.log("------ DATACHANNEL OPENED ------");
-        handlers["open"](id);
-    };
-
-    dataChannel.onclose = function () {
-        logger.log("------ DATACHANNEL CLOSED ------");
-        handlers["disconnect"](id);
-        delete clients[id];
-    };
-
-    dataChannel.onerror = function () {
-        console.error("DC ERROR!!!");
-        handlers["disconnect"](id);
-    };
-}
-
-
-function SetupFreshConnection(signaling, id) {
-    const peerConnection = new RTCPeerConnection(null);
-    // window.pc = peerConnection;
-
-    peerConnection.onicecandidate = e => {
-        if (!e) {
-            console.error("No ice");
-        }
-        const message = {
-            type: "candidate",
-            candidate: null,
-        };
-        if (e.candidate) {
-            message.candidate = e.candidate.candidate;
-            message.sdpMid = e.candidate.sdpMid;
-            message.sdpMLineIndex = e.candidate.sdpMLineIndex;
-        }
-        logger.log({"candidate": e.candidate});
-        signaling.send("candidate", message, id);
-    };
-
-    return peerConnection;
-}
-
-async function processOffer(offer, peerConnection, signaling, id) {
-//    const sdpConstraints = {
-//        'mandatory':
-//            {
-//                'OfferToReceiveAudio': false,
-//                'OfferToReceiveVideo': false
-//            }
-//    };
-
-    logger.log("------ PROCESSED OFFER ------");
-    await peerConnection.setRemoteDescription(offer);
-    const answer = await peerConnection.createAnswer();
-    signaling.send("answer", {type: "answer", sdp: answer.sdp}, id);
-    await peerConnection.setLocalDescription(answer);
-}
-
-
-function ConnectionData(id, signaling, clients) {
-    const client = clients[id];
-    if (client) {
-        // cleanup
-        client.pc.close();
-    }
-    const pc = SetupFreshConnection(signaling, id);
-
-    pc.ondatachannel = (ev) => {
-        setupDataChannel(ev.channel, signaling, id, clients);
-        clients[id].dc = ev.channel;
-    };
-    clients[id] = {pc: pc, dc: null};
-    return pc;
-}
-
-
-function createSignalingChannel(socketUrl) {
-    const ws = new WebSocket(socketUrl);
-
-    const send = (type, sdp, to) => {
-        const json = {from: server, to: to, action: type, data: sdp};
-        logger.log("Sending [server] to [" + to + "]: " + JSON.stringify(sdp));
-        return ws.send(JSON.stringify(json));
-    };
-
-    const close = () => {
-        // iphone fires "onerror" on close socket
-        handlers["error"] = stub;
-        ws.close();
-    };
-
-    const onmessage = stub;
-    const result = {onmessage, send, close};
-
-    ws.onopen = function () {
-        logger.log("Websocket opened");
-        handlers["socket_open"]();
-    };
-    ws.onclose = function () {
-        console.log("Websocket closed");
-        handlers["socket_close"]();
-    };
-
-    ws.onmessage = function (e) {
-        if (e.data instanceof Blob) {
-            const reader = new FileReader();
-            reader.onload = () => {
-                result.onmessage(reader.result);
-            };
-            reader.readAsText(e.data);
-        } else {
-            result.onmessage(e.data);
-        }
-    };
-    ws.onerror = function (e) {
-        console.error(e);
-        handlers["error"](e);
-    };
-    return result;
-}
-
 const connectionFunc = function (settings, location) {
+    const server = "server";
+
+
+    const handlers = {
+        "recv": stub,
+        "open": stub,
+        "socket_open": stub,
+        "socket_close": stub,
+        "close": stub,
+        "error": stub,
+        "disconnect": stub,
+    };
+
+    function logFunction(s) {
+        let settings = s;
+        function init(set) {
+            settings = set;
+        }
+        function log(obj) {
+            if (settings && settings.networkDebug) {
+                console.log(obj);
+            }
+        }
+        return {init, log};
+    }
+
+    const logger = logFunction(null);
+
+
+    function setupDataChannel(dataChannel, id, clients) {
+        dataChannel.onmessage = function (e) {
+            logger.log("get data " + e.data);
+            handlers["recv"](e.data, id);
+        };
+
+        dataChannel.onopen = function () {
+            logger.log("------ DATACHANNEL OPENED ------");
+            handlers["open"](id);
+        };
+
+        dataChannel.onclose = function () {
+            logger.log("------ DATACHANNEL CLOSED ------");
+            handlers["disconnect"](id);
+            delete clients[id];
+        };
+
+        dataChannel.onerror = function () {
+            console.error("DC ERROR!!!");
+            handlers["disconnect"](id);
+        };
+    }
+
+
+    function SetupFreshConnection(signaling, id) {
+        const peerConnection = new RTCPeerConnection(null);
+        // window.pc = peerConnection;
+
+        peerConnection.onicecandidate = e => {
+            if (!e) {
+                console.error("No ice");
+            }
+            const message = {
+                type: "candidate",
+                candidate: null,
+            };
+            if (e.candidate) {
+                message.candidate = e.candidate.candidate;
+                message.sdpMid = e.candidate.sdpMid;
+                message.sdpMLineIndex = e.candidate.sdpMLineIndex;
+            }
+            logger.log({"candidate": e.candidate});
+            signaling.send("candidate", message, id);
+        };
+
+        return peerConnection;
+    }
+
+    async function processOffer(offer, peerConnection, signaling, id) {
+        //    const sdpConstraints = {
+        //        'mandatory':
+        //            {
+        //                'OfferToReceiveAudio': false,
+        //                'OfferToReceiveVideo': false
+        //            }
+        //    };
+
+        logger.log("------ PROCESSED OFFER ------");
+        await peerConnection.setRemoteDescription(offer);
+        const answer = await peerConnection.createAnswer();
+        signaling.send("answer", {type: "answer", sdp: answer.sdp}, id);
+        await peerConnection.setLocalDescription(answer);
+    }
+
+
+    function ConnectionData(id, signaling, clients) {
+        const client = clients[id];
+        if (client) {
+        // cleanup
+            client.pc.close();
+        }
+        const pc = SetupFreshConnection(signaling, id);
+
+        pc.ondatachannel = (ev) => {
+            setupDataChannel(ev.channel, id, clients);
+            clients[id].dc = ev.channel;
+        };
+        clients[id] = {pc: pc, dc: null};
+        return pc;
+    }
+
+
+    function createSignalingChannel(socketUrl) {
+        const ws = new WebSocket(socketUrl);
+
+        const send = (type, sdp, to) => {
+            const json = {from: server, to: to, action: type, data: sdp};
+            logger.log("Sending [server] to [" + to + "]: " + JSON.stringify(sdp));
+            return ws.send(JSON.stringify(json));
+        };
+
+        const close = () => {
+        // iphone fires "onerror" on close socket
+            handlers["error"] = stub;
+            ws.close();
+        };
+
+        const onmessage = stub;
+        const result = {onmessage, send, close};
+
+        ws.onopen = function () {
+            logger.log("Websocket opened");
+            handlers["socket_open"]();
+        };
+        ws.onclose = function () {
+            console.log("Websocket closed");
+            handlers["socket_close"]();
+        };
+
+        ws.onmessage = function (e) {
+            if (e.data instanceof Blob) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    result.onmessage(reader.result);
+                };
+                reader.readAsText(e.data);
+            } else {
+                result.onmessage(e.data);
+            }
+        };
+        ws.onerror = function (e) {
+            console.error(e);
+            handlers["error"](e);
+        };
+        return result;
+    }
+
+    //init
 
     const clients = {};
 

@@ -4,37 +4,15 @@ import {removeElem, logHtml} from "../helper.js";
 import actionsFunc from "../actions_server.js";
 import actionsFuncUno from "../actions_uno_server.js";
 import qrRender from "../lib/qrcode.js";
-import Queue from "../utils/queue.js";
 import connectionFunc from "../connection/server.js";
 import enterName from "../names.js";
+import PromiseQueue from "../utils/async-queue.js";
 
 function makeQr(window, document, settings) {
     const staticHost = settings.sh || window.location.href;
     const url = new URL(staticHost);
     console.log("enemy url", url.toString());
     return qrRender(url.toString(), document.querySelector(".qrcode"));
-}
-
-function loop(queue, window) {
-    let inProgress = false;
-
-    async function step() {
-        if (!queue.isEmpty() && !inProgress) {
-            const {callback, res, fName, id, data} = queue.dequeue();
-            console.log("Progress start", fName, inProgress);
-            inProgress = true;
-            const validate = await callback(res, id);
-            if (validate) {
-                // connection.sendAll(data);
-            } else {
-                console.error("Bad move", data);
-            }
-            // console.log("Progress stop", fName, inProgress);
-            inProgress = false;
-        }
-        window.requestAnimationFrame(step);
-    }
-    window.requestAnimationFrame(step);
 }
 
 function setupProtocol(connection, actions, queue) {
@@ -44,7 +22,7 @@ function setupProtocol(connection, actions, queue) {
         const res = obj[obj.method];
         const callback = actions[obj.method];
         if (typeof callback === "function") {
-            queue.enqueue({callback, res, fName: obj.method, id, data});
+            queue.add(() => callback(res, id));
         }
     });
 }
@@ -70,7 +48,8 @@ export default function server(window, document, settings, gameFunction) {
             });
         });
 
-        const queue = Queue();
+        // const queue = Queue();
+        const queue = PromiseQueue(console);
         const game = gameFunction(window, document, settings);
         const actions = actionsFunc(game, clients);
         setupProtocol(connection, actions, queue);
@@ -107,7 +86,7 @@ export default function server(window, document, settings, gameFunction) {
         });
 
         game.onConnect();
-        loop(queue, window);
+        // loop(queue, window);
         
         try {
             connection.connect();
