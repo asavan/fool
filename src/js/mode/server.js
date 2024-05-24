@@ -57,16 +57,6 @@ function setupProtocol(connection, actions, queue) {
     });
 }
 
-//function setupMedia() {
-//    if (navigator.mediaDevices) {
-//        return navigator.mediaDevices.getUserMedia({
-//            audio: true,
-//            video: true
-//        });
-//    } else {
-//        console.log("No mediaDevices");
-//    }
-//}
 
 export default function server(window, document, settings, gameFunction) {
     const clients = {};

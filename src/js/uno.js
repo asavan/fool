@@ -43,6 +43,8 @@ export default function initCore(settings, rngFunc) {
         return handlers.call(callbackName, data);
     }
 
+    const onShuffle = (d) => handlers.call("shuffle", d);
+
     let MAX_SCORE = 500;
     let dealer = 0;
     let direction = 0;
@@ -262,7 +264,7 @@ export default function initCore(settings, rngFunc) {
 
     async function chooseDealerInner(rngFunc) {
     // console.trace("chooseDealerInner");
-        deck = await deckFunc.newShuffledDeck(handlers, rngFunc);
+        deck = await deckFunc.newShuffledDeck(onShuffle, rngFunc);
         let candidates = [...players];
 
         while (candidates.length > 1) {
@@ -305,7 +307,7 @@ export default function initCore(settings, rngFunc) {
             pl.cleanHand();
             await report("clearPlayer", pl.getIndex());
         }
-        deck = await deckFunc.newShuffledDeck(handlers, rngFunc);
+        deck = await deckFunc.newShuffledDeck(onShuffle, rngFunc);
     }
 
     async function cleanHand(playerIndex) {
@@ -673,7 +675,7 @@ export default function initCore(settings, rngFunc) {
 
     function setDeck(d) {
         if (deck == null) {
-            deck = deckFunc.newExternalDeck(d, handlers, rngFunc);
+            deck = deckFunc.newExternalDeck(d, onShuffle, rngFunc);
         } else {
             deck.setDeck(d);
         }

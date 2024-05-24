@@ -11,15 +11,13 @@ function newDeck() {
     return deck;
 }
 
-async function newShuffledDeck(handlers, rngFunc) {
-    const deck = newDeck();
-    shuffleArray(deck, rngFunc);
-    await handlers.call("shuffle", deck);
-
-    return newExternalDeck(deck, handlers, rngFunc);
+async function newShuffledDeck(onShuffle, rngFunc) {
+    const deck = newExternalDeck(newDeck(), onShuffle, rngFunc);
+    await deck.shuffle();
+    return deck;
 }
 
-function newExternalDeck(d, handlers, rngFunc) {
+function newExternalDeck(d, onShuffle, rngFunc) {
     let deck = d;
 
     function deal() {
@@ -49,13 +47,12 @@ function newExternalDeck(d, handlers, rngFunc) {
 
     function addCardAndShuffle(card) {
         addCard(card);
-        shuffleArray(deck, rngFunc);
-        return handlers.call("shuffle", deck);
+        return shuffle();
     }
 
     function shuffle() {
         shuffleArray(deck, rngFunc);
-        return handlers.call("shuffle", deck);
+        return onShuffle(deck);
     }
 
     const size = () => deck.length;
