@@ -8,14 +8,6 @@ import Queue from "../utils/queue.js";
 import connectionFunc from "../connection/server.js";
 import enterName from "../names.js";
 
-function toObjJson(v, method) {
-    const value = {
-        "method": method
-    };
-    value[method] = v;
-    return JSON.stringify(value);
-}
-
 function makeQr(window, document, settings) {
     const staticHost = settings.sh || window.location.href;
     const url = new URL(staticHost);
@@ -83,7 +75,7 @@ export default function server(window, document, settings, gameFunction) {
         const actions = actionsFunc(game, clients);
         setupProtocol(connection, actions, queue);
         for (const handlerName of game.actionKeys()) {
-            game.on(handlerName, (n) => connection.sendAll(toObjJson(n, handlerName)));
+            game.on(handlerName, (n) => connection.sendRawAll(handlerName, n));
         }
 
         game.on("username", actions["username"]);
@@ -93,7 +85,7 @@ export default function server(window, document, settings, gameFunction) {
             const unoActions = actionsFuncUno(engine);
             setupProtocol(connection, unoActions, queue);
             console.log(players);
-            connection.sendAll(toObjJson(players, "start"));
+            return connection.sendRawAll("start", players);
         });
 
         game.on("onSeatsFinished", () => game.afterAllJoined());
@@ -116,13 +108,13 @@ export default function server(window, document, settings, gameFunction) {
 
         game.onConnect();
         loop(queue, window);
-        resolve(game);
-
+        
         try {
             connection.connect();
         } catch(e) {
             logHtml(e, logger);
             reject(e);
         }
+        resolve(game);
     });
 }

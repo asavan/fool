@@ -34,10 +34,10 @@ function setupOnData(connection, queue, actions) {
     connection.on("recv", (data) => {
         // console.log(data);
         const obj = JSON.parse(data);
-        const res = obj[obj.method];
-        const callback = actions[obj.method];
+        const res = obj.data;
+        const callback = actions[obj.action];
         if (typeof callback === "function") {
-            queue.enqueue({callback, res, fName: obj.method});
+            queue.enqueue({callback, res, fName: obj.action});
         }
     });
 }

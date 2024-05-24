@@ -248,7 +248,37 @@ const connectionFunc = function (settings, location) {
         }
     }
 
-    return {connect, sendAll, on, closeSocket};
+    const sendRawAll = (action, data, ignore) => {
+        logger.log(data);
+        const json = {from: server, to: "all", action, data};
+        for (const [id, client] of Object.entries(clients)) {
+            if (ignore && ignore.includes(id)) {
+                logger.log("ignore " + id);
+                continue;
+            }
+            if (client.dc) {
+                try {
+                    client.dc.send(JSON.stringify(json));
+                } catch(e) {
+                    console.log(e, client);
+                }
+            } else {
+                console.error("No connection", client);
+            }
+        }
+    };
+
+    const sendRawTo = (action, data, to) => {
+        const json = {from: server, to, action, data};
+        const client = clients[to];
+        if (!client || !client.dc) {
+            logger.log("No chanel " + to);
+            return;
+        }
+        return client.dc.send(JSON.stringify(json));
+    };
+
+    return {connect, sendAll, on, closeSocket, sendRawAll, sendRawTo};
 };
 
 export default connectionFunc;
