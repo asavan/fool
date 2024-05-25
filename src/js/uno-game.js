@@ -98,8 +98,7 @@ export default function unoGame(window, document, settings, playersExternal, han
     });
 
     engine.on("discard", async (p) => {
-        // drawScreen("discard");
-        const draw = layout.drawDiscard(window, document, engine, myIndex, settings);
+        const draw = layout.drawDiscard(document, engine, myIndex, settings);
         await Promise.all([draw, handlers["discard"](p)]);
     });
 
@@ -133,7 +132,7 @@ export default function unoGame(window, document, settings, playersExternal, han
     }
 
     engine.on("gameover", async (data) => {
-        drawScreen();
+        drawScreen("gameover");
         console.log("GAME OVER", data);
         const name = playersExternal[data.playerIndex].name;
         console.log(name);
@@ -143,11 +142,11 @@ export default function unoGame(window, document, settings, playersExternal, han
 
     engine.on("clearPlayer", async (playerIndex) => {
         await handlers["clearPlayer"](playerIndex);
-        drawScreen();
+        drawScreen("clearPlayer");
     });
 
     engine.on("clearPlayerExternal", () => {
-        return drawScreen();
+        return drawScreen("clearPlayerExternal");
     });
 
     colorChooser(window, document, engine, gameState);
@@ -178,8 +177,7 @@ export default function unoGame(window, document, settings, playersExternal, han
 
     function onShuffle(deck) {
         engine.setDeck(deck);
-        console.log("onShuffle");
-        layout.drawPlayers(window, document, engine, myIndex, settings);
+        drawScreen("onShuffle");
     }
 
     function onChangeCurrent(data) {
@@ -200,15 +198,13 @@ export default function unoGame(window, document, settings, playersExternal, han
     }
 
     async function onNewRound(data) {
-        console.log("onNewRound", data);
         const res = await engine.onNewRound(data);
-        drawScreen();
+        drawScreen("onNewRound");
         return res;
     }
 
     function onGameOver(data) {
-        console.log("onGameOver", data);
-        drawScreen();
+        drawScreen("onGameOver");
         const name = playersExternal[data.playerIndex].name;
         console.log(name);
         onGameEnd(name + " wins", "with score " + data.score);
