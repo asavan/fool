@@ -5,7 +5,6 @@ import actionsFunc from "../actions_server.js";
 import actionsFuncUno from "../actions_uno_server.js";
 import qrRender from "../lib/qrcode.js";
 import connectionFunc from "../connection/server.js";
-import enterName from "../names.js";
 import PromiseQueue from "../utils/async-queue.js";
 
 function makeQr(window, document, settings) {
@@ -60,10 +59,6 @@ export default function server(window, document, settings, gameFunction) {
             return connection.sendRawAll("start", players);
         });
 
-        game.on("onSeatsFinished", () => game.afterAllJoined());
-        game.on("swap", (id1, id2) => game.swap(id1, id2));
-        enterName(window, document, settings, game.getHandlers());
-
         connection.on("disconnect", (id) => {
             const is_disconnected = game.disconnect(id);
             if (is_disconnected) {
@@ -79,7 +74,6 @@ export default function server(window, document, settings, gameFunction) {
         });
 
         game.onConnect();
-        // loop(queue, window);
         
         try {
             connection.connect();

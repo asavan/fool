@@ -1,15 +1,9 @@
+import commonActions from "./actions_uno_common.js";
+
 export default function init(unoGame) {
     const engine = unoGame.getEngine();
-    return {
-        "move": (data) => {
-            console.log("onMove", data);
-            return engine.onMove(data.playerIndex, data.card, data.currentColor);
-        },
+    return Object.assign({}, commonActions(engine), {
         "shuffle": unoGame.onShuffle,
-        "draw": ({playerIndex, card}) => {
-            console.log({playerIndex, card});
-            return engine.onDraw(playerIndex, card);
-        },
         "changeCurrent": unoGame.onChangeCurrent,
         "clearPlayer": (cur) => {
             console.log("clearPlayer", cur);
@@ -18,5 +12,5 @@ export default function init(unoGame) {
         "discard": engine.onDiscard,
         "roundover": unoGame.onNewRound,
         "gameover": unoGame.onGameOver
-    };
+    });
 }

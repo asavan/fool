@@ -3,10 +3,6 @@ import enterName from "./names.js";
 import choosePlaceFunc from "./places.js";
 import unoGameFunc from "./uno-game.js";
 
-function stub(message) {
-    console.trace("Stub " + message);
-}
-
 function stub1() {
     // console.trace(message);
 }
@@ -21,21 +17,21 @@ function makeCommonSeed(players) {
 
 export default function game(window, document, settings) {
 
-    const handlers = {
-        "move": stub,
-        "username": stub,
-        "draw": stub1,
-        "pass": stub1,
-        "changeCurrent": stub,
-        "discard": stub1,
-        "shuffle": stub1,
-        "clearPlayer": stub,
-        "roundover": stub,
-        "gameover": stub,
-        "start": stub1,
-        "swap": stub1,
-        "onSeatsFinished": stub1
-    };
+    const commands = [
+        "move",
+        "username",
+        "draw",
+        "pass",
+        "changeCurrent",
+        "discard",
+        "shuffle",
+        "clearPlayer",
+        "roundover",
+        "gameover",
+        "start"
+    ];
+
+    const handlers = Object.fromEntries(commands.map((key) => [key, stub1]));
 
     let unoGame = null;
     let players = [];
@@ -52,8 +48,9 @@ export default function game(window, document, settings) {
         handlers[name] = f;
     }
 
+    const renderChoosePlace = () => choosePlaceFunc(document, afterAllJoined, swap, players);
+
     const join = (name, external_id) => {
-        console.log("Before choosePlaceFunc");
 
         const found = players.findIndex(player => player.external_id === external_id);
 
@@ -62,8 +59,7 @@ export default function game(window, document, settings) {
         } else {
             players[found].name = name;
         }
-
-        choosePlaceFunc(window, document, settings, handlers, players);
+        renderChoosePlace();        
         return true;
     };
 
@@ -76,7 +72,7 @@ export default function game(window, document, settings) {
         players = players.filter(p => p.external_id != external_id);
         const new_size = players.length;
         console.log("disconnect", players);
-        choosePlaceFunc(window, document, settings, handlers, players);
+        renderChoosePlace();
         return old_size > new_size;
     };
 
@@ -89,19 +85,24 @@ export default function game(window, document, settings) {
         return unoGame;
     };
 
-    const onConnect = () => {
-        console.log("onConnect", handlers);
-        enterName(window, document, settings, handlers);
+    const onNameChange = (name) => {
+        // handlers["username"](data, "server");
+        return handlers["username"](name, "server");
     };
 
-    const swap = (id1, id2) => {
+    const onConnect = () => {
+        console.log("onConnect", handlers);
+        enterName(window, document, settings, onNameChange);
+    };
+
+    function swap(id1, id2) {
         const temp = players[id1];
         players[id1] = players[id2];
         players[id2] = temp;
-        choosePlaceFunc(window, document, settings, handlers, players);
-    };
+        return renderChoosePlace();
+    }
 
-    const afterAllJoined = async () => {
+    function afterAllJoined() {
         if (!settings.seed) {
             console.log("settings", settings);
             settings.seed = makeCommonSeed(players);
@@ -110,13 +111,10 @@ export default function game(window, document, settings) {
         }
         unoGame = unoGameFunc(window, document, settings, players, handlers);
         console.log("Game init");
-        await unoGame.start();
-    };
+        return unoGame.start();
+    }
 
-    const actionKeys = () => Object.keys(handlers);
-
-    // TODO remove this
-    const getHandlers = () => handlers;
+    const actionKeys = () => [...commands];
 
     const getEngine = () => {
         if (!unoGame) {
@@ -136,7 +134,6 @@ export default function game(window, document, settings) {
         afterAllJoined,
         disconnect,
         actionKeys,
-        getEngine,
-        getHandlers
+        getEngine
     };
 }

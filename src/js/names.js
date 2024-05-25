@@ -1,15 +1,18 @@
 "use strict"; // jshint ;_;
 
-export default function enterName(window, document, settings, handlers) {
+export default function enterName(window, document, settings, onUsermameExternal) {
     const formCont = document.querySelector(".name-form-cont");
     const data = window.sessionStorage.getItem("username");
+    const notifyExt = (name) => {
+        if (onUsermameExternal && typeof onUsermameExternal === "function") {
+            console.log("Send name data", name);
+            onUsermameExternal(name);
+        }
+    };
+    
     if (data) {
         formCont.replaceChildren();
-        if (handlers) {
-            console.log("Send name data", data);
-            // remove "server" from here
-            handlers["username"](data, "server");
-        }
+        notifyExt(data);
         return;
     }
 
@@ -37,13 +40,8 @@ export default function enterName(window, document, settings, handlers) {
             return;
         }
 
-        console.log("On name", name, handlers);
         window.sessionStorage.setItem("username", name);
-
-        if (handlers) {
-            // remove "server" from here
-            handlers["username"](name, "server");
-        }
+        notifyExt(name);
         form.classList.add("hidden");
         field.classList.remove("hidden");
         formCont.replaceChildren();

@@ -1,6 +1,4 @@
-"use strict"; // jshint ;_;
-
-export default function choosePlace(window, document, settings, handlers, players) {
+export default function choosePlace(document, onSeatsFinished, onSwap, players) {
     const box = document.querySelector(".places");
     box.replaceChildren();
     const places = document.createElement("ul");
@@ -17,7 +15,7 @@ export default function choosePlace(window, document, settings, handlers, player
         }
         if (selected) {
             selected.classList.remove("selected");
-            handlers["swap"](selected.dataset.id, e.target.dataset.id);
+            onSwap(selected.dataset.id, e.target.dataset.id);
             selected = null;
             return;
         }
@@ -29,7 +27,7 @@ export default function choosePlace(window, document, settings, handlers, player
     function onAllSeated(e) {
         e.preventDefault();
         box.replaceChildren();
-        handlers["onSeatsFinished"]();
+        return onSeatsFinished();
     }
 
     places.addEventListener("click", onSelect);
