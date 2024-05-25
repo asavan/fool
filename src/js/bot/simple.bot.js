@@ -1,38 +1,10 @@
 import {assert} from "../helper.js";
 import core from "../uno/basic.js";
 
-function checkCardMatchColor(card, currentColor) {
-    const colorFromCard = core.cardColor(card);
-    if (colorFromCard !== "black") {
-        assert(currentColor === colorFromCard, "Bad color");
-    } else {
-        assert(core.GOOD_COLORS.includes(currentColor), "Bad color2");
-    }
-}
-
-function sameColor(card, currentColor) {
-    return core.cardColor(card) === currentColor;
-}
-
-function sameColorOrWild(card, currentColor) {
-    return sameColor(card, currentColor) || core.cardType(card) === "Wild";
-}
-
-function sameColorOrBlack(card, currentColor) {
-    return sameColor(card, currentColor) || core.cardColor(card) === "black";
-}
-
-function suitable(hasColor, currentColor) {
-    if (hasColor) {
-        return (card) => sameColorOrWild(card, currentColor);
-    }
-    return (card) => sameColorOrBlack(card, currentColor);
-}
-
-function findGoodCards(pile, card, currentColor) {
-    checkCardMatchColor(card, currentColor);
+function findGoodCards(pile, cardOnBoard, currentColor) {
+    assert(core.matchColor(cardOnBoard, currentColor), "Bad color");
     const hasColor = core.pileHasColor(pile, currentColor);
-    const goodColors = pile.filter(suitable(hasColor, currentColor));
+    const goodColors = pile.filter((card) => core.suitable(card, cardOnBoard, currentColor, hasColor));
     return goodColors;
 }
 

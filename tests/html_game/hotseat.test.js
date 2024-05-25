@@ -6,13 +6,13 @@ import {JSDOM} from "jsdom";
 
 import gameFunction from "../../src/js/game.js";
 import settings from "../../src/js/settings.js";
-import mode from "../../src/js/mode/server.js";
+import mode from "../../src/js/mode/hotseat.js";
 
-test("simple server scenario", async () => {
+test("hotseat scenario", async () => {
     const dom = await JSDOM.fromFile("src/index.html", {
         url: "http://localhost/",
     });
     const document = dom.window.document;
-    await mode(dom.window, document, settings, gameFunction).catch(e => console.log("Failed", e));
+    await mode(dom.window, document, settings, gameFunction);
     assert.ok(true, "Ended well");
 });

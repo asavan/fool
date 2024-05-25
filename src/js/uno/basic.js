@@ -125,6 +125,25 @@ function cardToString(card) {
     return cardColor(card) + " " + cardType(card);
 }
 
+function matchColor(card, color) {
+    if (!GOOD_COLORS.includes(color)) {
+        return false;
+    }
+    return (cardColor(card) === color) || (cardColor(card) === "black");
+}
+
+function suitable(card, cardOnBoard, currentColor, hasColor) {
+    if (cardType(card) === "Wild") {
+        return true;
+    }
+
+    if (cardType(card) === "Draw4") {
+        return !hasColor;
+    }        
+
+    return (cardColor(card) === currentColor) || (cardType(card) === cardType(cardOnBoard));
+}
+
 export default {
     GOOD_COLORS,
     GameStage,
@@ -133,5 +152,7 @@ export default {
     cardScore,
     sortByTemplate,
     pileHasColor,
-    cardToString
+    cardToString,
+    suitable,
+    matchColor
 };

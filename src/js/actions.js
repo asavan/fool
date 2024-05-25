@@ -1,31 +1,32 @@
-"use strict";
-
 function init(game) {
+    let unoGame;
+    let engine;
     return {
         "move": (data) => {
             console.log("try to move " + JSON.stringify(data));
             return game.onChange(data);
         },
-        "username": false,
         "start": (p) => {
             console.log(p);
-            return game.onStart(p);
+            unoGame = game.onStart(p);
+            engine = unoGame.getEngine();
+            return unoGame;
         },
         "shuffle": (p) => {
             console.log(p);
-            return game.onShuffle(p);
+            return unoGame.onShuffle(p);
         },
         "draw": ({playerIndex, card}) => {
             console.log({playerIndex, card});
-            return game.onDraw(playerIndex, card);
+            return engine.onDraw(playerIndex, card);
         },
         "changeCurrent": (currentData) => {
             console.log("Change current");
-            return game.onChangeCurrent(currentData);
+            return unoGame.onChangeCurrent(currentData);
         },
         "clearPlayer": (cur) => {
             console.log("clearPlayer", cur);
-            return game.onClearHand(cur);
+            return engine.cleanHandExternal(cur);
         },
         "discard": (p) => {
             console.log("Discard", p);
@@ -38,8 +39,7 @@ function init(game) {
         "gameover": (p) => {
             console.log("game over", p);
             return game.onGameOver(p);
-        },
-        "pass": false
+        }
     };
 }
 

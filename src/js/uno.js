@@ -23,6 +23,7 @@ export default function initCore(settings, rngFunc) {
         "discard",
         "move",
         "clearPlayer",
+        "clearPlayerExternal",
         "changeCurrent",
         "changeDealer",
         "gameover",
@@ -310,11 +311,11 @@ export default function initCore(settings, rngFunc) {
         deck = await deckFunc.newShuffledDeck(onShuffle, rngFunc);
     }
 
-    async function cleanHand(playerIndex) {
+    function cleanHandExternal(playerIndex) {
         cardOnBoard = null;
         discardPile = [];
         players[playerIndex].cleanHand();
-        await report("clearPlayer", playerIndex);
+        return report("clearPlayerExternal", playerIndex);
     }
 
     function skip() {
@@ -449,8 +450,9 @@ export default function initCore(settings, rngFunc) {
             return false;
         }
 
-        if (!core.GOOD_COLORS.includes(nextColor)) {
-            console.error("Wrong color", nextColor);
+        if (!core.matchColor(card, nextColor)) {
+            console.error("Wrong next color", nextColor, card, core.cardToString(card));
+            assert(false, "Bad color");
             return false;
         }
 
@@ -464,27 +466,10 @@ export default function initCore(settings, rngFunc) {
             return false;
         }
 
-        if (core.cardType(card) === "Wild") {
+        const res = core.suitable(card, cardOnBoard, currentColor, getCurrentPlayerObj().hasColor(currentColor));
+        if (res) {
             return true;
         }
-
-        if (core.cardType(card) === "Draw4") {
-            return !getCurrentPlayerObj().hasColor(currentColor);
-        }
-
-        if (core.cardColor(card) !== nextColor) {
-            console.error("Wrong next color", nextColor, card);
-            return false;
-        }
-
-        if (core.cardColor(card) === currentColor) {
-            return true;
-        }
-
-        if (core.cardType(card) === core.cardType(cardOnBoard)) {
-            return true;
-        }
-
         console.log("Bad card", core.cardType(card), core.cardType(cardOnBoard), currentColor);
         return false;
     }
@@ -562,7 +547,7 @@ export default function initCore(settings, rngFunc) {
     }
 
     async function onMoveToDiscard(playerIndex, card, nextColor) {
-        const res = await onTryMove(playerIndex, card, nextColor);
+        const res = onTryMove(playerIndex, card, nextColor);
         if (res) {
             players[playerIndex].removeCard(card);
             cardOnBoard = card;
@@ -587,14 +572,14 @@ export default function initCore(settings, rngFunc) {
         return true;
     }
 
-    async function nextDealer() {
+    function nextDealer() {
         direction = 1;
         dealer = calcNextFromCurrent(dealer, players.length);
         currentPlayer = dealer;
         roundover = false;
         cardTaken = 0;
         cardDiscarded = 0;
-        return await report("changeCurrent", {currentPlayer, dealer, direction});
+        return report("changeCurrent", {currentPlayer, dealer, direction});
     }
 
     async function drawCurrent() {
@@ -701,7 +686,7 @@ export default function initCore(settings, rngFunc) {
         onMove,
         onDiscard,
         setCurrent,
-        cleanHand,
+        cleanHandExternal,
         nextDealer,
         onDrawPlayer,
         pass,

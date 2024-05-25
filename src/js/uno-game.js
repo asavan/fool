@@ -143,6 +143,10 @@ export default function unoGame(window, document, settings, playersExternal, han
         drawScreen();
     });
 
+    engine.on("clearPlayerExternal", () => {
+        return drawScreen();
+    });
+
     colorChooser(window, document, engine, gameState);
 
     engine.on("roundover", async (data) => {

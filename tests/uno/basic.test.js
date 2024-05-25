@@ -24,3 +24,10 @@ test("sort", () => {
     core.sortByTemplate(pile, "desc", [...core.GOOD_COLORS, "black"]);
     assert.deepStrictEqual(pile, [2, 57, 0, 110, 69, 13], "Sorted desc");
 });
+
+
+test("match color", () => {
+    const card = 74;
+    assert.equal(core.cardColor(card), "yellow", "Bad color");
+    assert.ok(core.matchColor(card, "yellow"), "Bad match");
+});

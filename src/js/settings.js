@@ -1,5 +1,5 @@
 export default {
-    modes: ["net", "ai", "server"],
+    modes: ["net", "ai", "server", "hotseat"],
     mode: "net",
     wsPort : 8088,
     logger: true,

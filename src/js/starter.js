@@ -1,5 +1,3 @@
-"use strict";
-
 import settings from "./settings.js";
 import gameFunction from "./game.js";
 import {parseSettings, assert} from "./helper.js";
@@ -14,6 +12,8 @@ export default async function starter(window, document) {
         mode = await import("./mode/server.js");
     } else if (settings.mode === "ai") {
         mode = await import("./mode/ai.js");
+    } else if (settings.mode === "hotseat") {
+        mode = await import("./mode/hotseat.js");
     } else if (settings.mode === "test") {
         mode = await import("./mode/test.js");
     } else {

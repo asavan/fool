@@ -80,20 +80,13 @@ export default function game(window, document, settings) {
         return old_size > new_size;
     };
 
-    const onDraw = (p, q) => {
-        if (unoGame == null) {
-            console.error("No game");
-            return;
-        }
-        return unoGame.onDraw(p, q);
-    };
-
     const onStart = (p) => {
         players = p;
         settings.seed = makeCommonSeed(players);
         unoGame = unoGameFunc(window, document, settings, players, handlers);
         const grid = document.getElementsByClassName("places")[0];
         grid.classList.remove("connected", "loading", "flying-cards");
+        return unoGame;
     };
 
     const onConnect = () => {
@@ -120,67 +113,18 @@ export default function game(window, document, settings) {
         await unoGame.start();
     };
 
-    const onShuffle = (deck) => {
-        if (unoGame == null) {
-            console.error("No game");
-            return;
-        }
-        console.log("onShuffle");
-        return unoGame.onShuffle(deck);
-    };
-
-    const onDiscard = (card) => {
-        if (unoGame == null) {
-            console.error("No game");
-            return;
-        }
-        return unoGame.onDiscard(card);
-    };
-
-    const onChangeCurrent = (currentData) => {
-        if (unoGame == null) {
-            console.error("No game");
-            return;
-        }
-        return unoGame.onChangeCurrent(currentData);
-    };
-
-    const onClearHand = (card) => {
-        if (unoGame == null) {
-            console.error("No game");
-            return;
-        }
-        return unoGame.onClearHand(card);
-    };
-
-    const onNewRound = (data) => {
-        if (unoGame == null) {
-            console.error("No game");
-            return;
-        }
-        return unoGame.onNewRound(data);
-    };
-
-    const onGameOver = (data) => {
-        if (unoGame == null) {
-            console.error("No game");
-            return;
-        }
-        return unoGame.onGameOver(data);
-    };
-
-    const onPass = (data) => {
-        if (unoGame == null) {
-            console.error("No game");
-            return;
-        }
-        return unoGame.onPass(data);
-    };
-
     const actionKeys = () => Object.keys(handlers);
 
     // TODO remove this
     const getHandlers = () => handlers;
+
+    const getEngine = () => {
+        if (!unoGame) {
+            console.error("No game");
+            return;
+        }
+        return unoGame.getEngine();
+    };
 
     return {
         on,
@@ -190,16 +134,9 @@ export default function game(window, document, settings) {
         swap,
         onStart,
         afterAllJoined,
-        onShuffle,
-        onDraw,
-        onDiscard,
-        onNewRound,
-        onChangeCurrent,
-        onClearHand,
-        onGameOver,
         disconnect,
-        onPass,
         actionKeys,
+        getEngine,
         getHandlers
     };
 }
