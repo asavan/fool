@@ -126,7 +126,7 @@ export default function initCore(settings, rngFunc) {
             console.error("Different engines");
             return false;
         }
-        if (playerIndex !== currentPlayer && !core.isDrawCard(card) && !roundover) {
+        if (playerIndex !== currentPlayer && !core.isDrawCard(cardOnBoard) && !roundover) {
             console.error("draw not for current player", playerIndex, currentPlayer, roundover);
         // return;
         }

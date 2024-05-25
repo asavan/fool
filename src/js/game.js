@@ -36,14 +36,6 @@ export default function game(window, document, settings) {
     let unoGame = null;
     let players = [];
 
-    function onChange(data) {
-        if (unoGame == null) {
-            console.error("No game");
-            return;
-        }
-        return unoGame.onMove(data);
-    }
-
     function on(name, f) {
         handlers[name] = f;
     }
@@ -87,6 +79,7 @@ export default function game(window, document, settings) {
 
     const onNameChange = (name) => {
         // handlers["username"](data, "server");
+        // TODO remove server
         return handlers["username"](name, "server");
     };
 
@@ -126,10 +119,8 @@ export default function game(window, document, settings) {
 
     return {
         on,
-        onChange,
         join,
         onConnect,
-        swap,
         onStart,
         afterAllJoined,
         disconnect,
