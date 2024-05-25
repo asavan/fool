@@ -48,7 +48,7 @@ export default function netMode(window, document, settings, gameFunction) {
             const game = gameFunction(window, document, settings);
             setupActions(game, connection);
             const actions = actionsFunc(game);
-            connection.registerHandler(queue, actions);
+            connection.registerHandler(actions, queue);
             game.onConnect();
             resolve(game);
         });

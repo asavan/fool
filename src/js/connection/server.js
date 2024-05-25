@@ -277,7 +277,7 @@ const connectionFunc = function (settings, location) {
         return client.dc.send(JSON.stringify(json));
     };
 
-    function registerHandler(queue, actions) {
+    function registerHandler(actions, queue) {
         on("recv", (data) => {
             // console.log(data);
             const obj = JSON.parse(data);

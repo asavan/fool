@@ -4,90 +4,92 @@ function stub(message) {
     console.log("Stub " + message);
 }
 
-let user = "";
-
-const handlers = {
-    "recv": stub,
-    "open": stub,
-    "socket_open": stub,
-    "socket_close": stub,
-    "close": stub,
-    "error": stub,
-};
-
-function logFunction(s) {
-    let settings = s;
-    function init(set) {
-        settings = set;
-    }
-    function log(obj) {
-        if (settings && settings.networkDebug) {
-            console.log(obj);
-        }
-    }
-    return {init, log};
-}
-
-const logger = logFunction(null);
-
-
-function sendNegotiation(type, sdp, ws) {
-    const json = {from: user, action: type, data: sdp};
-    logger.log("Sending [" + user + "] " + JSON.stringify(sdp));
-    return ws.send(JSON.stringify(json));
-}
-
-
-function createSignalingChannel(socketUrl) {
-    return new Promise((resolve, reject) => {
-        const ws = new WebSocket(socketUrl);
-
-        const send = (type, sdp) => {
-            return sendNegotiation(type, sdp, ws);
-        };
-        const close = () => {
-        // iphone fires "onerror" on close socket
-            handlers["error"] = stub;
-            ws.close();
-        };
-
-        const onmessage = stub;
-        const result = {onmessage, send, close};
-
-        ws.onopen = function () {
-            logger.log("Websocket opened");
-            handlers["socket_open"]();
-            sendNegotiation("connected", {}, ws);
-            resolve(result);
-        };
-
-        ws.onclose = function () {
-            logger.log("Websocket closed");
-            handlers["socket_close"]();
-        };
-
-        ws.onmessage = function (e) {
-            if (e.data instanceof Blob) {
-                const reader = new FileReader();
-                reader.onload = () => {
-                    result.onmessage(reader.result);
-                };
-                reader.readAsText(e.data);
-            } else {
-                result.onmessage(e.data);
-            }
-        };
-        ws.onerror = function (e) {
-            console.error(e);
-            handlers["error"](e);
-            reject(e);
-        };
-        return result;
-    });
-}
 
 const connectionFunc = function (settings, location, id) {
+    let user = "";
 
+    const handlers = {
+        "recv": stub,
+        "open": stub,
+        "socket_open": stub,
+        "socket_close": stub,
+        "close": stub,
+        "error": stub,
+    };
+
+    function logFunction(s) {
+        let settings = s;
+        function init(set) {
+            settings = set;
+        }
+        function log(obj) {
+            if (settings && settings.networkDebug) {
+                console.log(obj);
+            }
+        }
+        return {init, log};
+    }
+
+    const logger = logFunction(null);
+
+
+    function sendNegotiation(type, sdp, ws) {
+        const json = {from: user, action: type, data: sdp};
+        logger.log("Sending [" + user + "] " + JSON.stringify(sdp));
+        return ws.send(JSON.stringify(json));
+    }
+
+
+    function createSignalingChannel(socketUrl) {
+        return new Promise((resolve, reject) => {
+            const ws = new WebSocket(socketUrl);
+
+            const send = (type, sdp) => {
+                return sendNegotiation(type, sdp, ws);
+            };
+            const close = () => {
+                // iphone fires "onerror" on close socket
+                handlers["error"] = stub;
+                ws.close();
+            };
+
+            const onmessage = stub;
+            const result = {onmessage, send, close};
+
+            ws.onopen = function () {
+                logger.log("Websocket opened");
+                handlers["socket_open"]();
+                sendNegotiation("connected", {}, ws);
+                resolve(result);
+            };
+
+            ws.onclose = function () {
+                logger.log("Websocket closed");
+                handlers["socket_close"]();
+            };
+
+            ws.onmessage = function (e) {
+                if (e.data instanceof Blob) {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        result.onmessage(reader.result);
+                    };
+                    reader.readAsText(e.data);
+                } else {
+                    result.onmessage(e.data);
+                }
+            };
+            ws.onerror = function (e) {
+                console.error(e);
+                handlers["error"](e);
+                reject(e);
+            };
+            return result;
+        });
+    }
+
+
+    // init
     user = id;
 
     let isConnected = false;
@@ -240,7 +242,7 @@ const connectionFunc = function (settings, location, id) {
         return dataChannel.send(JSON.stringify(json));
     };
 
-    function registerHandler(queue, actions) {
+    function registerHandler(actions, queue) {
         on("recv", (data) => {
             // console.log(data);
             const obj = JSON.parse(data);

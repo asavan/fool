@@ -15,19 +15,6 @@ function makeQr(window, document, settings) {
     return qrRender(url.toString(), document.querySelector(".qrcode"));
 }
 
-function setupProtocol(connection, actions, queue) {
-    connection.on("recv", (data, id) => {
-        // console.log(data);
-        const obj = JSON.parse(data);
-        const res = obj[obj.method];
-        const callback = actions[obj.method];
-        if (typeof callback === "function") {
-            queue.add(() => callback(res, id));
-        }
-    });
-}
-
-
 export default function server(window, document, settings, gameFunction) {
     const clients = {};
     let index = 0;
@@ -52,7 +39,7 @@ export default function server(window, document, settings, gameFunction) {
         const queue = PromiseQueue(console);
         const game = gameFunction(window, document, settings);
         const actions = actionsFunc(game, clients);
-        setupProtocol(connection, actions, queue);
+        connection.registerHandler(actions, queue);
         for (const handlerName of game.actionKeys()) {
             game.on(handlerName, (n) => connection.sendRawAll(handlerName, n));
         }
@@ -62,7 +49,7 @@ export default function server(window, document, settings, gameFunction) {
         game.on("start", ({players, engine}) => {
             connection.closeSocket();
             const unoActions = actionsFuncUno(engine);
-            setupProtocol(connection, unoActions, queue);
+            connection.registerHandler(unoActions, queue);
             console.log(players);
             return connection.sendRawAll("start", players);
         });
