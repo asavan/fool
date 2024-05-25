@@ -41,7 +41,13 @@ export default function server(window, document, settings, gameFunction) {
         const actions = actionsFunc(game, clients);
         connection.registerHandler(actions, queue);
         for (const handlerName of game.actionKeys()) {
-            game.on(handlerName, (n) => connection.sendRawAll(handlerName, n));
+            game.on(handlerName, (n) => {
+                let ignore;
+                if (n && n.externalId) {
+                    ignore = [n.externalId];
+                }
+                return connection.sendRawAll(handlerName, n, ignore);
+            });
         }
 
         game.on("username", actions["username"]);

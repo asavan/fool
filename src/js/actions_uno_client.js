@@ -1,7 +1,10 @@
 export default function init(unoGame) {
     const engine = unoGame.getEngine();
     return {
-        "move": unoGame.onMove,
+        "move": (data) => {
+            console.log("onMove", data);
+            return engine.onMove(data.playerIndex, data.card, data.currentColor);
+        },
         "shuffle": unoGame.onShuffle,
         "draw": ({playerIndex, card}) => {
             console.log({playerIndex, card});
@@ -12,7 +15,7 @@ export default function init(unoGame) {
             console.log("clearPlayer", cur);
             return engine.cleanHandExternal(cur);
         },
-        "discard": unoGame.onDiscard,
+        "discard": engine.onDiscard,
         "roundover": unoGame.onNewRound,
         "gameover": unoGame.onGameOver
     };

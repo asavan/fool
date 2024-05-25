@@ -49,18 +49,21 @@ export default function unoGame(window, document, settings, playersExternal, han
         const pause = delay(150);
         let external = Promise.resolve();
         if (settings.mode === "server") {
-            external = handlers["draw"]({playerIndex, card});
+            const playerExt = playersExternal[playerIndex];
+            external = handlers["draw"]({playerIndex, card, externalId: playerExt.external_id});
         }
         return Promise.all([pause, external]);
     });
 
-    engine.on("changeCurrent", async ({currentPlayer, dealer, direction}) => {
+    engine.on("changeCurrent", ({currentPlayer, dealer, direction, roundover}) => {
         // drawScreen("changeCurrent");
         layout.drawCurrent(window, document, engine, myIndex, settings);
+        const pause = delay(50);
+        let external = Promise.resolve();
         if (settings.mode === "server") {
-            await handlers["changeCurrent"]({currentPlayer, dealer, myIndex, direction});
+            external = handlers["changeCurrent"]({currentPlayer, dealer, myIndex, direction, roundover});
         }
-        await delay(50);
+        return Promise.all([pause, external]);
     });
 
     engine.on("pass", async ({playerIndex}) => {
@@ -173,25 +176,10 @@ export default function unoGame(window, document, settings, playersExternal, han
         await engine.deal();
     }
 
-    async function onShuffle(deck) {
-        await engine.setDeck(deck);
+    function onShuffle(deck) {
+        engine.setDeck(deck);
         console.log("onShuffle");
         layout.drawPlayers(window, document, engine, myIndex, settings);
-    }
-
-    function onDraw(playerIndex, card) {
-        console.log("onDraw", playerIndex, card);
-        return engine.onDraw(playerIndex, card);
-    }
-
-    function onMove(data) {
-        console.log("onMove", data);
-        return engine.onMove(data.playerIndex, data.card, data.currentColor);
-    }
-
-    function onDiscard(card) {
-        console.log("onDiscard");
-        return engine.onDiscard(card);
     }
 
     function onChangeCurrent(data) {
@@ -206,13 +194,9 @@ export default function unoGame(window, document, settings, playersExternal, han
         }
 
         console.log("Change current", data.currentPlayer, data.dealer);
-        engine.setCurrent(data.currentPlayer, data.dealer, data.direction);
+        engine.setCurrent(data.currentPlayer, data.dealer, data.direction, data.roundover);
         return layout.drawCurrent(window, document, engine, myIndex, settings);
         // drawScreen("onChangeCurrent");
-    }
-
-    function onClearHand(playerIndex) {
-        return engine.cleanHand(playerIndex);
     }
 
     async function onNewRound(data) {
@@ -231,24 +215,15 @@ export default function unoGame(window, document, settings, playersExternal, han
         return true;
     }
 
-    function onPass(data) {
-        return engine.onPass(data.playerIndex);
-    }
-
     const getEngine = () => engine;
 
     return {
         on,
         start,
         onShuffle,
-        onDraw,
-        onDiscard,
         onChangeCurrent,
-        onClearHand,
-        onMove,
         onNewRound,
         onGameOver,
-        onPass,
         getEngine
     };
 }

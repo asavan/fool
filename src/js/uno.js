@@ -126,8 +126,8 @@ export default function initCore(settings, rngFunc) {
             console.error("Different engines");
             return false;
         }
-        if (playerIndex !== currentPlayer) {
-            console.error("draw not for current player", playerIndex, currentPlayer);
+        if (playerIndex !== currentPlayer && !core.isDrawCard(card) && !roundover) {
+            console.error("draw not for current player", playerIndex, currentPlayer, roundover);
         // return;
         }
         const cardFromDeck = await dealToPlayer(deck, playerIndex, true);
@@ -199,6 +199,7 @@ export default function initCore(settings, rngFunc) {
             discardPile.push(card);
             currentColor = newColor;
         }
+        // TODO smth wrong here
         await report("discard", card);
 
     // calcCardEffect(card, currentPlayer);
@@ -208,7 +209,7 @@ export default function initCore(settings, rngFunc) {
         console.log("dealToDiscard");
 
         currentPlayer = dealer;
-        await report("changeCurrent", {currentPlayer, dealer, direction});
+        await report("changeCurrent", {currentPlayer, dealer, direction, roundover});
 
         let card = deck.deal();
         cardOnBoard = card;
@@ -222,7 +223,6 @@ export default function initCore(settings, rngFunc) {
         discardPile.push(card);
         currentColor = core.cardColor(card);
         await report("discard", card);
-        roundover = false;
         console.log("dealToDiscardEnd");
         return card;
     }
@@ -297,7 +297,7 @@ export default function initCore(settings, rngFunc) {
             console.error("No cand", candidates);
         }
         currentPlayer = dealer;
-        await report("changeCurrent", {currentPlayer, dealer, direction});
+        await report("changeCurrent", {currentPlayer, dealer, direction, roundover});
         console.log("dealer was chosen", currentPlayer, dealer);
     }
 
@@ -526,7 +526,6 @@ export default function initCore(settings, rngFunc) {
         const oldScore = player.getScore();
         cardTaken = 0;
         cardDiscarded = 0;
-        roundover = false;
 
         if (data.score != oldScore + data.diff) {
             console.error("Bad score");
@@ -567,8 +566,9 @@ export default function initCore(settings, rngFunc) {
         skip();
         cardTaken = 0;
         cardDiscarded = 0;
+        roundover = false;
         console.log("Current change", currentPlayer);
-        await report("changeCurrent", {currentPlayer, dealer, direction});
+        await report("changeCurrent", {currentPlayer, dealer, direction, roundover});
         return true;
     }
 
@@ -576,10 +576,7 @@ export default function initCore(settings, rngFunc) {
         direction = 1;
         dealer = calcNextFromCurrent(dealer, players.length);
         currentPlayer = dealer;
-        roundover = false;
-        cardTaken = 0;
-        cardDiscarded = 0;
-        return report("changeCurrent", {currentPlayer, dealer, direction});
+        return report("changeCurrent", {currentPlayer, dealer, direction, roundover});
     }
 
     async function drawCurrent() {
@@ -597,12 +594,13 @@ export default function initCore(settings, rngFunc) {
     }
 
 
-    function setCurrent(c, d, dir) {
+    function setCurrent(c, d, dir, rover) {
         cardTaken = 0;
         cardDiscarded = 0;
+        roundover = rover;
         if (d != null) {
             dealer = d;
-            roundover = false;
+            // roundover = false;
         }
         if (dir != null) {
             direction = dir;

@@ -144,6 +144,10 @@ function suitable(card, cardOnBoard, currentColor, hasColor) {
     return (cardColor(card) === currentColor) || (cardType(card) === cardType(cardOnBoard));
 }
 
+function isDrawCard(card) {
+    return (cardType(card) === "Draw4") || (cardType(card) === "Draw2");
+}
+
 export default {
     GOOD_COLORS,
     GameStage,
@@ -154,5 +158,6 @@ export default {
     pileHasColor,
     cardToString,
     suitable,
+    isDrawCard,
     matchColor
 };
