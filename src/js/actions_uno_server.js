@@ -1,16 +1,16 @@
 import commonActions from "./actions_uno_common.js";
 
-function shouldNotHappen() {
-    console.error("Should Not Happen");
+function shouldNotHappen(logger) {
+    logger.error("Should Not Happen");
 }
 
-function init(engine) {
-    return Object.assign({}, commonActions(engine), {
+function init(engine, logger) {
+    return Object.assign({}, commonActions(engine, logger), {
         "pass": (data) => {
-            console.log("on pass", data);
+            logger.log("on pass", data);
             return engine.onPass(data.playerIndex);
         },
-        "changeCurrent": shouldNotHappen
+        "changeCurrent": () => shouldNotHappen(logger)
     });
 }
 

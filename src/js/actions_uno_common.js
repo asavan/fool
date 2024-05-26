@@ -1,11 +1,11 @@
-function init(engine) {
+function init(engine, logger) {
     return {
         "move": (data) => {
-            console.log("onMove", data);
+            logger.log("onMove", data);
             return engine.onMove(data.playerIndex, data.card, data.currentColor);
         },
         "draw": (data) => {
-            console.log("onDraw", data);
+            logger.log("onDraw", data);
             return engine.onDraw(data.playerIndex, data.card);
         }
     };

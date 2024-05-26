@@ -1,5 +1,4 @@
-"use strict"; // jshint ;_;
-import {delay} from "./helper.js";
+import {delay, loggerFunc} from "./helper.js";
 import coreUnoFunc from "./uno.js";
 import colorChooser from "./choose_color.js";
 import layout from "./layout.js";
@@ -8,6 +7,7 @@ import {prng_alea} from "esm-seedrandom";
 
 export default function unoGame(window, document, settings, playersExternal, handlers) {
 
+    const logger = loggerFunc(7, null, settings);
     const myrng = prng_alea(settings.seed);
     const gameState = {
         inColorChoose: false,
@@ -25,7 +25,6 @@ export default function unoGame(window, document, settings, playersExternal, han
         layout.drawPlayers(window, document, engine, myIndex, settings, marker);
     }
 
-    console.log(playersExternal);
     for (const p of playersExternal) {
         engine.addPlayer(p.name);
         if (p.external_id == settings.externalId) {
@@ -68,14 +67,14 @@ export default function unoGame(window, document, settings, playersExternal, han
 
     engine.on("pass", async ({playerIndex}) => {
         if (playerIndex != myIndex) {
-            console.error("Bad pass");
+            logger.error("Bad pass");
         }
         await handlers["pass"]({playerIndex, myIndex});
     });
 
     engine.on("move", (data) => {
         // drawScreen("move");
-        console.log("move", data);
+        logger.log("move", data);
         layout.drawPlayersMove(window, document, engine, myIndex, settings, "drawExternal", data.card, data.playerIndex);
         // layout.drawPlayersMove(window, document, engine, myIndex, settings, data.card, data.playerIndex);
         const pause = delay(150);
@@ -110,7 +109,7 @@ export default function unoGame(window, document, settings, playersExternal, han
     });
 
     engine.on("deal", () => {
-        console.log("NEVER");
+        logger.error("NEVER");
     });
 
     function onGameEnd(message1, message2) {
@@ -132,11 +131,18 @@ export default function unoGame(window, document, settings, playersExternal, han
     }
 
     engine.on("gameover", async (data) => {
+        onGameOver(data);
+        /*
         drawScreen("gameover");
-        console.log("GAME OVER", data);
         const name = playersExternal[data.playerIndex].name;
-        console.log(name);
+        onGameEnd(name + " wins", "with score " + data.score); 
+        
+        drawScreen("onGameOver");
+        const name = playersExternal[data.playerIndex].name;
         onGameEnd(name + " wins", "with score " + data.score);
+        return true;
+
+        */
         await handlers["gameover"](data);
     });
 
@@ -156,7 +162,7 @@ export default function unoGame(window, document, settings, playersExternal, han
             drawScreen();
             return;
         }
-        console.log("roundover");
+        logger.log("roundover");
         await handlers["roundover"](data);
         await delay(1000);
         await engine.nextDealer();
@@ -182,7 +188,7 @@ export default function unoGame(window, document, settings, playersExternal, han
 
     function onChangeCurrent(data) {
         if (engine.getCurrentPlayer() !== data.myIndex && settings.mode == "server") {
-            console.log("Wrong player", engine.getCurrentPlayer(), data.myIndex);
+            logger.error("Wrong player", engine.getCurrentPlayer(), data.myIndex);
             return;
         }
         if (settings.showAll || settings.clickAll) {
@@ -191,7 +197,7 @@ export default function unoGame(window, document, settings, playersExternal, han
             settings.show = false;
         }
 
-        console.log("Change current", data.currentPlayer, data.dealer);
+        logger.log("Change current", data.currentPlayer, data.dealer);
         engine.setCurrent(data.currentPlayer, data.dealer, data.direction, data.roundover);
         return layout.drawCurrent(window, document, engine, myIndex, settings);
         // drawScreen("onChangeCurrent");
@@ -206,7 +212,6 @@ export default function unoGame(window, document, settings, playersExternal, han
     function onGameOver(data) {
         drawScreen("onGameOver");
         const name = playersExternal[data.playerIndex].name;
-        console.log(name);
         onGameEnd(name + " wins", "with score " + data.score);
         return true;
     }

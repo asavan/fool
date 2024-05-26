@@ -2,7 +2,17 @@ function stub(message) {
     console.log("Stub " + message);
 }
 
-const connectionFunc = function (settings, location) {
+function getWebSocketUrl(settings, location) {
+    if (settings.wh) {
+        return settings.wh;
+    }
+    if (location.protocol === "https:") {
+        return;
+    }
+    return "ws://" + location.hostname + ":" + settings.wsPort;
+}
+
+const connectionFunc = function (logger) {
     const server = "server";
 
 
@@ -15,22 +25,6 @@ const connectionFunc = function (settings, location) {
         "error": stub,
         "disconnect": stub,
     };
-
-    function logFunction(s) {
-        let settings = s;
-        function init(set) {
-            settings = set;
-        }
-        function log(obj) {
-            if (settings && settings.networkDebug) {
-                console.log(obj);
-            }
-        }
-        return {init, log};
-    }
-
-    const logger = logFunction(null);
-
 
     function setupDataChannel(dataChannel, id, clients) {
         dataChannel.onmessage = function (e) {
@@ -163,30 +157,16 @@ const connectionFunc = function (settings, location) {
 
     const clients = {};
 
-    logger.init(settings);
     let signalChannel = null;
 
     function on(name, f) {
         handlers[name] = f;
     }
 
-    function getWebSocketUrl() {
-        if (settings.wh) {
-            return settings.wh;
-        }
-        if (location.protocol === "https:") {
-            return null;
-        }
-        return "ws://" + location.hostname + ":" + settings.wsPort;
-    }
 
     // inspired by http://udn.realityripple.com/docs/Web/API/WebRTC_API/Perfect_negotiation#Implementing_perfect_negotiation
     // and https://w3c.github.io/webrtc-pc/#perfect-negotiation-example
-    function connect() {
-        const socketUrl = getWebSocketUrl();
-        if (socketUrl == null) {
-            throw "Can't determine ws address";
-        }
+    function connect(socketUrl) {
         const signaling = createSignalingChannel(socketUrl);
 
         signaling.onmessage = async function(text) {
@@ -289,7 +269,7 @@ const connectionFunc = function (settings, location) {
         });
     }
 
-    return {connect, sendAll, on, closeSocket, sendRawAll, sendRawTo, registerHandler};
+    return {connect, sendAll, on, closeSocket, sendRawAll, sendRawTo, registerHandler, getWebSocketUrl};
 };
 
 export default connectionFunc;

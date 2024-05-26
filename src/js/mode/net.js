@@ -3,7 +3,7 @@
 import connectionFunc from "../connection/client.js";
 import actionsFuncUno from "../actions_uno_client.js";
 import rngFunc from "../utils/random.js";
-import {log} from "../helper.js";
+import {loggerFunc} from "../helper.js";
 import enterName from "../names.js";
 import PromiseQueue from "../utils/async-queue.js";
 
@@ -34,10 +34,11 @@ export default function netMode(window, document, settings, gameFunction) {
     return new Promise((resolve, reject) => {
         enterName(window, document, settings);
         const myId = makeid(6);
-        const connection = connectionFunc(settings, window.location, myId);
-        const logger = document.getElementsByClassName("log")[0];
+        const logger = loggerFunc(2, document.querySelector(settings.loggerAnchor), settings);
+        const connection = connectionFunc(settings, window.location, myId, logger);
         connection.on("error", (e) => {
-            log(settings, e, logger);
+            logger.error(e);
+            reject(e);
         });
         onConnectionAnimation(document, connection);
         connection.on("open", () => {
@@ -48,7 +49,8 @@ export default function netMode(window, document, settings, gameFunction) {
             setupGameToNetwork(game, connection);
             const actions = {"start": (p) => {
                 const unoGame = game.onStart(p);
-                const unoActions = actionsFuncUno(unoGame);
+                const loggerActions = loggerFunc(6, null, settings);   
+                const unoActions = actionsFuncUno(unoGame, loggerActions);
                 connection.registerHandler(unoActions, queue);
                 return unoGame;
             }};
@@ -58,9 +60,8 @@ export default function netMode(window, document, settings, gameFunction) {
         });
 
         connection.connect().catch(e => {
-            log(settings, e, logger);
+            logger.error(e);
             reject(e);
         });
-
     });
 }

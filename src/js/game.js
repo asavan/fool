@@ -1,7 +1,8 @@
-"use strict"; // jshint ;_;
 import enterName from "./names.js";
 import choosePlaceFunc from "./places.js";
 import unoGameFunc from "./uno-game.js";
+import {loggerFunc} from "./helper.js";
+
 
 function stub1() {
     // console.trace(message);
@@ -16,6 +17,8 @@ function makeCommonSeed(players) {
 }
 
 export default function game(window, document, settings) {
+
+    const logger = loggerFunc(8, null, settings);
 
     const commands = [
         "move",
@@ -56,14 +59,13 @@ export default function game(window, document, settings) {
     };
 
     const disconnect = (external_id) => {
-        console.log("disconnect", external_id);
+        logger.log("disconnect", external_id);
         if (unoGame != null) {
             return false;
         }
         const old_size = players.length;
         players = players.filter(p => p.external_id != external_id);
         const new_size = players.length;
-        console.log("disconnect", players);
         renderChoosePlace();
         return old_size > new_size;
     };
@@ -84,8 +86,7 @@ export default function game(window, document, settings) {
     };
 
     const onConnect = () => {
-        console.log("onConnect", handlers);
-        enterName(window, document, settings, onNameChange);
+        return enterName(window, document, settings, onNameChange);
     };
 
     function swap(id1, id2) {
@@ -97,13 +98,13 @@ export default function game(window, document, settings) {
 
     function afterAllJoined() {
         if (!settings.seed) {
-            console.log("settings", settings);
+            logger.log("settings", settings);
             settings.seed = makeCommonSeed(players);
         } else {
-            console.log("settings already set", settings.seed);
+            logger.log("settings already set", settings.seed);
         }
         unoGame = unoGameFunc(window, document, settings, players, handlers);
-        console.log("Game init");
+        logger.log("Game init");
         return unoGame.start();
     }
 
@@ -111,7 +112,7 @@ export default function game(window, document, settings) {
 
     const getEngine = () => {
         if (!unoGame) {
-            console.error("No game");
+            logger.error("No game");
             return;
         }
         return unoGame.getEngine();

@@ -5,8 +5,8 @@ function stub(message) {
 }
 
 
-const connectionFunc = function (settings, location, id) {
-    let user = "";
+const connectionFunc = function (settings, location, id, logger) {
+    const user = id;
 
     const handlers = {
         "recv": stub,
@@ -16,21 +16,6 @@ const connectionFunc = function (settings, location, id) {
         "close": stub,
         "error": stub,
     };
-
-    function logFunction(s) {
-        let settings = s;
-        function init(set) {
-            settings = set;
-        }
-        function log(obj) {
-            if (settings && settings.networkDebug) {
-                console.log(obj);
-            }
-        }
-        return {init, log};
-    }
-
-    const logger = logFunction(null);
 
 
     function sendNegotiation(type, sdp, ws) {
@@ -90,11 +75,8 @@ const connectionFunc = function (settings, location, id) {
 
 
     // init
-    user = id;
-
     let isConnected = false;
     let dataChannel = null;
-    logger.init(settings);
 
     function on(name, f) {
         handlers[name] = f;

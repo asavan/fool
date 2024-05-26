@@ -18,28 +18,6 @@ export function removeElem(el) {
     }
 }
 
-export function log(settings, message, el) {
-    if (settings.logger && el) {
-        if (typeof message == "object") {
-            el.innerHTML += (JSON && JSON.stringify ? JSON.stringify(message) : message) + "<br />";
-        } else {
-            el.innerHTML += message + "<br />";
-        }
-    }
-    console.log(message);
-}
-
-export function logHtml(message, el) {
-    if (el) {
-        if (typeof message == "object") {
-            el.innerHTML += (JSON && JSON.stringify ? JSON.stringify(message) : message) + "<br />";
-        } else {
-            el.innerHTML += message + "<br />";
-        }
-    }
-    console.log(message);
-}
-
 function stringToBoolean(string){
     switch(string.toLowerCase().trim()){
     case "true": case "yes": case "1": return true;
@@ -106,4 +84,35 @@ export function setupMedia() {
     } else {
         console.log("No mediaDevices");
     }
+}
+
+export function loggerFunc(level, el, settings) {
+    const logHtml = (message) => {
+        if (el) {
+            if (typeof message == "object" && JSON && JSON.stringify ) {
+                el.innerHTML += JSON.stringify(message) + "<br />";
+            } else {
+                el.innerHTML += message + "<br />";
+            }
+        }
+    };
+
+    const logInner = (data, ...args) => {
+        if (level < settings.logLevel) {
+            return;
+        }
+        logHtml(data);
+        return console.log(data, ...args);
+    };
+    const errorInner = (data, ...args) => {
+        if (level >= settings.logLevel) {
+            logHtml(data);
+        }
+        return console.error(data, ...args);
+    };
+    
+    return {
+        log: logInner,
+        error: errorInner
+    };
 }

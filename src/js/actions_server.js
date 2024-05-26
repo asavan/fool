@@ -1,9 +1,9 @@
 "use strict";
 
-function init(game, clients) {
+function init(game, clients, logger) {
     return {
         "username": (n, id) => {
-            console.log("User joined", n, id);
+            logger.log("User joined", n, id);
             const client = clients[id];
             client.username = n;
             return game.join(n, id);

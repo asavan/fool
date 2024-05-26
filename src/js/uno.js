@@ -1,5 +1,3 @@
-"use strict";
-
 import deckFunc from "./deck.js";
 import newPlayer from "./player.js";
 import core from "./uno/basic.js";
@@ -452,7 +450,7 @@ export default function initCore(settings, rngFunc) {
 
         if (!core.matchColor(card, nextColor)) {
             console.error("Wrong next color", nextColor, card, core.cardToString(card));
-            assert(false, "Bad color");
+            localAssert(false, "Bad color");
             return false;
         }
 

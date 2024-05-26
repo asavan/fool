@@ -1,6 +1,6 @@
 "use strict";
 
-import {removeElem, logHtml} from "../helper.js";
+import {removeElem, loggerFunc} from "../helper.js";
 import actionsFunc from "../actions_server.js";
 import actionsFuncUno from "../actions_uno_server.js";
 import qrRender from "../lib/qrcode.js";
@@ -21,10 +21,16 @@ export default function server(window, document, settings, gameFunction) {
 
     return new Promise((resolve, reject) => {
 
-        const connection = connectionFunc(settings, window.location);
-        const logger = document.querySelector(settings.loggerInMode);
+        const logger = loggerFunc(2, document.querySelector(settings.loggerAnchor), settings);        
+        const connection = connectionFunc(logger);
+        const socketUrl = connection.getWebSocketUrl(settings, window.location);
+        if (!socketUrl) {
+            logger.error("Can't determine ws address", socketUrl);
+            reject(socketUrl);
+            return;
+        }
         connection.on("error", (e) => {
-            logHtml(e, logger);
+            logger.error(e);
             reject(e);
         });
         connection.on("socket_open", () => {
@@ -37,7 +43,7 @@ export default function server(window, document, settings, gameFunction) {
         // const queue = Queue();
         const queue = PromiseQueue(console);
         const game = gameFunction(window, document, settings);
-        const actions = actionsFunc(game, clients);
+        const actions = actionsFunc(game, clients, logger);
         connection.registerHandler(actions, queue);
         for (const handlerName of game.actionKeys()) {
             game.on(handlerName, (n) => {
@@ -54,9 +60,9 @@ export default function server(window, document, settings, gameFunction) {
 
         game.on("start", ({players, engine}) => {
             connection.closeSocket();
-            const unoActions = actionsFuncUno(engine);
+            const loggerActions = loggerFunc(7, null, settings);   
+            const unoActions = actionsFuncUno(engine, loggerActions);
             connection.registerHandler(unoActions, queue);
-            console.log(players);
             return connection.sendRawAll("start", players);
         });
 
@@ -66,7 +72,7 @@ export default function server(window, document, settings, gameFunction) {
                 --index;
                 delete clients[id];
             }
-            logHtml({id, index}, logger);
+            logger.log({id, index}, "disconnect");
         });
 
         connection.on("open", (id) => {
@@ -74,14 +80,8 @@ export default function server(window, document, settings, gameFunction) {
             clients[id] = {"index": index};
         });
 
-        game.onConnect();
-        
-        try {
-            connection.connect();
-        } catch(e) {
-            logHtml(e, logger);
-            reject(e);
-        }
+        game.onConnect();        
+        connection.connect(socketUrl);
         resolve(game);
     });
 }

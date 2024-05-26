@@ -1,4 +1,3 @@
-"use strict"; // jshint ;_;
 import core from "./uno/basic.js";
 import {delay} from "./helper.js";
 
@@ -70,7 +69,7 @@ function drawDeck(document, parent, card, engine, clickAll, myIndex) {
     parent.appendChild(hand);
 }
 
-function drawPlayersInner(window, document, engine, myIndex, settings, marker) {
+function drawPlayersInner(document, engine, myIndex, settings, marker) {
     const root = document.documentElement;
     // root.style.setProperty("--card-width", "30px");
     root.style.setProperty("--current-color", mapColor(engine.getCurrentColor()));
@@ -181,7 +180,7 @@ function addDirectionElem(size, direction, parent, document, className, classNam
     parent.appendChild(directionElem);
 }
 
-function drawMyHand(window, document, engine, myIndex, myPlayer, box, settings) {
+function drawMyHand(document, engine, myIndex, myPlayer, box, settings) {
     const elem = document.createElement("div");
     elem.classList.add("my-hand", "js-player");
     const statusRow = document.createElement("div");
@@ -242,7 +241,7 @@ function mapColor(color) {
 }
 
 
-function drawLayout(window, document, engine, myIndex, settings) {
+function drawLayout(document, engine, myIndex, settings) {
     const root = document.documentElement;
     root.style.setProperty("--current-color", mapColor(engine.getCurrentColor()));
     const box = document.querySelector(".places");
@@ -311,7 +310,7 @@ function drawLayout(window, document, engine, myIndex, settings) {
         places.appendChild(elem);
     }
     drawCenter(document, engine.getCardOnBoard(), engine, settings, myIndex);
-    drawMyHand(window, document, engine, myIndex, myPlayer, box, settings);
+    drawMyHand(document, engine, myIndex, myPlayer, box, settings);
 }
 
 function drawPlayers(window, document, engine, myIndex, settings, marker) {
@@ -321,11 +320,11 @@ function drawPlayers(window, document, engine, myIndex, settings, marker) {
         console.trace("drawPlayers", marker);
     }
     if (settings.clickAll) {
-        drawPlayersInner(window, document, engine, myIndex, settings, marker);
+        drawPlayersInner(document, engine, myIndex, settings, marker);
         return;
     }
 
-    drawLayout(window, document, engine, myIndex, settings);
+    drawLayout(document, engine, myIndex, settings);
 }
 
 async function drawDiscard(document, engine, myIndex, settings) {
@@ -572,7 +571,6 @@ function drawPlayersMove(window, document, engine, myIndex, settings, marker, ca
 
 export default {
     drawPlayers,
-    drawLayout,
     drawDiscard,
     drawCurrent,
     drawDeal,
