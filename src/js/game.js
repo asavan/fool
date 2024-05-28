@@ -2,6 +2,7 @@ import enterName from "./names.js";
 import choosePlaceFunc from "./places.js";
 import unoGameFunc from "./uno-game.js";
 import {loggerFunc} from "./helper.js";
+import bestCardBot from "./bot/best_card.bot.js";
 
 
 function stub1() {
@@ -14,6 +15,28 @@ function makeCommonSeed(players) {
         seed += pl.external_id;
     }
     return seed;
+}
+
+function setupBots(players, engine, queue, settings) {
+    if (queue === undefined) {
+        return;
+    }
+    
+    const simpleBotIndexes = [];
+    let index = 0;
+    for (const player of players) {
+        if (player.is_bot) {
+            simpleBotIndexes.push(index);
+        }
+        ++index;
+    }
+    if (simpleBotIndexes.length === 0) {
+        return;
+    }
+    const loggerBot = loggerFunc(8, null, settings);
+    engine.on("changeCurrent", (currentChangeData) => {
+        bestCardBot(engine, queue, loggerBot, simpleBotIndexes, currentChangeData);
+    });
 }
 
 export default function game(window, document, settings) {
@@ -38,25 +61,36 @@ export default function game(window, document, settings) {
 
     let unoGame = null;
     let players = [];
+    let botCount = 0;
+    let queue;
+
+    const setQueue = (q) => {queue = q;};
 
     function on(name, f) {
         handlers[name] = f;
     }
 
-    const renderChoosePlace = () => choosePlaceFunc(document, afterAllJoined, swap, players);
+    function addBot() {
+        logger.log("addBot");
+        ++botCount;
+        const name = "bot " + botCount;
+        return join(name, name, true);
+    }
 
-    const join = (name, external_id) => {
+    const renderChoosePlace = () => choosePlaceFunc(document, afterAllJoined, swap, addBot, players);
+
+    function join(name, external_id, isBot) {
 
         const found = players.findIndex(player => player.external_id === external_id);
 
         if (found === -1) {
-            players.push({"name": name, "external_id": external_id});
+            players.push({name, external_id, is_bot: !!isBot});
         } else {
             players[found].name = name;
         }
         renderChoosePlace();        
         return true;
-    };
+    }
 
     const disconnect = (external_id) => {
         logger.log("disconnect", external_id);
@@ -108,6 +142,7 @@ export default function game(window, document, settings) {
             logger.log("settings already set", settings);
         }
         unoGame = createUnoGame();
+        setupBots(players, unoGame.getEngine(), queue, settings);
         logger.log("Game init");
         return unoGame.start();
     }
@@ -125,12 +160,14 @@ export default function game(window, document, settings) {
     return {
         on,
         join,
+        setQueue,
         onConnect,
         onStart,
         createUnoGame,
         afterAllJoined,
         disconnect,
         actionKeys,
+        addBot,
         getEngine
     };
 }

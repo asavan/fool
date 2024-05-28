@@ -38,8 +38,9 @@ function mostWeightedColor(nonBlackCards) {
     let maxScore = 0;
     let maxColor;
     for (const [color, score] of Object.entries(colorStats)) {
-        if (maxScore > score) {
+        if (maxScore < score) {
             maxColor = color;
+            maxScore = score;
         }
     }
     assert(maxColor !== undefined);

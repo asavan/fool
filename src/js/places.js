@@ -1,4 +1,4 @@
-export default function choosePlace(document, onSeatsFinished, onSwap, players) {
+export default function choosePlace(document, onSeatsFinished, onSwap, onAddBot, players) {
     const box = document.querySelector(".places");
     box.replaceChildren();
     const places = document.createElement("ul");
@@ -30,6 +30,11 @@ export default function choosePlace(document, onSeatsFinished, onSwap, players) 
         return onSeatsFinished();
     }
 
+    function onBotAdd(e) {
+        e.preventDefault();
+        return onAddBot();
+    }
+
     places.addEventListener("click", onSelect);
     for (let i = 0; i < players.length; ++i) {
         const player = players[i];
@@ -47,9 +52,19 @@ export default function choosePlace(document, onSeatsFinished, onSwap, players) 
         places.appendChild(elem);
     }
 
-    const start = document.createElement("button");
-    start.textContent = "Start";
-    start.classList.add("start-button", "clickable");
-    start.addEventListener("click", onAllSeated);
-    box.appendChild(start);
+    {
+        const start = document.createElement("button");
+        start.textContent = "Start";
+        start.classList.add("start-button", "clickable");
+        start.addEventListener("click", onAllSeated);
+        box.appendChild(start);
+    }
+    {
+        const botButton = document.createElement("button");
+        botButton.textContent = "add bot";
+        botButton.classList.add("bot-button", "clickable");
+        botButton.addEventListener("click", onBotAdd);
+        box.appendChild(botButton);
+    }
+
 }

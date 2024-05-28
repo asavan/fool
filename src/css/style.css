@@ -206,6 +206,20 @@ ul {
   line-height:100px;
 }
 
+.bot-button {
+  display:block;
+  position:absolute;
+  top:75%;
+  left:50%;
+  width:100px;
+  height:100px;
+  margin:-50px;
+  background:green;
+  border-radius:50%;
+  text-align:center;
+  line-height:100px;
+}
+
 .center-pile {
   display:block;
   position:absolute;
