@@ -8,13 +8,18 @@ import {prng_alea} from "esm-seedrandom";
 import coreUnoFunc from "../../src/js/uno.js";
 import settings from "../../src/js/settings.js";
 
-test("positive scenario simple", async () => {
+function setupEngine() {
     const myrng = prng_alea("a");
     const engine = coreUnoFunc(settings, myrng, console);
     const players = ["server", "player1"];
     for (const p of players) {
         engine.addPlayer(p);
     }
+    return engine;
+}
+
+test("positive scenario simple", async () => {
+    const engine = setupEngine();
     await engine.chooseDealer();
     assert.strictEqual(engine.getCurrentPlayer(), 1, "Wrong current player after choose");
     await engine.deal();
@@ -23,12 +28,7 @@ test("positive scenario simple", async () => {
 });
 
 test("client test", async () => {
-    const myrng = prng_alea("a");
-    const engine = coreUnoFunc(settings, myrng, console);
-    const players = ["server", "player1"];
-    for (const p of players) {
-        engine.addPlayer(p);
-    }
+    const engine = setupEngine();
     await engine.chooseDealer();
     assert.strictEqual(engine.getCurrentPlayer(), 1, "Wrong current player after choose");
     await engine.deal();
@@ -38,38 +38,27 @@ test("client test", async () => {
 
 
 test("empty deck", async () => {
-    const myrng = prng_alea("a");
-    const engine = coreUnoFunc(settings, myrng, console);
-    const players = ["server", "player1"];
-    for (const p of players) {
-        engine.addPlayer(p);
-    }
+    const engine = setupEngine();
     const deck = [1];
     engine.setDeck(deck);
-    engine.setCurrent(0, 0, 1);
+    engine.setCurrent(0, 0, 1, false);
     let res = await engine.onDraw(0, 1);
     assert.ok(res, "First card dealed");
 
-    engine.setCurrent(1, 0, 1);
+    engine.setCurrent(1, 0, 1, false);
     res = await engine.onDraw(1, 0);
     assert.ok(!res, "No such card");
     res = await engine.onDrawPlayer(1);
-    console.log(res);
     assert.ok(!res, "No such card 2");
 });
 
 test("deck reshuffle", async () => {
-    const myrng = prng_alea("a");
-    const engine = coreUnoFunc(settings, myrng, console);
-    const players = ["server", "player1"];
-    for (const p of players) {
-        engine.addPlayer(p);
-    }
+    const engine = setupEngine();
     const player0 = 0;
     const player1 = 1;
     const deck = [0, 1, 2, 3, 4];
     await engine.setDeck(deck);
-    await engine.setCurrent(player1, player1, 1);
+    await engine.setCurrent(player1, player1, 1, false);
     await engine.dealN(1);
     let res = await engine.onDraw(player0, 1);
     assert.ok(res, "1 card dealed");
@@ -85,18 +74,13 @@ test("deck reshuffle", async () => {
     assert.ok(res, "Card 2 in deck again");
 });
 
-test("take 4", {only: true}, async () => {
-    const myrng = prng_alea("a");
-    const engine = coreUnoFunc(settings, myrng, console);
-    const players = ["server", "player1"];
-    for (const p of players) {
-        engine.addPlayer(p);
-    }
+test("take 4", async () => {
+    const engine = setupEngine();
     const player0 = 0;
     const player1 = 1;
     const deck = [0, 1, 2, 13, 9, 97, 10];
     await engine.setDeck(deck);
-    await engine.setCurrent(player0, player0, 1);
+    await engine.setCurrent(player0, player0, 1, false);
     await engine.dealN(2);
     assert.strictEqual(engine.getCurrentPlayer(), player1, "player changed after deal");
     let res = await engine.moveToDiscard(player1, 9);
@@ -109,7 +93,7 @@ test("take 4", {only: true}, async () => {
 });
 
 
-test("reverse", {only: true}, async () => {
+test("reverse", async () => {
     const myrng = prng_alea("a");
     const engine = coreUnoFunc(settings, myrng, console);
     const players = ["server", "player1", "player2"];
@@ -120,7 +104,7 @@ test("reverse", {only: true}, async () => {
     const player1 = 1;
     const deck = [0, 1, 2, 13, 12, 11];
     await engine.setDeck(deck);
-    await engine.setCurrent(player0, player0, 1);
+    await engine.setCurrent(player0, player0, 1, false);
     await engine.dealN(1);
     assert.strictEqual(engine.getCurrentPlayer(), player1, "player changed after deal");
     assert.strictEqual(engine.getDirection(), 1, "direction left");

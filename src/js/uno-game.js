@@ -69,7 +69,7 @@ export default function unoGame(window, document, settings, playersExternal, han
     });
 
     engine.on("pass", async ({playerIndex}) => {
-        if (playerIndex != myIndex) {
+        if (playerIndex !== myIndex) {
             logger.error("Bad pass");
         }
         await handlers["pass"]({playerIndex, myIndex});
@@ -102,6 +102,11 @@ export default function unoGame(window, document, settings, playersExternal, han
     engine.on("discard", async (p) => {
         const draw = layout.drawDiscard(document, engine, myIndex, settings);
         await Promise.all([draw, handlers["discard"](p)]);
+    });
+
+    engine.on("discardExternal", (p) => {
+        assert(p === engine.getCardOnBoard());
+        return layout.drawDiscard(document, engine, myIndex, settings);
     });
 
     engine.on("shuffle", async (deck) => {

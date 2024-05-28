@@ -27,7 +27,7 @@ test("ai scenario", async () => {
     });
     gameFinish.catch(error => {
         console.error(error);
-        // assert.fail("fail on game over");
+        assert.fail("fail on game over");
     });
     await gameFinish;
     await delay(700);

@@ -10,6 +10,11 @@ test("hello", () => {
     assert.equal(message, "Hello", "checking the greeting");
 });
 
+test("number and string", () => {
+    const message = "1";
+    assert.notEqual(message, 1, "equal string");
+});
+
 test("has card", () => {
     const pile = [0, 1, 110]; // red red blue
     assert.ok(core.pileHasColor(pile, "red"), "No color");

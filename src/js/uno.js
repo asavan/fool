@@ -12,6 +12,21 @@ function localAssert(condition, message) {
 
 export default function initCore(settings, rngFunc, logger) {
 
+    const MAX_SCORE = settings.maxScore || 500;
+    const applyEffects = settings.applyEffects;
+    const players = [];
+
+    let dealer = 0;
+    let direction = 1;
+    let deck;
+    let cardOnBoard;
+    let discardPile = [];
+    let currentPlayer = -1;
+    let currentColor;
+    let cardTaken = 0;
+    let cardDiscarded = 0;
+    let roundover = true;
+
     let chooseColor = getCurrentColor;
     const setColorChooser = (f) => {chooseColor = f;};
     const commands = [
@@ -19,6 +34,7 @@ export default function initCore(settings, rngFunc, logger) {
         "deal",
         "draw",
         "discard",
+        "discardExternal",
         "move",
         "clearPlayer",
         "clearPlayerExternal",
@@ -44,19 +60,6 @@ export default function initCore(settings, rngFunc, logger) {
 
     const onShuffle = (d) => handlers.call("shuffle", d);
 
-    let MAX_SCORE = 500;
-    let dealer = 0;
-    let direction = 0;
-    let players = [];
-    let deck;
-    let applyEffects = true;
-    let cardOnBoard = null;
-    let discardPile = [];
-    let currentPlayer = null;
-    let currentColor = null;
-    let cardTaken = 0;
-    let cardDiscarded = 0;
-    let roundover = true;
 
 
     function getCurrentColor() {
@@ -98,13 +101,13 @@ export default function initCore(settings, rngFunc, logger) {
 
     async function dealToPlayer(deck, playerIndex, external) {
         if (deck == null || deck.size() === 0) {
-            console.warn("deck is empty");
-            return null;
+            logger.error("deck is empty");
+            return;
         }
         const card = deck.deal();
         if (card == null) {
-            console.error("deck is empty, should never happen");
-            return null;
+            logger.error("deck is empty, should never happen");
+            return;
         }
         players[playerIndex].addCard(card);
         if (!external) {
@@ -165,7 +168,7 @@ export default function initCore(settings, rngFunc, logger) {
     async function pass(playerIndex) {
         if (playerIndex !== currentPlayer) {
             logger.log("pass not for current player", playerIndex, currentPlayer);
-            return;
+            return false;
         }
 
         if (roundover) {
@@ -175,7 +178,7 @@ export default function initCore(settings, rngFunc, logger) {
 
         if (cardTaken == 0) {
             logger.error("cannot pass");
-            return;
+            return false;
         }
         await next();
         await report("pass", {playerIndex});
@@ -198,37 +201,28 @@ export default function initCore(settings, rngFunc, logger) {
 
         const cardFromDeck = deck.deal();
         localAssert(cardFromDeck === card, "Different cards");
-        cardOnBoard = card;
         const newColor = core.cardColor(card);
-        if (newColor !== "black") {
-            discardPile.push(card);
-            currentColor = newColor;
-        }
-        // TODO smth wrong here
-        await report("discard", card);
-
-    // calcCardEffect(card, currentPlayer);
+        localAssert(newColor !== "black", "Black on discard");
+        cardOnBoard = card;
+        discardPile.push(card);
+        currentColor = newColor;
+        await report("discardExternal", card);
     }
 
     async function dealToDiscard(deck) {
-        logger.log("dealToDiscard");
-
-        currentPlayer = dealer;
-        await report("changeCurrent", {currentPlayer, dealer, direction, roundover});
-
         let card = deck.deal();
         cardOnBoard = card;
         while (core.cardColor(card) === "black") {
             await report("discard", card);
-            cardOnBoard = null;
+            cardOnBoard = undefined;
             await deck.addCardAndShuffle(card);
             card = deck.deal();
             cardOnBoard = card;
         }
         discardPile.push(card);
         currentColor = core.cardColor(card);
+        logger.log("dealToDiscardEnd", core.cardToString(card), card);
         await report("discard", card);
-        logger.log("dealToDiscardEnd");
         return card;
     }
 
@@ -323,6 +317,7 @@ export default function initCore(settings, rngFunc, logger) {
     }
 
     function skip() {
+        // TODO should we notify others
         currentPlayer = calcNextFromCurrent(currentPlayer, players.length);
         cardTaken = 0;
         cardDiscarded = 0;
@@ -370,9 +365,13 @@ export default function initCore(settings, rngFunc, logger) {
                 await dealToPlayer(deck, currentPlayer);
             }
         }
+        if (currentPlayer !== dealer) {
+            logger.error("dealN", {currentPlayer, dealer, direction, roundover});
+            currentPlayer = dealer;
+            await report("changeCurrent", {currentPlayer, dealer, direction, roundover});
+        }
         const card = await dealToDiscard(deck);
-        currentPlayer = dealer;
-        logger.log("deal finished", currentPlayer, core.cardToString(card));
+        logger.log("deal finished", {currentPlayer}, core.cardToString(card));
         await calcCardEffect(card, currentPlayer);        
     }
 
@@ -547,6 +546,7 @@ export default function initCore(settings, rngFunc, logger) {
         }
         if (cardTaken == 0) {
             logger.error("Bad pass", playerIndex);
+            return false;
         }
         return next();
     }
@@ -570,9 +570,7 @@ export default function initCore(settings, rngFunc, logger) {
 
     async function next() {
         skip();
-        cardTaken = 0;
-        cardDiscarded = 0;
-        logger.log("Current change", currentPlayer, {roundover});
+        logger.log("Current change", {currentPlayer, dealer, direction, roundover});
         // roundover = false;
         await report("changeCurrent", {currentPlayer, dealer, direction, roundover});
         return true;
@@ -604,7 +602,9 @@ export default function initCore(settings, rngFunc, logger) {
     function setCurrent(c, d, dir, rover) {
         cardTaken = 0;
         cardDiscarded = 0;
-        roundover = rover;
+        if (rover !== undefined) {
+            roundover = rover;
+        }
         if (d != null) {
             dealer = d;
             // roundover = false;
@@ -627,22 +627,6 @@ export default function initCore(settings, rngFunc, logger) {
         };
     }
 
-    function resetToDefaults() {
-        MAX_SCORE = 500;
-        dealer = 0;
-        direction = 1;
-        players = [];
-        deck = null;
-        applyEffects = true;
-        cardOnBoard = null;
-        discardPile = [];
-        currentPlayer = null;
-        currentColor = null;
-        cardTaken = 0;
-        cardDiscarded = 0;
-        roundover = true;
-    }
-
     function deckSize() {
         if (deck == null) {
             return 0;
@@ -650,12 +634,6 @@ export default function initCore(settings, rngFunc, logger) {
         return deck.size();
     }
 
-    // init
-    resetToDefaults();
-    applyEffects = settings.applyEffects;
-    if (settings.maxScore) {
-        MAX_SCORE = settings.maxScore;
-    }
     function chooseDealer() {
         return chooseDealerInner(rngFunc);
     }
@@ -677,7 +655,6 @@ export default function initCore(settings, rngFunc, logger) {
     return {
         chooseDealer,
         deal,
-        dealN,
         getPlayerIterator,
         getPlayerByIndex,
         addPlayer,
@@ -705,6 +682,8 @@ export default function initCore(settings, rngFunc, logger) {
         onPass,
         deckSize,
         secretlySeeTopCard,
-        setColorChooser
+        setColorChooser,
+        // for tests only
+        dealN
     };
 }
