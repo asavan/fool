@@ -70,10 +70,10 @@ export default function game(window, document, settings) {
         return old_size > new_size;
     };
 
-    const onStart = (p) => {
-        players = p;
-        settings.seed = makeCommonSeed(players);
-        unoGame = unoGameFunc(window, document, settings, players, handlers);
+    const onStart = (data) => {
+        players = data.players;
+        settings.seed = data.seed;
+        unoGame = createUnoGame();
         const grid = document.getElementsByClassName("places")[0];
         grid.classList.remove("connected", "loading", "flying-cards");
         return unoGame;
@@ -96,6 +96,10 @@ export default function game(window, document, settings) {
         return renderChoosePlace();
     }
 
+    function createUnoGame() {
+        return unoGameFunc(window, document, settings, players, handlers);
+    }
+
     function afterAllJoined() {
         if (!settings.seed) {
             logger.log("settings", settings);
@@ -103,7 +107,7 @@ export default function game(window, document, settings) {
         } else {
             logger.log("settings already set", settings);
         }
-        unoGame = unoGameFunc(window, document, settings, players, handlers);
+        unoGame = createUnoGame();
         logger.log("Game init");
         return unoGame.start();
     }
@@ -123,6 +127,7 @@ export default function game(window, document, settings) {
         join,
         onConnect,
         onStart,
+        createUnoGame,
         afterAllJoined,
         disconnect,
         actionKeys,

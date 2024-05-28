@@ -26,7 +26,7 @@ export default function unoGame(window, document, settings, playersExternal, han
     function report(callbackName, data) {
         if (data && data.playerIndex !== undefined) {
             const playerExt = playersExternal[data.playerIndex];
-            Object.assign(data, {externalId: playerExt.external_id});
+            Object.assign(data, {externalId: playerExt.external_id, myIndex});
         }
         return handlers[callbackName](data);
     }
@@ -65,23 +65,20 @@ export default function unoGame(window, document, settings, playersExternal, han
     });
 
     engine.on("changeCurrent", ({currentPlayer, dealer, direction, roundover}) => {
-        // drawScreen("changeCurrent");
-        logger.log("changeCurrent", {roundover});
         layout.drawCurrent(window, document, engine, myIndex, settings);
         const pause = delay(50);
         const promises = [pause];
         if (settings.mode !== "net") {
-            logger.log("changeCurrent", {roundover}, handlers["changeCurrent"]);
             promises.push(handlers["changeCurrent"]({currentPlayer, dealer, myIndex, direction, roundover}));
         }
         return Promise.allSettled(promises);
     });
 
-    engine.on("pass", ({playerIndex}) => {
-        if (playerIndex !== myIndex) {
+    engine.on("pass", (data) => {
+        if (data.playerIndex !== myIndex) {
             logger.error("Bad pass");
         }
-        return report("pass", {playerIndex, myIndex});
+        return report("pass", data);
     });
 
     engine.on("move", (data) => {
@@ -92,8 +89,7 @@ export default function unoGame(window, document, settings, playersExternal, han
         const pause = delay(150);
         const promises = [pause];
         if (data.playerIndex === myIndex || settings.mode === "server") {
-            const playerExt = playersExternal[data.playerIndex];
-            promises.push(handlers["move"](Object.assign({}, data, {externalId: playerExt.external_id})));
+            promises.push(report("move", data));
         }
         return Promise.all(promises);
     });
@@ -167,7 +163,7 @@ export default function unoGame(window, document, settings, playersExternal, han
     });
 
     async function start() {
-        await handlers["start"]({players: playersExternal, engine});
+        await handlers["start"]({players: playersExternal, engine, seed: settings.seed});
         await engine.chooseDealer();
         await delay(700);
         if (settings.showAll || settings.clickAll) {
@@ -175,7 +171,9 @@ export default function unoGame(window, document, settings, playersExternal, han
         } else {
             settings.show = false;
         }
+        logger.log("before deal");
         await engine.deal();
+        logger.log("after deal");
     }
 
     function onShuffle(deck) {

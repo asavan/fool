@@ -58,12 +58,12 @@ export default function server(window, document, settings, gameFunction) {
 
         game.on("username", actions["username"]);
 
-        game.on("start", ({players, engine}) => {
+        game.on("start", ({players, engine, seed}) => {
             connection.closeSocket();
             const loggerActions = loggerFunc(7, null, settings);   
             const unoActions = actionsFuncUno(engine, loggerActions);
             connection.registerHandler(unoActions, queue);
-            return connection.sendRawAll("start", players);
+            return connection.sendRawAll("start", {players, seed});
         });
 
         connection.on("disconnect", (id) => {

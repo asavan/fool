@@ -47,8 +47,8 @@ export default function netMode(window, document, settings, gameFunction) {
             settings.applyEffects = false;
             const game = gameFunction(window, document, settings);
             setupGameToNetwork(game, connection);
-            const actions = {"start": (p) => {
-                const unoGame = game.onStart(p);
+            const actions = {"start": (data) => {
+                const unoGame = game.onStart(data);
                 const loggerActions = loggerFunc(6, null, settings);   
                 const unoActions = actionsFuncUno(unoGame, loggerActions);
                 connection.registerHandler(unoActions, queue);
