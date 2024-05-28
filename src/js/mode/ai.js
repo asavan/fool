@@ -12,9 +12,10 @@ export default function ai(window, document, settings, gameFunction) {
     return new Promise((resolve) => {
         const playerName = "Player";
         settings.externalId = playerName;
-        // settings.seed = rngFunc.makeId(6, Math.random);
-        // settings.cardsDeal = 2;
-        const logger = loggerFunc(70, null, settings);
+        if (!settings.seed) {
+            settings.seed = rngFunc.makeId(6, Math.random); 
+        }
+        const logger = loggerFunc(2, null, settings);
         const loggerActions = loggerFunc(5, null, settings);
         const queue = PromiseQueue(logger);
         const game = gameFunction(window, document, settings);
@@ -35,7 +36,6 @@ export default function ai(window, document, settings, gameFunction) {
                 logger.log("onchangeCurrent not bot", playerIndex);
                 return;
             }
-            logger.log("onchangeCurrent", currentChangeData);
             const pl = engine.getPlayerByIndex(playerIndex);
             const pile = pl.pile();
             const unoActions = actionsFuncUno(engine, loggerActions);
@@ -62,18 +62,20 @@ export default function ai(window, document, settings, gameFunction) {
             };
 
             const action = async () => {
-                // await delay(700);
+                await delay(700);
                 await calcAction(0)();
-                await delay(100);
+                // await delay(700);
                 if (moveCount === 0) {
+                    await delay(700);
                     await calcAction(1)();
+                    // await delay(700);
                 }
             };
             queue.add(action);
         });
 
         game.join(playerName, playerName);
-        simpleBotIndexes.push(0);
+        // simpleBotIndexes.push(0);
         for (let i = 1; i < 4; ++i) {
             const name = "bot" + i;
             game.join(name, name);
@@ -83,6 +85,7 @@ export default function ai(window, document, settings, gameFunction) {
         game.afterAllJoined();
 
         game.on("gameover", () => {
+            logger.log("on Gameover1");
             const btnAdd = document.querySelector(".butInstall");
             btnAdd.classList.remove("hidden2");
         });

@@ -1,6 +1,7 @@
 "use strict";
 
 const GOOD_COLORS = Object.freeze(["red", "yellow", "green", "blue"]);
+const BLACK_COLOR = "black";
 
 const GameStage = Object.freeze({
     chooseDealer: 1,
@@ -150,6 +151,7 @@ function isDrawCard(card) {
 
 export default {
     GOOD_COLORS,
+    BLACK_COLOR,
     GameStage,
     cardColor,
     cardType,

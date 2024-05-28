@@ -25,7 +25,7 @@ function findMostFrequentElement(arr, toIgnore) {
 }
 
 function findGoodCards(pile, cardOnBoard, currentColor) {
-    assert(core.matchColor(cardOnBoard, currentColor), "Bad color " + JSON.stringify({pile, cardOnBoard, currentColor}));
+    assert(core.matchColor(cardOnBoard, currentColor), "Bad color " + JSON.stringify({pile, cardOnBoard, currentColor}) + " " + core.cardToString(cardOnBoard));
     const hasColor = core.pileHasColor(pile, currentColor);
     const goodColors = pile.filter((card) => core.suitable(card, cardOnBoard, currentColor, hasColor));
     return goodColors;

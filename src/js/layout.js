@@ -60,13 +60,13 @@ function drawDeck(document, parent, card, engine, clickAll, myIndex) {
         const backClone = drawBack(document);
         backClone.addEventListener("click", async (e) => {
             e.preventDefault();
+            let playerIndex = myIndex;
             if (clickAll) {
-                await engine.drawCurrent();
-            } else {
-                const res = await engine.onDrawPlayer(myIndex);
-                if (!res) {
-                    await engine.pass(myIndex);
-                }
+                playerIndex = engine.getCurrentPlayer();
+            } 
+            const res = await engine.onDrawPlayer(playerIndex);
+            if (!res) {
+                await engine.pass(playerIndex);
             }
         });
         hand.appendChild(backClone);
@@ -498,10 +498,11 @@ async function drawMove(window, document, newCard1, animTime) {
         easing: "linear",
         fill: "forwards"
     };
-    flipList.animate(slide, timing);
-    newCard1.animate(shrink, timing);
-
-    await delay(animTime);
+    if (typeof flipList.animate === "function") {
+        flipList.animate(slide, timing);
+        newCard1.animate(shrink, timing);
+        await delay(animTime);    
+    }
     const cardToRepaint = list.querySelector(".card");
     repaintCard(card, cardToRepaint);
     newCard1.remove();
@@ -538,9 +539,11 @@ async function drawMoveOther(window, document, fromEl, animTime, card, newCount)
         easing: "linear",
         fill: "forwards"
     };
-    flipList.animate(slide, timing);
+    if (typeof flipList.animate === "function") {
+        flipList.animate(slide, timing);
+        await delay(animTime/2);
+    }
 
-    await delay(animTime/2);
     fromEl.textContent = newCount;
     await delay(animTime/2);
     const cardToRepaint = list.querySelector(".card");

@@ -139,7 +139,7 @@ export default function initCore(settings, rngFunc, logger) {
         // return;
         }
         const cardFromDeck = await dealToPlayer(deck, playerIndex, true);
-        logger.error("onDraw", cardFromDeck, core.cardToString(cardFromDeck));
+        logger.log("onDraw", cardFromDeck, core.cardToString(cardFromDeck));
         cardTaken++;
         return true;
     }
@@ -371,7 +371,6 @@ export default function initCore(settings, rngFunc, logger) {
             await report("changeCurrent", {currentPlayer, dealer, direction, roundover});
         }
         const card = await dealToDiscard(deck);
-        logger.log("deal finished", {currentPlayer}, core.cardToString(card));
         await calcCardEffect(card, currentPlayer);        
     }
 
@@ -411,8 +410,7 @@ export default function initCore(settings, rngFunc, logger) {
                 logger.error("Wrong color", newColor);
                 return false;
             }
-            currentColor = newColor;
-            return true;
+            return newColor;
         }
 
         if (core.cardType(card) === "Draw4") {
@@ -426,16 +424,15 @@ export default function initCore(settings, rngFunc, logger) {
                 logger.error("Wrong color", newColor);
                 return false;
             }
-            currentColor = newColor;
-            return true;
+            return newColor;
         }
 
         if (core.cardColor(card) === currentColor) {
-            return true;
+            return currentColor;
         }
 
         if (core.cardType(card) === core.cardType(cardOnBoard)) {
-            return true;
+            return core.cardColor(card);
         }
 
         logger.error("Bad card", core.cardType(card), core.cardType(cardOnBoard), currentColor);
@@ -491,38 +488,47 @@ export default function initCore(settings, rngFunc, logger) {
         return score;
     }
 
-    async function moveToDiscard(playerIndex, card) {
-        const res = await tryMove(playerIndex, card);
-        if (res) {
-            players[playerIndex].removeCard(card);
-            cardOnBoard = card;
-            discardPile.push(card);
-            const newColor = core.cardColor(card);
-            if (newColor !== "black") {
-                currentColor = newColor;
-            }
-            ++cardDiscarded;
-            await report("move", { playerIndex, card, currentColor });
-            if (applyEffects) {
-                await calcCardEffect(card, currentPlayer);
-                await checkGameEnd(playerIndex);
+    async function moveInner(playerIndex, card, nextColor) {
+        localAssert(!roundover, "Move on round end");
+        const pl = players[playerIndex];
+        pl.removeCard(card);
+        cardOnBoard = card;
+        discardPile.push(card);
+        currentColor = nextColor;
+        ++cardDiscarded;
+        if (pl.hasEmptyHand()) {
+            roundover = true;
+        }
+        await report("move", {playerIndex, card, currentColor});
+        if (applyEffects) {
+            await calcCardEffect(card, currentPlayer);
+            if (roundover) {
+                await onRoundEnd(playerIndex);
             }
         }
-        return res;
     }
 
-    async function checkGameEnd(playerIndex) {
+    async function moveToDiscard(playerIndex, card) {
+        const res = await tryMove(playerIndex, card);
+        if (res === false) {
+            return false;
+        }
+        const res2 = await onMoveToDiscard(playerIndex, card, res);
+        localAssert(res2, "Bad move");
+        return res2;
+    }
+
+    async function onRoundEnd(playerIndex) {
         const player = players[playerIndex];
-        if (player.pile().length === 0) {
-            roundover = true;
-            const diff = calcScore();
-            player.updateScore(diff);
-            const score = player.getScore();
-            if (score >= MAX_SCORE) {
-                await report("gameover", { playerIndex, score, diff });
-            } else {
-                await report("roundover", { playerIndex, score, diff });
-            }
+        localAssert(player.hasEmptyHand());
+        localAssert(roundover);
+        const diff = calcScore();
+        player.updateScore(diff);
+        const score = player.getScore();
+        if (score >= MAX_SCORE) {
+            await report("gameover", { playerIndex, score, diff });
+        } else {
+            await report("roundover", { playerIndex, score, diff });
         }
     }
 
@@ -554,16 +560,7 @@ export default function initCore(settings, rngFunc, logger) {
     async function onMoveToDiscard(playerIndex, card, nextColor) {
         const res = onTryMove(playerIndex, card, nextColor);
         if (res) {
-            players[playerIndex].removeCard(card);
-            cardOnBoard = card;
-            discardPile.push(card);
-            currentColor = nextColor;
-            ++cardDiscarded;
-            await report("moveExternal", {playerIndex, card, currentColor});
-            if (applyEffects) {
-                await calcCardEffect(card, currentPlayer);
-                await checkGameEnd(playerIndex);
-            }
+            await moveInner(playerIndex, card, nextColor);
         }
         return res;
     }
@@ -571,7 +568,6 @@ export default function initCore(settings, rngFunc, logger) {
     async function next() {
         skip();
         logger.log("Current change", {currentPlayer, dealer, direction, roundover});
-        // roundover = false;
         await report("changeCurrent", {currentPlayer, dealer, direction, roundover});
         return true;
     }
@@ -583,21 +579,6 @@ export default function initCore(settings, rngFunc, logger) {
         logger.log("nextDealer", {currentPlayer, dealer, direction, roundover});
         return report("changeCurrent", {currentPlayer, dealer, direction, roundover});
     }
-
-    async function drawCurrent() {
-        if (roundover) {
-            console.log("drawCurrent start new round");
-            return false;
-        }
-
-        if (cardTaken > 0) {
-            await next();
-            return;
-        }
-        cardTaken++;
-        await dealToPlayer(deck, currentPlayer);
-    }
-
 
     function setCurrent(c, d, dir, rover) {
         cardTaken = 0;
@@ -665,7 +646,6 @@ export default function initCore(settings, rngFunc, logger) {
         getCardOnBoard,
         tryMove,
         moveToDiscard,
-        drawCurrent,
         setDeck,
         onDraw,
         onMove,

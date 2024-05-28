@@ -23,6 +23,14 @@ export default function unoGame(window, document, settings, playersExternal, han
         handlers[name] = f;
     }
 
+    function report(callbackName, data) {
+        if (data && data.playerIndex !== undefined) {
+            const playerExt = playersExternal[data.playerIndex];
+            Object.assign(data, {externalId: playerExt.external_id});
+        }
+        return handlers[callbackName](data);
+    }
+
     function drawScreen(marker) {
         layout.drawPlayers(window, document, engine, myIndex, settings, marker);
     }
@@ -51,28 +59,29 @@ export default function unoGame(window, document, settings, playersExternal, han
         const pause = delay(150);
         let external = Promise.resolve();
         if (settings.mode === "server") {
-            const playerExt = playersExternal[playerIndex];
-            external = handlers["draw"]({playerIndex, card, externalId: playerExt.external_id});
+            external = report("draw", {playerIndex, card});
         }
         return Promise.all([pause, external]);
     });
 
     engine.on("changeCurrent", ({currentPlayer, dealer, direction, roundover}) => {
         // drawScreen("changeCurrent");
+        logger.log("changeCurrent", {roundover});
         layout.drawCurrent(window, document, engine, myIndex, settings);
         const pause = delay(50);
-        let external = Promise.resolve();
-        if (settings.mode !== "client") {
-            external = handlers["changeCurrent"]({currentPlayer, dealer, myIndex, direction, roundover});
+        const promises = [pause];
+        if (settings.mode !== "net") {
+            logger.log("changeCurrent", {roundover}, handlers["changeCurrent"]);
+            promises.push(handlers["changeCurrent"]({currentPlayer, dealer, myIndex, direction, roundover}));
         }
-        return Promise.allSettled([pause, external]);
+        return Promise.allSettled(promises);
     });
 
-    engine.on("pass", async ({playerIndex}) => {
+    engine.on("pass", ({playerIndex}) => {
         if (playerIndex !== myIndex) {
             logger.error("Bad pass");
         }
-        await handlers["pass"]({playerIndex, myIndex});
+        return report("pass", {playerIndex, myIndex});
     });
 
     engine.on("move", (data) => {
@@ -81,22 +90,12 @@ export default function unoGame(window, document, settings, playersExternal, han
         layout.drawPlayersMove(window, document, engine, myIndex, settings, "drawExternal", data.card, data.playerIndex);
         // layout.drawPlayersMove(window, document, engine, myIndex, settings, data.card, data.playerIndex);
         const pause = delay(150);
-        let external = Promise.resolve();
+        const promises = [pause];
         if (data.playerIndex === myIndex || settings.mode === "server") {
-            external = handlers["move"](data);
+            const playerExt = playersExternal[data.playerIndex];
+            promises.push(handlers["move"](Object.assign({}, data, {externalId: playerExt.external_id})));
         }
-        return Promise.all([pause, external]);
-    });
-
-    engine.on("moveExternal", (data) => {
-        drawScreen("moveExternal");
-        const pause = delay(150);
-        let external = Promise.resolve();
-
-        if (settings.mode === "server") {
-            external = handlers["move"](data);
-        }
-        return Promise.all([pause, external]);
+        return Promise.all(promises);
     });
 
     engine.on("discard", async (p) => {
@@ -157,7 +156,7 @@ export default function unoGame(window, document, settings, playersExternal, han
 
     engine.on("roundover", async (data) => {
         if (settings.mode === "net") {
-            drawScreen();
+            drawScreen("roundover");
             return;
         }
         logger.log("roundover");
@@ -198,7 +197,6 @@ export default function unoGame(window, document, settings, playersExternal, han
         logger.log("Change current", data.currentPlayer, data.dealer);
         engine.setCurrent(data.currentPlayer, data.dealer, data.direction, data.roundover);
         return layout.drawCurrent(window, document, engine, myIndex, settings);
-        // drawScreen("onChangeCurrent");
     }
 
     async function onNewRound(data) {

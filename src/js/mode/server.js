@@ -49,7 +49,7 @@ export default function server(window, document, settings, gameFunction) {
             game.on(handlerName, (n) => {
                 let ignore;
                 if (n && n.externalId) {
-                    console.error("Ignore", n.externalId);
+                    console.log("Ignore", n.externalId);
                     ignore = [n.externalId];
                 }
                 return connection.sendRawAll(handlerName, n, ignore);
