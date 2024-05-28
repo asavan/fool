@@ -1,29 +1,6 @@
 import { assert } from "../helper.js";
 import core from "../uno/basic.js";
 
-function findMostFrequentElement(arr, toIgnore) {
-    let mostFrequentElement;
-    let mostFrequentCount = 0;
-
-    for (let i = 0; i < arr.length; i++) {
-        let currentCount = 0;
-        if (arr[i] === toIgnore) {
-            continue;
-        }
-        for (let j = 0; j < arr.length; j++) {
-            if (arr[j] === arr[i]) {
-                currentCount++;
-            }
-        }
-
-        if (currentCount > mostFrequentCount) {
-            mostFrequentElement = arr[i];
-            mostFrequentCount = currentCount;
-        }
-    }
-    return mostFrequentElement;
-}
-
 function findGoodCards(pile, cardOnBoard, currentColor) {
     assert(core.matchColor(cardOnBoard, currentColor), "Bad color " + JSON.stringify({pile, cardOnBoard, currentColor}) + " " + core.cardToString(cardOnBoard));
     const hasColor = core.pileHasColor(pile, currentColor);
@@ -52,17 +29,33 @@ function findBestGoodCard(pile, cardOnBoard, currentColor) {
     return findBestScoreCard(findGoodCards(pile, cardOnBoard, currentColor));
 }
 
+function mostWeightedColor(nonBlackCards) {
+    assert(nonBlackCards.length > 0);
+    const colorStats = Object.fromEntries(core.GOOD_COLORS.map((color) => [color, 0]));
+    for (const card of nonBlackCards) {
+        colorStats[core.cardColor(card)] += core.cardScore(card);
+    }
+    let maxScore = 0;
+    let maxColor;
+    for (const [color, score] of Object.entries(colorStats)) {
+        if (maxScore > score) {
+            maxColor = color;
+        }
+    }
+    assert(maxColor !== undefined);
+    return maxColor;
+}
+
 function bestColor(pile, card, randomEl) {
     assert(pile.includes(card));
     const color = core.cardColor(card);
     if (core.GOOD_COLORS.includes(color)) {
         return color;
     }
-    if (color === "black") {
-        const colors = pile.map(core.cardColor);
-        const mostFrequent = findMostFrequentElement(colors, "black");
-        if (mostFrequent !== undefined) {
-            return mostFrequent;
+    if (color === core.BLACK_COLOR) {
+        const nonBlack = pile.filter(c => core.cardColor(c) !== core.BLACK_COLOR);
+        if (nonBlack.length > 0) {
+            return mostWeightedColor(nonBlack);
         }
         return randomEl(core.GOOD_COLORS);
     }
