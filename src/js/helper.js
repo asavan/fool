@@ -1,5 +1,3 @@
-"use strict";
-
 export function hideElem(el) {
     if (el) {
         el.classList.add("hidden");
@@ -108,6 +106,7 @@ export function loggerFunc(level, el, settings) {
         if (level >= settings.logLevel) {
             logHtml(data);
         }
+        console.trace(data);
         return console.error(data, ...args);
     };
     

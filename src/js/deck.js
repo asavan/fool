@@ -45,6 +45,13 @@ function newExternalDeck(d, onShuffle, rngFunc) {
         return res;
     }
 
+    function topCard() {
+        if (deck.length === 0) {
+            return;
+        }
+        return deck.at(-1);
+    }
+
     function addCardAndShuffle(card) {
         addCard(card);
         return shuffle();
@@ -57,7 +64,7 @@ function newExternalDeck(d, onShuffle, rngFunc) {
 
     const size = () => deck.length;
 
-    return {deal, addCardAndShuffle, setDeck, checkTop, size, shuffle};
+    return {deal, addCardAndShuffle, setDeck, checkTop, size, shuffle, topCard};
 }
 
 export default {

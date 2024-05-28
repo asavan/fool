@@ -1,5 +1,11 @@
 import core from "./uno/basic.js";
-import {delay} from "./helper.js";
+import {delay, assert} from "./helper.js";
+
+let logger = console;
+
+function setLogger(log) {
+    logger = log;
+}
 
 function repaintCard(p, cardEl) {
     cardEl.style.setProperty("--sprite-x", (1400 - (p%14)*100) + "%");
@@ -90,9 +96,9 @@ function drawPlayersInner(document, engine, myIndex, settings, marker) {
     const dealer = engine.getDealer();
     const currentPlayer = engine.getCurrentPlayer();
     if (marker) {
-        console.log("Draw inner", marker);
+        logger.log("Draw inner", marker);
     } else {
-        console.log("Draw inner");
+        logger.log("Draw inner");
     }
 
     for (const pl of players) {
@@ -315,9 +321,9 @@ function drawLayout(document, engine, myIndex, settings) {
 
 function drawPlayers(window, document, engine, myIndex, settings, marker) {
     if (marker) {
-        console.log("drawPlayers", marker);
+        logger.log("drawPlayers", marker);
     } else {
-        console.trace("drawPlayers", marker);
+        logger.trace("drawPlayers", marker);
     }
     if (settings.clickAll) {
         drawPlayersInner(document, engine, myIndex, settings, marker);
@@ -369,7 +375,9 @@ function drawCurrent(window, document, engine) {
 
 async function drawDeal(window, document, card, animTime) {
     const centerPile = document.querySelector(".center-pile");
+    assert(centerPile);
     const list = centerPile.querySelector(".hand");
+    assert(list);
 
     const flipItem = document.querySelector("#flip-card");
     const flipClone = flipItem.content.cloneNode(true).firstElementChild;
@@ -401,15 +409,17 @@ async function drawDeal(window, document, card, animTime) {
         easing: "ease-out",
         fill: "forwards"
     };
-    flipList.animate(newspaperSpinning, newspaperTiming);
-    await delay(animTime);
+    if (typeof flipList.animate === "function") {
+        flipList.animate(newspaperSpinning, newspaperTiming);
+        await delay(animTime);
+    }
     flipClone.remove();
     newCard1.classList.remove("transparent");
 }
 
 async function drawDealOther(window, document, card, animTime, target, newCount) {
     if (!target) {
-        console.trace("No target");
+        logger.error("No target");
         return;
     }
     const centerPile = document.querySelector(".center-pile");
@@ -440,8 +450,10 @@ async function drawDealOther(window, document, card, animTime, target, newCount)
         easing: "ease-out",
         fill: "forwards"
     };
-    flipList.animate(newspaperSpinning, newspaperTiming);
-    await delay(animTime/2);
+    if (typeof flipList.animate === "function") {
+        flipList.animate(newspaperSpinning, newspaperTiming);
+        await delay(animTime/2);
+    }
     target.textContent = newCount;
     await delay(animTime/2);
     flipClone.remove();
@@ -579,5 +591,6 @@ export default {
     drawDealOther,
     drawMoveByCard,
     drawMove,
-    drawPlayersMove
+    drawPlayersMove,
+    setLogger
 };

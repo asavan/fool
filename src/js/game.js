@@ -101,7 +101,7 @@ export default function game(window, document, settings) {
             logger.log("settings", settings);
             settings.seed = makeCommonSeed(players);
         } else {
-            logger.log("settings already set", settings.seed);
+            logger.log("settings already set", settings);
         }
         unoGame = unoGameFunc(window, document, settings, players, handlers);
         logger.log("Game init");

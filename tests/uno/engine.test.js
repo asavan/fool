@@ -10,7 +10,7 @@ import settings from "../../src/js/settings.js";
 
 test("positive scenario simple", async () => {
     const myrng = prng_alea("a");
-    const engine = coreUnoFunc(settings, myrng);
+    const engine = coreUnoFunc(settings, myrng, console);
     const players = ["server", "player1"];
     for (const p of players) {
         engine.addPlayer(p);
@@ -24,7 +24,7 @@ test("positive scenario simple", async () => {
 
 test("client test", async () => {
     const myrng = prng_alea("a");
-    const engine = coreUnoFunc(settings, myrng);
+    const engine = coreUnoFunc(settings, myrng, console);
     const players = ["server", "player1"];
     for (const p of players) {
         engine.addPlayer(p);
@@ -39,7 +39,7 @@ test("client test", async () => {
 
 test("empty deck", async () => {
     const myrng = prng_alea("a");
-    const engine = coreUnoFunc(settings, myrng);
+    const engine = coreUnoFunc(settings, myrng, console);
     const players = ["server", "player1"];
     for (const p of players) {
         engine.addPlayer(p);
@@ -60,7 +60,7 @@ test("empty deck", async () => {
 
 test("deck reshuffle", async () => {
     const myrng = prng_alea("a");
-    const engine = coreUnoFunc(settings, myrng);
+    const engine = coreUnoFunc(settings, myrng, console);
     const players = ["server", "player1"];
     for (const p of players) {
         engine.addPlayer(p);
@@ -87,7 +87,7 @@ test("deck reshuffle", async () => {
 
 test("take 4", {only: true}, async () => {
     const myrng = prng_alea("a");
-    const engine = coreUnoFunc(settings, myrng);
+    const engine = coreUnoFunc(settings, myrng, console);
     const players = ["server", "player1"];
     for (const p of players) {
         engine.addPlayer(p);
@@ -111,7 +111,7 @@ test("take 4", {only: true}, async () => {
 
 test("reverse", {only: true}, async () => {
     const myrng = prng_alea("a");
-    const engine = coreUnoFunc(settings, myrng);
+    const engine = coreUnoFunc(settings, myrng, console);
     const players = ["server", "player1", "player2"];
     for (const p of players) {
         engine.addPlayer(p);

@@ -1,4 +1,4 @@
-import {delay, loggerFunc} from "./helper.js";
+import {delay, loggerFunc, assert} from "./helper.js";
 import coreUnoFunc from "./uno.js";
 import colorChooser from "./choose_color.js";
 import layout from "./layout.js";
@@ -8,12 +8,14 @@ import {prng_alea} from "esm-seedrandom";
 export default function unoGame(window, document, settings, playersExternal, handlers) {
 
     const logger = loggerFunc(7, null, settings);
+    const loggerLayout = loggerFunc(2, null, settings);
+    layout.setLogger(loggerLayout);
     const myrng = prng_alea(settings.seed);
     const gameState = {
         inColorChoose: false,
         inExternalMove: false
     };
-    const engine = coreUnoFunc(settings, myrng);
+    const engine = coreUnoFunc(settings, myrng, logger);
     let index = 0;
     let myIndex = 0;
 
@@ -26,7 +28,8 @@ export default function unoGame(window, document, settings, playersExternal, han
     }
 
     for (const p of playersExternal) {
-        engine.addPlayer(p.name);
+        const res = engine.addPlayer(p.name);
+        assert(res, "No name");
         if (p.external_id == settings.externalId) {
             myIndex = index;
         }
@@ -59,10 +62,10 @@ export default function unoGame(window, document, settings, playersExternal, han
         layout.drawCurrent(window, document, engine, myIndex, settings);
         const pause = delay(50);
         let external = Promise.resolve();
-        if (settings.mode === "server") {
+        if (settings.mode !== "client") {
             external = handlers["changeCurrent"]({currentPlayer, dealer, myIndex, direction, roundover});
         }
-        return Promise.all([pause, external]);
+        return Promise.allSettled([pause, external]);
     });
 
     engine.on("pass", async ({playerIndex}) => {
@@ -104,6 +107,7 @@ export default function unoGame(window, document, settings, playersExternal, han
     engine.on("shuffle", async (deck) => {
         // TODO play shuffle animation
         drawScreen("shuffle");
+        logger.log("new deck", deck.length, ...deck);
         await handlers["shuffle"](deck);
         await delay(300);
     });
@@ -132,17 +136,6 @@ export default function unoGame(window, document, settings, playersExternal, han
 
     engine.on("gameover", async (data) => {
         onGameOver(data);
-        /*
-        drawScreen("gameover");
-        const name = playersExternal[data.playerIndex].name;
-        onGameEnd(name + " wins", "with score " + data.score); 
-        
-        drawScreen("onGameOver");
-        const name = playersExternal[data.playerIndex].name;
-        onGameEnd(name + " wins", "with score " + data.score);
-        return true;
-
-        */
         await handlers["gameover"](data);
     });
 
@@ -187,7 +180,7 @@ export default function unoGame(window, document, settings, playersExternal, han
     }
 
     function onChangeCurrent(data) {
-        if (engine.getCurrentPlayer() !== data.myIndex && settings.mode == "server") {
+        if (engine.getCurrentPlayer() !== data.myIndex && settings.mode === "server") {
             logger.error("Wrong player", engine.getCurrentPlayer(), data.myIndex);
             return;
         }
@@ -212,7 +205,10 @@ export default function unoGame(window, document, settings, playersExternal, han
     function onGameOver(data) {
         drawScreen("onGameOver");
         const name = playersExternal[data.playerIndex].name;
-        onGameEnd(name + " wins", "with score " + data.score);
+        const firstLine = name + " wins";
+        const secondLine = "with score " + data.score;
+        logger.log(firstLine, secondLine);
+        onGameEnd(firstLine, secondLine);
         return true;
     }
 

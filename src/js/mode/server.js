@@ -41,7 +41,7 @@ export default function server(window, document, settings, gameFunction) {
         });
 
         // const queue = Queue();
-        const queue = PromiseQueue(console);
+        const queue = PromiseQueue(logger);
         const game = gameFunction(window, document, settings);
         const actions = actionsFunc(game, clients, logger);
         connection.registerHandler(actions, queue);

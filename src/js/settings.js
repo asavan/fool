@@ -5,7 +5,7 @@ export default {
     logger: true,
     loggerAnchor: ".log",
     networkDebug: false,
-    logLevel: 10,
+    logLevel: 7,
     cardsDeal: 7,
     maxScore: 500,
     showAll: false,

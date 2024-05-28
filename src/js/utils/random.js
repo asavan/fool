@@ -1,15 +1,20 @@
 "use strict";
 
+function randomEl(arr, rngFunc) {
+    return arr[Math.floor(rngFunc() * arr.length)];
+}
+
 function makeId(length, rngFunc) {
     let result = "";
     const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     const charactersLength = characters.length;
-    for ( let i = 0; i < length; i++ ) {
+    for (let i = 0; i < length; i++) {
         result += characters.charAt(Math.floor(rngFunc() * charactersLength));
     }
     return result;
 }
 
 export default {
-    makeId
+    makeId,
+    randomEl
 };
