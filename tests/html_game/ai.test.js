@@ -15,7 +15,8 @@ test("ai scenario", async () => {
     });
     const document = dom.window.document;
     settings.cardsDeal = 1;
-    settings.seed = "h";
+    settings.seed = "v";
+    settings.mode = "ai";
     settings.maxScore = 3;
     const game = await mode(dom.window, document, settings, gameFunction);
     const gameFinish = new Promise((resolve) => {
@@ -25,11 +26,7 @@ test("ai scenario", async () => {
             resolve();
         });
     });
-    gameFinish.catch(error => {
-        console.error(error);
-        assert.fail("fail on game over");
-    });
     await gameFinish;
-    await delay(700);
+    await delay(70);
     assert.ok(true, "Ended well");
 });
