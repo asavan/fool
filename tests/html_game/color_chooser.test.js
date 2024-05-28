@@ -16,6 +16,7 @@ test("click color scenario", async () => {
     settings.cardsDeal = 1;
     settings.seed = "h";
     settings.maxScore = 3;
+    settings.mode = "hotseat";
     settings.clickAll = true;
     const game = gameFunction(dom.window, document, settings);
 

@@ -7,6 +7,8 @@ export default {
     networkDebug: false,
     logLevel: 7,
     cardsDeal: 7,
+    botCount: 3,
+    playerIsBot: false,
     maxScore: 500,
     showAll: false,
     clickAll: false,

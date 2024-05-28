@@ -171,9 +171,7 @@ export default function unoGame(window, document, settings, playersExternal, han
         } else {
             settings.show = false;
         }
-        logger.log("before deal");
         await engine.deal();
-        logger.log("after deal");
     }
 
     function onShuffle(deck) {

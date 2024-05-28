@@ -31,6 +31,11 @@ function findGoodCards(pile, cardOnBoard, currentColor) {
     return goodColors;
 }
 
+function findGoodNonBlackCards(pile, cardOnBoard, currentColor) {
+    assert(core.matchColor(cardOnBoard, currentColor), "Bad color " + JSON.stringify({pile, cardOnBoard, currentColor}) + " " + core.cardToString(cardOnBoard));
+    return pile.filter((card) => core.sameColorOrType(card, cardOnBoard, currentColor));
+}
+
 function findBestScoreCard(pile) {
     if (pile.length === 0) {
         return;
@@ -40,6 +45,10 @@ function findBestScoreCard(pile) {
 }
 
 function findBestGoodCard(pile, cardOnBoard, currentColor) {
+    const nonBlack = findGoodNonBlackCards(pile, cardOnBoard, currentColor);
+    if (nonBlack.length > 0) {
+        return findBestScoreCard(nonBlack);
+    }
     return findBestScoreCard(findGoodCards(pile, cardOnBoard, currentColor));
 }
 

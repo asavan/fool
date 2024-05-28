@@ -17,12 +17,6 @@ test("simple 4 player scenario", async () => {
     settings.clickAll = true;
     const game = gameFunction(dom.window, document, settings);
 
-    game.on("move", (move) => console.log(move));
-    game.on("draw", () => {});
-    game.on("shuffle", () => {});
-    game.on("discard", () => {});
-    game.on("changeCurrent", () => {});
-    game.on("clearPlayer", () => {});
     game.join("server", "server");
     for (let i = 1; i < 4; ++i) {
         const name = "client" + i;

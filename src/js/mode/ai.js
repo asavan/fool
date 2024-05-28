@@ -18,13 +18,14 @@ export default function ai(window, document, settings, gameFunction) {
         const queue = PromiseQueue(logger);
         const game = gameFunction(window, document, settings);
         const simpleBotIndexes = [];
-        // game.on("changeCurrent", (currentChangeData) => {
-        //     const engine = game.getEngine();
-        //     return bestCardBot(engine, queue, loggerActions, simpleBotIndexes, currentChangeData);
-        // });
 
         game.join(playerName, playerName);
-        for (let i = 1; i < 4; ++i) {
+
+        if (settings.playerIsBot) {
+            simpleBotIndexes.push(0);
+        }
+
+        for (let i = 1; i < settings.botCount + 1; ++i) {
             const name = "bot" + i;
             game.join(name, name);
             simpleBotIndexes.push(i);
@@ -38,7 +39,6 @@ export default function ai(window, document, settings, gameFunction) {
         const unoGame = game.createUnoGame();
         const engine = unoGame.getEngine();
         engine.on("changeCurrent", (currentChangeData) => {
-            // const engine = game.getEngine();
             bestCardBot(engine, queue, loggerActions, simpleBotIndexes, currentChangeData);
         });
         const afterStart = unoGame.start();
