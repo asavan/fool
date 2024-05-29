@@ -8,16 +8,20 @@ import mode from "../../src/js/mode/ai.js";
 
 import { delay } from "../../src/js/helper.js";
 
+function defaultAiSettings(settings) {
+    const localSettings = {...settings};
+    localSettings.cardsDeal = 1;
+    localSettings.seed = "v";
+    localSettings.mode = "ai";
+    localSettings.maxScore = 3;
+    return localSettings;
+}
 
-test("ai scenario", async () => {
+async function aiTest(settings, fisrtName) {
     const dom = await JSDOM.fromFile("src/index.html", {
         url: "http://localhost/",
     });
     const document = dom.window.document;
-    settings.cardsDeal = 1;
-    settings.seed = "v";
-    settings.mode = "ai";
-    settings.maxScore = 3;
     const game = await mode(dom.window, document, settings, gameFunction);
     const gameFinish = new Promise((resolve) => {
         game.on("gameover", () => {
@@ -28,7 +32,7 @@ test("ai scenario", async () => {
     });
     const firstPlayerName = document.querySelector(".player-name");
     assert.ok(firstPlayerName, "No players");
-    assert.equal(firstPlayerName.textContent, "bot 1");
+    assert.equal(firstPlayerName.textContent, fisrtName);
     await gameFinish;
     await delay(70);
     const elem = document.querySelector(".overlay.show");
@@ -39,4 +43,17 @@ test("ai scenario", async () => {
     const winMessage2 = elem.querySelector(".content").textContent;
     assert.equal(winMessage2, "with score 127");
     assert.ok(true, "Ended well");
+}
+
+
+test("ai scenario", async () => {
+    const localSettings = defaultAiSettings(settings);
+    await aiTest(localSettings, "bot 1");
+});
+
+
+test("ai clickAll", async () => {
+    const localSettings = defaultAiSettings(settings);
+    localSettings.clickAll = true;
+    await aiTest(localSettings, "Player");
 });
