@@ -1,7 +1,4 @@
-"use strict";
-
 import {removeElem, loggerFunc} from "../helper.js";
-import actionsFunc from "../actions_server.js";
 import actionsFuncUno from "../actions_uno_server.js";
 import qrRender from "../lib/qrcode.js";
 import connectionFunc from "../connection/server.js";
@@ -40,11 +37,18 @@ export default function server(window, document, settings, gameFunction) {
             });
         });
 
-        // const queue = Queue();
         const queue = PromiseQueue(logger);
         const game = gameFunction(window, document, settings);
         game.setQueue(queue);
-        const actions = actionsFunc(game, clients, logger);
+        const actions = {
+            "username": (n, id) => {
+                logger.log("User joined", n, id);
+                const client = clients[id];
+                client.username = n;
+                return game.join(n, id, settings.playerIsBot);
+            }
+        };
+
         connection.registerHandler(actions, queue);
         for (const handlerName of game.actionKeys()) {
             game.on(handlerName, (n) => {

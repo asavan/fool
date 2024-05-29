@@ -17,7 +17,7 @@ export default function ai(window, document, settings, gameFunction) {
         const game = gameFunction(window, document, settings);
         game.setQueue(queue);
 
-        game.join(playerName, playerName);
+        game.join(playerName, playerName, settings.playerIsBot);
 
         for (let i = 0; i < settings.botCount; ++i) {
             game.addBot();
