@@ -1,5 +1,3 @@
-"use strict";
-
 import connectionFunc from "../connection/client.js";
 import actionsFuncUno from "../actions_uno_client.js";
 import rngFunc from "../utils/random.js";
@@ -23,10 +21,16 @@ function onConnectionAnimation(document, connection) {
     });
 }
 
-function setupGameToNetwork(game, connection) {
+function setupGameToNetwork(game, connection, logger) {
     const OTHER_SIDE_ID = "server";
     for (const handlerName of game.actionKeys()) {
-        game.on(handlerName, (n) => connection.sendRawTo(handlerName, n, OTHER_SIDE_ID));
+        game.on(handlerName, (n) => {
+            if (n && n.externalId) {
+                logger.log("Ignore", n.externalId);
+                return;
+            }
+            return connection.sendRawTo(handlerName, n, OTHER_SIDE_ID);
+        });
     }
 }
 
@@ -46,7 +50,7 @@ export default function netMode(window, document, settings, gameFunction) {
             settings["externalId"] = myId;
             settings.applyEffects = false;
             const game = gameFunction(window, document, settings);
-            setupGameToNetwork(game, connection);
+            setupGameToNetwork(game, connection, logger);
             const actions = {"start": (data) => {
                 const unoGame = game.onStart(data);
                 const loggerActions = loggerFunc(6, null, settings);   

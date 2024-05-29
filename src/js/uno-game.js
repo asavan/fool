@@ -44,24 +44,39 @@ export default function unoGame(window, document, settings, playersExternal, han
         ++index;
     }
 
+    function onDrawTiming(playerIndex) {
+        if (settings.show) {
+            return 200;
+        } else if (playerIndex === myIndex) {
+            return 120;
+        } else {
+            return 50;
+        }
+    }
+
     engine.on("draw", ({playerIndex, card}) => {
         layout.drawPlayersDeal(window, document, engine, myIndex, settings, "draw", card, playerIndex);
-        const pause = delay(150);
-        let external = Promise.resolve();
-        if (playerIndex === myIndex || settings.mode === "server") {
-            external = handlers["draw"]({playerIndex, card});
+        const promises = [delay(onDrawTiming(playerIndex))];
+        if (settings.show) {
+            promises.push(delay(200));
+        } else if (playerIndex === myIndex) {
+            promises.push(delay(120));
+        } else {
+            promises.push(delay(50));
         }
-        return Promise.all([pause, external]);
+        if (playerIndex === myIndex || settings.mode === "server") {
+            promises.push(handlers["draw"]({playerIndex, card}));
+        }
+        return Promise.allSettled(promises);
     });
 
     engine.on("drawExternal", ({playerIndex, card}) => {
         layout.drawPlayersDeal(window, document, engine, myIndex, settings, "drawExternal", card, playerIndex);
-        const pause = delay(150);
-        let external = Promise.resolve();
+        const promises = [delay(onDrawTiming(playerIndex))];
         if (settings.mode === "server") {
-            external = report("draw", {playerIndex, card});
+            promises.push(report("draw", {playerIndex, card}));
         }
-        return Promise.all([pause, external]);
+        return Promise.all(promises);
     });
 
     engine.on("changeCurrent", ({currentPlayer, dealer, direction, roundover}) => {
