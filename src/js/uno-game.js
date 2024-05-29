@@ -32,7 +32,7 @@ export default function unoGame(window, document, settings, playersExternal, han
     }
 
     function drawScreen(marker) {
-        layout.drawPlayers({document, engine, myIndex, settings}, marker);
+        layout.drawPlayers({document, engine, myIndex, settings, playersExternal}, marker);
     }
 
     for (const p of playersExternal) {
@@ -55,7 +55,7 @@ export default function unoGame(window, document, settings, playersExternal, han
     }
 
     engine.on("draw", ({playerIndex, card}) => {
-        layout.drawPlayersDeal(window, document, engine, myIndex, settings, "draw", card, playerIndex);
+        layout.drawPlayersDeal(window, {document, engine, myIndex, settings, playersExternal}, "draw", card, playerIndex);
         const promises = [delay(onDrawTiming(playerIndex))];
         if (settings.show) {
             promises.push(delay(200));
@@ -71,7 +71,7 @@ export default function unoGame(window, document, settings, playersExternal, han
     });
 
     engine.on("drawExternal", ({playerIndex, card}) => {
-        layout.drawPlayersDeal(window, document, engine, myIndex, settings, "drawExternal", card, playerIndex);
+        layout.drawPlayersDeal(window, {document, engine, myIndex, settings, playersExternal}, "drawExternal", card, playerIndex);
         const promises = [delay(onDrawTiming(playerIndex))];
         if (settings.mode === "server") {
             promises.push(report("draw", {playerIndex, card}));
@@ -80,7 +80,7 @@ export default function unoGame(window, document, settings, playersExternal, han
     });
 
     engine.on("changeCurrent", ({currentPlayer, dealer, direction, roundover}) => {
-        layout.drawCurrent(window, document, engine, myIndex, settings);
+        layout.drawCurrent(document, engine, myIndex, settings);
         const pause = delay(50);
         const promises = [pause];
         if (settings.mode !== "net") {
@@ -97,10 +97,8 @@ export default function unoGame(window, document, settings, playersExternal, han
     });
 
     engine.on("move", (data) => {
-        // drawScreen("move");
         logger.log("move", data);
-        layout.drawPlayersMove(window, document, engine, myIndex, settings, "drawExternal", data.card, data.playerIndex);
-        // layout.drawPlayersMove(window, document, engine, myIndex, settings, data.card, data.playerIndex);
+        layout.drawPlayersMove(window, {document, engine, myIndex, settings, playersExternal}, "drawMove", data.card, data.playerIndex);
         const pause = delay(150);
         const promises = [pause];
         if (data.playerIndex === myIndex || settings.mode === "server") {
@@ -207,7 +205,7 @@ export default function unoGame(window, document, settings, playersExternal, han
 
         logger.log("Change current", data.currentPlayer, data.dealer);
         engine.setCurrent(data.currentPlayer, data.dealer, data.direction, data.roundover);
-        return layout.drawCurrent(window, document, engine, myIndex, settings);
+        return layout.drawCurrent(document, engine, myIndex, settings);
     }
 
     async function onNewRound(data) {

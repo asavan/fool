@@ -75,7 +75,7 @@ function drawDeck(document, parent, card, engine, clickAll, myIndex) {
     parent.appendChild(hand);
 }
 
-function drawPlayersInner(document, engine, myIndex, settings, marker) {
+function drawPlayersInner({document, engine, myIndex, settings, playersExternal}, marker) {
     const root = document.documentElement;
     // root.style.setProperty("--card-width", "30px");
     root.style.setProperty("--current-color", mapColor(engine.getCurrentColor()));
@@ -92,7 +92,6 @@ function drawPlayersInner(document, engine, myIndex, settings, marker) {
     box.appendChild(places);
     const increaseDeg = 360 / engine.size();
     const players = engine.getPlayerIterator();
-    let i = 0;
     const dealer = engine.getDealer();
     const currentPlayer = engine.getCurrentPlayer();
     if (marker) {
@@ -100,13 +99,15 @@ function drawPlayersInner(document, engine, myIndex, settings, marker) {
     } else {
         logger.log("Draw inner");
     }
-
+    
+    let i = 0;
     for (const pl of players) {
         const angleDeg = 90 + increaseDeg*(i-myIndex);
         const elem = document.createElement("li");
         elem.classList.add("show-all");
         const nameElem = document.createElement("span");
-        nameElem.textContent = pl.getName();
+        const playerName = playersExternal[i].name;
+        nameElem.textContent = playerName;
         nameElem.classList.add("player-name");
         elem.appendChild(nameElem);
 
@@ -186,14 +187,15 @@ function addDirectionElem(size, direction, parent, document, className, classNam
     parent.appendChild(directionElem);
 }
 
-function drawMyHand({document, engine, myIndex, settings}, box) {
+function drawMyHand({document, engine, myIndex, settings, playersExternal}, box) {
     const myPlayer = engine.getPlayerByIndex(myIndex);
     const elem = document.createElement("div");
     elem.classList.add("my-hand", "js-player");
     const statusRow = document.createElement("div");
     statusRow.classList.add("row");
     const nameElem = document.createElement("span");
-    nameElem.textContent = myPlayer.getName();
+    const playerName = playersExternal[myIndex].name;
+    nameElem.textContent = playerName;
     nameElem.classList.add("player-name");
     statusRow.appendChild(nameElem);
 
@@ -248,7 +250,7 @@ function mapColor(color) {
 }
 
 
-function drawLayout({document, engine, myIndex, settings}) {
+function drawLayout({document, engine, myIndex, settings, playersExternal}) {
     const root = document.documentElement;
     root.style.setProperty("--current-color", mapColor(engine.getCurrentColor()));
     const box = document.querySelector(".places");
@@ -287,10 +289,9 @@ function drawLayout({document, engine, myIndex, settings}) {
 
         const nameElem = document.createElement("div");
         nameElem.classList.add("player-name");
-
-        nameElem.textContent = pl.getName();
+        const playerName = playersExternal[i].name;
+        nameElem.textContent = playerName;
         elem.appendChild(nameElem);
-
 
         const score = pl.getScore();
         if (score > 0) {
@@ -315,21 +316,21 @@ function drawLayout({document, engine, myIndex, settings}) {
         places.appendChild(elem);
     }
     drawCenter(document, engine.getCardOnBoard(), engine, settings, myIndex);
-    drawMyHand({document, engine, myIndex, settings}, box);
+    drawMyHand({document, engine, myIndex, settings, playersExternal}, box);
 }
 
-function drawPlayers({document, engine, myIndex, settings}, marker) {
+function drawPlayers(data, marker) {
     if (marker) {
         logger.log("drawPlayers", marker);
     } else {
         logger.trace("drawPlayers", marker);
     }
-    if (settings.clickAll) {
-        drawPlayersInner(document, engine, myIndex, settings, marker);
+    if (data.settings.clickAll) {
+        drawPlayersInner(data, marker);
         return;
     }
 
-    drawLayout({document, engine, myIndex, settings});
+    drawLayout(data);
 }
 
 async function drawDiscard(document, engine, myIndex, settings) {
@@ -353,7 +354,7 @@ async function drawDiscard(document, engine, myIndex, settings) {
     drawCenter(document, engine.getCardOnBoard(), engine, settings, myIndex);
 }
 
-function drawCurrent(window, document, engine) {
+function drawCurrent(document, engine) {
     const players = document.querySelectorAll(".js-player");
     for (const player of players) {
         player.classList.remove("current-player", "dealer");
@@ -556,9 +557,9 @@ function drawMoveByCard(window, document, card, animTime) {
     return drawMove(window, document, cardEl, animTime);
 }
 
-function drawPlayersDeal(window, document, engine, myIndex, settings, marker, card, playerIndex) {
+function drawPlayersDeal(window, {document, engine, myIndex, settings, playersExternal}, marker, card, playerIndex) {
     if (settings.show) {
-        drawPlayers({document, engine, myIndex, settings}, marker);
+        drawPlayers({document, engine, myIndex, settings, playersExternal}, marker);
         return;
     }
 
@@ -571,9 +572,9 @@ function drawPlayersDeal(window, document, engine, myIndex, settings, marker, ca
     return drawDeal(window, document, card, settings.dealAnim);
 }
 
-function drawPlayersMove(window, document, engine, myIndex, settings, marker, card, playerIndex) {
+function drawPlayersMove(window, {document, engine, myIndex, settings, playersExternal}, marker, card, playerIndex) {
     if (settings.show) {
-        return drawPlayers({document, engine, myIndex, settings}, marker);
+        return drawPlayers({document, engine, myIndex, settings, playersExternal}, marker);
     }
     if (playerIndex !== myIndex) {
         const player = document.querySelector(`[data-id="${playerIndex}"]`);

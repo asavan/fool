@@ -26,6 +26,9 @@ test("ai scenario", async () => {
             resolve();
         });
     });
+    const firstPlayerName = document.querySelector(".player-name");
+    assert.ok(firstPlayerName, "No players");
+    assert.equal(firstPlayerName.textContent, "bot 1");
     await gameFinish;
     await delay(70);
     const elem = document.querySelector(".overlay.show");

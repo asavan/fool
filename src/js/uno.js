@@ -276,7 +276,7 @@ export default function initCore(settings, rngFunc, logger) {
                 // await handlers['changeCurrent']({currentPlayer, dealer, direction});
                 const card = await dealToPlayer(deck, currentPlayer);
                 const score = core.cardScore(card);
-                logger.log(">> " + candidates[dealIndex].getName() + ": Player " + i + " draws "
+                logger.log(">> Player " + i + " draws "
                                 + core.cardToString(card) + " and gets " + score + " points");
                 scores[dealIndex] = score;
                 max = Math.max(max, score);
