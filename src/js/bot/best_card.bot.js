@@ -40,9 +40,9 @@ export default function bot(engine, queue, logger, botIndexes, currentChangeData
         }
 
         const action = async () => {
-            callback(data);
+            await callback(data);
             return moveCount;
-        }
+        };
         return action;
     };
 

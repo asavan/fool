@@ -264,10 +264,8 @@ function drawLayout({document, engine, myIndex, settings}) {
     let i = 0;
     const dealer = engine.getDealer();
     const currentPlayer = engine.getCurrentPlayer();
-    let myPlayer = null;
     for (const pl of players) {
         if (i === myIndex) {
-            myPlayer = pl;
             ++i;
             continue;
         }
