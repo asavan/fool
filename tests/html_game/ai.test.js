@@ -28,5 +28,12 @@ test("ai scenario", async () => {
     });
     await gameFinish;
     await delay(70);
+    const elem = document.querySelector(".overlay.show");
+    assert.ok(elem, "No win window");
+    const winMessage1 = elem.querySelector("h2").textContent;
+    assert.equal(winMessage1, "bot 2 wins");
+
+    const winMessage2 = elem.querySelector(".content").textContent;
+    assert.equal(winMessage2, "with score 127");
     assert.ok(true, "Ended well");
 });

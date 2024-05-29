@@ -48,7 +48,7 @@ function drawDeck(document, parent, card, engine, clickAll, myIndex) {
     const hand = document.createElement("ul");
     const cardItem = document.querySelector("#card");
     hand.classList.add("hand");
-    if (card !== null) {
+    if (card != null) {
         hand.appendChild(drawCard(card, cardItem));
     } else {
         hand.appendChild(drawBlank(document));
@@ -186,7 +186,8 @@ function addDirectionElem(size, direction, parent, document, className, classNam
     parent.appendChild(directionElem);
 }
 
-function drawMyHand(document, engine, myIndex, myPlayer, box, settings) {
+function drawMyHand({document, engine, myIndex, settings}, box) {
+    const myPlayer = engine.getPlayerByIndex(myIndex);
     const elem = document.createElement("div");
     elem.classList.add("my-hand", "js-player");
     const statusRow = document.createElement("div");
@@ -247,7 +248,7 @@ function mapColor(color) {
 }
 
 
-function drawLayout(document, engine, myIndex, settings) {
+function drawLayout({document, engine, myIndex, settings}) {
     const root = document.documentElement;
     root.style.setProperty("--current-color", mapColor(engine.getCurrentColor()));
     const box = document.querySelector(".places");
@@ -316,10 +317,10 @@ function drawLayout(document, engine, myIndex, settings) {
         places.appendChild(elem);
     }
     drawCenter(document, engine.getCardOnBoard(), engine, settings, myIndex);
-    drawMyHand(document, engine, myIndex, myPlayer, box, settings);
+    drawMyHand({document, engine, myIndex, settings}, box);
 }
 
-function drawPlayers(window, document, engine, myIndex, settings, marker) {
+function drawPlayers({document, engine, myIndex, settings}, marker) {
     if (marker) {
         logger.log("drawPlayers", marker);
     } else {
@@ -330,7 +331,7 @@ function drawPlayers(window, document, engine, myIndex, settings, marker) {
         return;
     }
 
-    drawLayout(document, engine, myIndex, settings);
+    drawLayout({document, engine, myIndex, settings});
 }
 
 async function drawDiscard(document, engine, myIndex, settings) {
@@ -559,11 +560,11 @@ function drawMoveByCard(window, document, card, animTime) {
 
 function drawPlayersDeal(window, document, engine, myIndex, settings, marker, card, playerIndex) {
     if (settings.show) {
-        drawPlayers(window, document, engine, myIndex, settings, marker);
+        drawPlayers({document, engine, myIndex, settings}, marker);
         return;
     }
 
-    if (playerIndex != myIndex) {
+    if (playerIndex !== myIndex) {
         const player = document.querySelector(`[data-id="${playerIndex}"]`);
         const pl = engine.getPlayerByIndex(playerIndex);
         return drawDealOther(window, document, card, settings.moveAnim, player.querySelector(".card-count"), pl.pile().length);
@@ -574,9 +575,9 @@ function drawPlayersDeal(window, document, engine, myIndex, settings, marker, ca
 
 function drawPlayersMove(window, document, engine, myIndex, settings, marker, card, playerIndex) {
     if (settings.show) {
-        return drawPlayers(window, document, engine, myIndex, settings, marker);
+        return drawPlayers({document, engine, myIndex, settings}, marker);
     }
-    if (playerIndex != myIndex) {
+    if (playerIndex !== myIndex) {
         const player = document.querySelector(`[data-id="${playerIndex}"]`);
         const pl = engine.getPlayerByIndex(playerIndex);
         return drawMoveOther(window, document, player.querySelector(".card-count"), settings.moveAnim, card, pl.pile().length);

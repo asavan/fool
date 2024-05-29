@@ -2,8 +2,7 @@ import enterName from "./names.js";
 import choosePlaceFunc from "./places.js";
 import unoGameFunc from "./uno-game.js";
 import {loggerFunc} from "./helper.js";
-import bestCardBot from "./bot/best_card.bot.js";
-
+import setupBots from "./bot/setup_bot.js";
 
 function stub1() {
     // console.trace(message);
@@ -17,31 +16,11 @@ function makeCommonSeed(players) {
     return seed;
 }
 
-function setupBots(players, engine, queue, settings) {
-    if (queue === undefined) {
-        return;
-    }
-    
-    const simpleBotIndexes = [];
-    let index = 0;
-    for (const player of players) {
-        if (player.is_bot) {
-            simpleBotIndexes.push(index);
-        }
-        ++index;
-    }
-    if (simpleBotIndexes.length === 0) {
-        return;
-    }
-    const loggerBot = loggerFunc(8, null, settings);
-    engine.on("changeCurrent", (currentChangeData) => {
-        bestCardBot(engine, queue, loggerBot, simpleBotIndexes, currentChangeData);
-    });
-}
 
 export default function game(window, document, settings) {
 
     const logger = loggerFunc(8, null, settings);
+    const loggerBot = loggerFunc(6, null, settings);
 
     const commands = [
         "move",
@@ -74,7 +53,8 @@ export default function game(window, document, settings) {
         logger.log("addBot");
         ++botCount;
         const name = "bot " + botCount;
-        return join(name, name, true);
+        const externalId = "bot" + botCount;
+        return join(name, externalId, true);
     }
 
     const renderChoosePlace = () => choosePlaceFunc(document, afterAllJoined, swap, addBot, players);
@@ -142,7 +122,7 @@ export default function game(window, document, settings) {
             logger.log("settings already set", settings);
         }
         unoGame = createUnoGame();
-        setupBots(players, unoGame.getEngine(), queue, settings);
+        setupBots(players, unoGame.getEngine(), queue, loggerBot);
         logger.log("Game init");
         return unoGame.start();
     }

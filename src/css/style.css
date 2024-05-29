@@ -63,7 +63,9 @@ ul {
   box-sizing: border-box;
   padding: 0 10px;
   font-size: 3rem;
-  transition: background-color 200ms linear;
+  transition-property: background-color, color;
+  transition-duration: 200ms;
+  transition-timing-function: linear;
 }
 
 .my-hand .card {

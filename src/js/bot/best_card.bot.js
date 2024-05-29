@@ -21,11 +21,11 @@ export default function bot(engine, queue, logger, botIndexes, currentChangeData
     const pl = engine.getPlayerByIndex(playerIndex);
     const pile = pl.pile();
     const unoActions = actionsFuncUno(engine, logger);
-    let moveCount = 0;
     const calcAction = (trycount) => {
         const bestCard = simpleBot.findBestGoodCard(pile, engine.getCardOnBoard(), engine.getCurrentColor());
         let callback;
         let data;
+        let moveCount = 0;
         if (bestCard === undefined) {
             data = { playerIndex, card: engine.secretlySeeTopCard() };
             if (trycount > 0) {
@@ -39,16 +39,19 @@ export default function bot(engine, queue, logger, botIndexes, currentChangeData
             ++moveCount;
         }
 
-        const action = () => callback(data);
+        const action = async () => {
+            callback(data);
+            return moveCount;
+        }
         return action;
     };
 
     const action = async () => {
         await delay(700);
-        await calcAction(0)();
+        const moveCount = await calcAction(0)();
         // await delay(700);
         if (moveCount === 0) {
-            await delay(700);
+            await delay(300);
             await calcAction(1)();
             // await delay(700);
         }

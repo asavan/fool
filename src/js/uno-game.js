@@ -32,7 +32,7 @@ export default function unoGame(window, document, settings, playersExternal, han
     }
 
     function drawScreen(marker) {
-        layout.drawPlayers(window, document, engine, myIndex, settings, marker);
+        layout.drawPlayers({document, engine, myIndex, settings}, marker);
     }
 
     for (const p of playersExternal) {
