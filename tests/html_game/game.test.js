@@ -3,12 +3,13 @@ import assert from "node:assert/strict";
 import {JSDOM} from "jsdom";
 
 import gameFunction from "../../src/js/game.js";
-import settings from "../../src/js/settings.js";
+import settingsOriginal from "../../src/js/settings.js";
 
 test("simple 4 player scenario", async () => {
     const dom = await JSDOM.fromFile("src/index.html", {
         url: "http://localhost/",
     });
+    const settings = {...settingsOriginal};
     const document = dom.window.document;
     settings.externalId = "client1";
     settings.cardsDeal = 1;

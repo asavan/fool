@@ -1,16 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import {prng_alea} from "esm-seedrandom";
-
 import coreUnoFunc from "../../src/js/uno.js";
 import settings from "../../src/js/settings.js";
 
 import simpleBot from "../../src/js/bot/simple.bot.js";
 
 test("bad bot deal", async () => {
-    const myrng = prng_alea("a");
-    const engine = coreUnoFunc(settings, myrng, console);
+    const engine = coreUnoFunc(settings, Math.random, console);
     for (let i = 0; i < 6; ++i) {
         engine.addPlayer();
     }

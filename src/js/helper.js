@@ -24,7 +24,8 @@ function stringToBoolean(string){
     }
 }
 
-export function parseSettings(window, document, settings) {
+export function parseSettings(window, document, settingsOriginal) {
+    const settings = {...settingsOriginal};
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     for (const [key, value] of urlParams) {
@@ -36,6 +37,7 @@ export function parseSettings(window, document, settings) {
             settings[key] = value;
         }
     }
+    return settings;
 }
 
 export const delay = ms => new Promise(resolve => setTimeout(resolve, ms));

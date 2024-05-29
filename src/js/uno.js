@@ -111,8 +111,8 @@ export default function initCore(settings, rngFunc, logger) {
         } else {
             await report("drawExternal", {playerIndex, card});
         }
-        if (deck.size() === 0) {
-            console.log("reshuffle discard");
+        if (deck.size() === 0 && applyEffects) {
+            logger.log("reshuffle discard");
             await reshuffleDiscard();
         }
         return card;
@@ -135,6 +135,10 @@ export default function initCore(settings, rngFunc, logger) {
         // return;
         }
         const cardFromDeck = await dealToPlayer(deck, playerIndex, true);
+        if (cardFromDeck === undefined) {
+            logger.error("onDraw bad");
+            return false;
+        }
         logger.log("onDraw", cardFromDeck, core.cardToString(cardFromDeck));
         cardTaken++;
         return true;
@@ -155,8 +159,12 @@ export default function initCore(settings, rngFunc, logger) {
             logger.log("alreadyDrawn");
             return false;
         }
-        cardTaken++;
         const cardFromDeck = await dealToPlayer(deck, currentPlayer);
+        if (cardFromDeck === undefined) {
+            logger.error("onDrawPlayer bad");
+            return false;
+        }
+        cardTaken++;
         logger.log("onDrawPlayer", cardFromDeck);
         return cardFromDeck != null;
     }
@@ -269,8 +277,8 @@ export default function initCore(settings, rngFunc, logger) {
             for (let i = 0; i < n; i++) {
                 const dealIndex = nextPlayer(i, n);
                 const currentPlayer = candidates[dealIndex].getIndex();
-                // await handlers['changeCurrent']({currentPlayer, dealer, direction});
                 const card = await dealToPlayer(deck, currentPlayer);
+                localAssert(card !== undefined);
                 const score = core.cardScore(card);
                 logger.log(">> Player " + i + " draws "
                                 + core.cardToString(card) + " and gets " + score + " points");
@@ -357,7 +365,6 @@ export default function initCore(settings, rngFunc, logger) {
             for (let i = 0; i < n; i++) {
                 const dealIndex = nextPlayer(i, n);
                 const currentPlayer = players[dealIndex].getIndex();
-                // await handlers['changeCurrent']({currentPlayer, dealer, direction});
                 await dealToPlayer(deck, currentPlayer);
             }
         }

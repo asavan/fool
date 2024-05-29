@@ -1,9 +1,9 @@
-import settings from "./settings.js";
+import settingsOriginal from "./settings.js";
 import gameFunction from "./game.js";
 import {parseSettings, assert} from "./helper.js";
 
 export default async function starter(window, document) {
-    parseSettings(window, document, settings);
+    const settings = parseSettings(window, document, settingsOriginal);
 
     let mode;
     if (settings.mode === "net") {
