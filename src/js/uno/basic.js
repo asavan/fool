@@ -137,6 +137,13 @@ function sameColorOrType(card, cardOnBoard, currentColor) {
     return (cardColor(card) === currentColor) || (cardType(card) === cardType(cardOnBoard));
 }
 
+function sameColorOrTypeNonBlack(card, cardOnBoard, currentColor) {
+    if (cardColor(card) === BLACK_COLOR) {
+        return false;
+    }
+    return sameColorOrType(card, cardOnBoard, currentColor);
+}
+
 function suitable(card, cardOnBoard, currentColor, hasColor) {
     if (cardType(card) === "Wild") {
         return true;
@@ -144,7 +151,7 @@ function suitable(card, cardOnBoard, currentColor, hasColor) {
 
     if (cardType(card) === "Draw4") {
         return !hasColor;
-    }        
+    }
 
     return sameColorOrType(card, cardOnBoard, currentColor);
 }
@@ -164,7 +171,7 @@ export default {
     pileHasColor,
     cardToString,
     suitable,
-    sameColorOrType,
+    sameColorOrTypeNonBlack,
     isDrawCard,
     matchColor
 };

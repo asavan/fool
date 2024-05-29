@@ -10,7 +10,7 @@ function findGoodCards(pile, cardOnBoard, currentColor) {
 
 function findGoodNonBlackCards(pile, cardOnBoard, currentColor) {
     assert(core.matchColor(cardOnBoard, currentColor), "Bad color " + JSON.stringify({pile, cardOnBoard, currentColor}) + " " + core.cardToString(cardOnBoard));
-    return pile.filter((card) => core.sameColorOrType(card, cardOnBoard, currentColor));
+    return pile.filter((card) => core.sameColorOrTypeNonBlack(card, cardOnBoard, currentColor));
 }
 
 function findBestScoreCard(pile) {
