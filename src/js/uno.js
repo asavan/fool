@@ -83,12 +83,8 @@ export default function initCore(settings, rngFunc, logger) {
         return cardOnBoard;
     }
 
-    function addPlayer(name) {
-        if (!name) {
-            return false;
-        }
-        const n = players.length;
-        players.push(newPlayer(name, n));
+    function addPlayer() {
+        players.push(newPlayer(players.length));
         return true;
     }
 

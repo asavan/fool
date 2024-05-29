@@ -2,13 +2,11 @@
 
 import core from "./uno/basic.js";
 
-export default function newPlayer(name, ind) {
-    const n = name;
+export default function newPlayer(ind) {
     const i = ind;
     const deck = [];
     let score = 0;
 
-    const getName = () => n;
     const getIndex = () => i;
     const addCard = (card) => deck.push(card);
     const pile = () => [...deck];
@@ -31,7 +29,6 @@ export default function newPlayer(name, ind) {
     };
 
     return {
-        getName,
         addCard,
         pile,
         getIndex,

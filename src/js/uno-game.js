@@ -36,8 +36,7 @@ export default function unoGame(window, document, settings, playersExternal, han
     }
 
     for (const p of playersExternal) {
-        const res = engine.addPlayer(p.name);
-        assert(res, "No name");
+        engine.addPlayer();
         if (p.external_id == settings.externalId) {
             myIndex = index;
         }

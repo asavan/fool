@@ -8,18 +8,17 @@ import {prng_alea} from "esm-seedrandom";
 import coreUnoFunc from "../../src/js/uno.js";
 import settings from "../../src/js/settings.js";
 
-function setupEngine() {
+function setupEngine(count) {
     const myrng = prng_alea("a");
     const engine = coreUnoFunc(settings, myrng, console);
-    const players = ["server", "player1"];
-    for (const p of players) {
-        engine.addPlayer(p);
+    for (let i = 0; i < count; ++i) {
+        engine.addPlayer();
     }
     return engine;
 }
 
 test("positive scenario simple", async () => {
-    const engine = setupEngine();
+    const engine = setupEngine(2);
     await engine.chooseDealer();
     assert.strictEqual(engine.getCurrentPlayer(), 1, "Wrong current player after choose");
     await engine.deal();
@@ -28,7 +27,7 @@ test("positive scenario simple", async () => {
 });
 
 test("client test", async () => {
-    const engine = setupEngine();
+    const engine = setupEngine(2);
     await engine.chooseDealer();
     assert.strictEqual(engine.getCurrentPlayer(), 1, "Wrong current player after choose");
     await engine.deal();
@@ -38,7 +37,7 @@ test("client test", async () => {
 
 
 test("empty deck", async () => {
-    const engine = setupEngine();
+    const engine = setupEngine(2);
     const deck = [1];
     engine.setDeck(deck);
     engine.setCurrent(0, 0, 1, false);
@@ -53,7 +52,7 @@ test("empty deck", async () => {
 });
 
 test("deck reshuffle", async () => {
-    const engine = setupEngine();
+    const engine = setupEngine(2);
     const player0 = 0;
     const player1 = 1;
     const deck = [0, 1, 2, 3, 4];
@@ -75,7 +74,7 @@ test("deck reshuffle", async () => {
 });
 
 test("take 4", async () => {
-    const engine = setupEngine();
+    const engine = setupEngine(2);
     const player0 = 0;
     const player1 = 1;
     const deck = [0, 1, 2, 13, 9, 97, 10];
@@ -94,12 +93,7 @@ test("take 4", async () => {
 
 
 test("reverse", async () => {
-    const myrng = prng_alea("a");
-    const engine = coreUnoFunc(settings, myrng, console);
-    const players = ["server", "player1", "player2"];
-    for (const p of players) {
-        engine.addPlayer(p);
-    }
+    const engine = setupEngine(3);
     const player0 = 0;
     const player1 = 1;
     const deck = [0, 1, 2, 13, 12, 11];

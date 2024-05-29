@@ -5,7 +5,7 @@ import newPlayer from "../../src/js/player.js";
 
 test("player has card", () => {
     const pile = [0, 1, 110];
-    const player = newPlayer("sasha", 3);
+    const player = newPlayer(3);
 
     for (const card of pile) {
         player.addCard(card);
@@ -22,7 +22,7 @@ test("player has card", () => {
 });
 
 test("player score", () => {
-    const player = newPlayer("sasha", 3);
+    const player = newPlayer(3);
     assert.equal(player.getScore(), 0, "Wrong score");
     player.updateScore(20);
     assert.equal(player.getScore(), 20, "Wrong score after update");
@@ -30,7 +30,7 @@ test("player score", () => {
 
 test("player remove card", () => {
     const pile = [0, 1, 110];
-    const player = newPlayer("sasha", 3);
+    const player = newPlayer(3);
 
     for (const card of pile) {
         player.addCard(card);
