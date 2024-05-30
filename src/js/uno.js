@@ -611,7 +611,7 @@ export default function initCore(settings, rngFunc, logger, {
     }
 
     // TODO make private
-    function setCurrent(c, d, dir, rover) {
+    function setCurrent(c, d, dir, rover, govr) {
         cardTaken = 0;
         cardDiscarded = 0;
         if (rover !== undefined) {
@@ -625,11 +625,12 @@ export default function initCore(settings, rngFunc, logger, {
             direction = dir;
         }
         currentPlayer = c;
+        gameState = govr;
         return report("changeCurrentExternal", {currentPlayer, dealer, direction, roundover});
     }
 
     function setCurrentObj(data) {
-        return setCurrent(data.currentPlayer, data.dealer, data.direction, data.roundover);
+        return setCurrent(data.currentPlayer, data.dealer, data.direction, data.roundover, data.gameState);
     }
 
     function state() {
@@ -662,7 +663,7 @@ export default function initCore(settings, rngFunc, logger, {
         await dealN(settings.cardsDeal);
         roundover = false;
         gameState = core.GameStage.ROUND;
-        await report("changeCurrent", {currentPlayer, dealer, direction, roundover});
+        await report("changeCurrent", {currentPlayer, dealer, direction, roundover, gameState});
     }
 
     function setDeck(d) {
