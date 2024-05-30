@@ -1,5 +1,6 @@
 import connectionFunc from "../connection/client.js";
 import actionsFuncUno from "../actions_uno_client.js";
+import actionsToSend from "../actions_uno_server.js";
 import rngFunc from "../utils/random.js";
 import {loggerFunc} from "../helper.js";
 import enterName from "../names.js";
@@ -23,7 +24,11 @@ function onConnectionAnimation(document, connection) {
 
 function setupGameToNetwork(game, connection, logger, myId) {
     const OTHER_SIDE_ID = "server";
-    for (const handlerName of game.actionKeys()) {
+    const keys = Object.keys(actionsToSend({}, null));
+    keys.push("username");
+    
+    for (const handlerName of keys) {
+        logger.log("setup handler", handlerName);
         game.on(handlerName, (n) => {
             if (n && n.externalId && myId !== n.externalId) {
                 logger.log("Ignore", n.externalId);

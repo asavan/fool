@@ -128,9 +128,8 @@ export default function game({window, document, settings}) {
         await unoGame.start();
     }
 
-    const actionKeys = () => [...commands];
-
     on("engineCreated", () => {
+        logger.log("engineCreated");
         const grid = document.querySelector(".places");
         grid.classList.remove("connected", "loading", "flying-cards");
     });
@@ -143,7 +142,6 @@ export default function game({window, document, settings}) {
         onStart,
         afterAllJoined,
         disconnect,
-        actionKeys,
         addBot
     };
 }

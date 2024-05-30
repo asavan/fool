@@ -202,7 +202,6 @@ export default function unoGame({window, document, settings}, playersExternal, e
 
     // TODO may be delete this
     const getEngine = () => engine;
-
     handlers["engineCreated"](engine);
 
     return {

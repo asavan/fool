@@ -1,5 +1,6 @@
 import {removeElem, loggerFunc} from "../helper.js";
 import actionsFuncUno from "../actions_uno_server.js";
+import actionsToSend from "../actions_uno_client.js";
 import qrRender from "../lib/qrcode.js";
 import connectionFunc from "../connection/server.js";
 import PromiseQueue from "../utils/async-queue.js";
@@ -9,6 +10,22 @@ function makeQr(window, document, settings) {
     const url = new URL(staticHost);
     console.log("enemy url", url.toString());
     return qrRender(url.toString(), document.querySelector(".qrcode"));
+}
+
+function setupGameToNetwork(game, connection, logger) {
+    const keys = Object.keys(actionsToSend({}, null));
+    keys.push("start");
+    for (const handlerName of keys) {
+        logger.log("setup handler " + handlerName);
+        game.on(handlerName, (n) => {
+            let ignore;
+            if (n && n.externalId) {
+                console.log("Ignore", n.externalId);
+                ignore = [n.externalId];
+            }
+            return connection.sendRawAll(handlerName, n, ignore);
+        });
+    }
 }
 
 export default function server(window, document, settings, gameFunction) {
@@ -50,16 +67,7 @@ export default function server(window, document, settings, gameFunction) {
         };
 
         connection.registerHandler(actions, queue);
-        for (const handlerName of game.actionKeys()) {
-            game.on(handlerName, (n) => {
-                let ignore;
-                if (n && n.externalId) {
-                    console.log("Ignore", n.externalId);
-                    ignore = [n.externalId];
-                }
-                return connection.sendRawAll(handlerName, n, ignore);
-            });
-        }
+        setupGameToNetwork(game, connection, logger);
 
         game.on("username", actions["username"]);
 
