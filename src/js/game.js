@@ -17,7 +17,6 @@ function makeCommonSeed(players) {
     return seed;
 }
 
-
 export default function game({window, document, settings}) {
 
     const logger = loggerFunc(8, null, settings);
@@ -40,7 +39,7 @@ export default function game({window, document, settings}) {
 
     const handlers = Object.fromEntries(commands.map((key) => [key, stub1]));
 
-    let unoGame = null;
+    let unoGame;
     let players = [];
     let botCount = 0;
     let queue;
@@ -86,13 +85,10 @@ export default function game({window, document, settings}) {
         return old_size > new_size;
     };
 
-    const onStart = async (data) => {
+    const onStart = (data) => {
         players = data.players;
         settings.seed = data.seed;
         unoGame = createUnoGame(data.engine);
-        const grid = document.getElementsByClassName("places")[0];
-        grid.classList.remove("connected", "loading", "flying-cards");
-        await handlers["engineCreated"](unoGame.getEngine());
         return unoGame;
     };
 
@@ -126,7 +122,6 @@ export default function game({window, document, settings}) {
             logger.log("settings already set", settings);
         }
         unoGame = createUnoGame(emptyEngine(settings, players.length));
-        await handlers["engineCreated"](unoGame.getEngine());
         // TODO move to mode file
         setupBots(players, unoGame.getEngine(), queue, loggerBot);
         logger.log("Game init");
@@ -134,6 +129,11 @@ export default function game({window, document, settings}) {
     }
 
     const actionKeys = () => [...commands];
+
+    on("engineCreated", () => {
+        const grid = document.querySelector(".places");
+        grid.classList.remove("connected", "loading", "flying-cards");
+    });
 
     return {
         on,

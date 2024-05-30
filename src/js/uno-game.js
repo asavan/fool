@@ -18,10 +18,6 @@ export default function unoGame({window, document, settings}, playersExternal, e
     const myIndex = playersExternal.findIndex(p => p.external_id === settings.externalId);
     const engine = coreUnoFunc(settings, myrng, logger, engineRaw);
 
-    function on(name, f) {
-        handlers[name] = f;
-    }
-
     function report(callbackName, data) {
         if (data && data.playerIndex !== undefined) {
             const playerExt = playersExternal[data.playerIndex];
@@ -142,9 +138,9 @@ export default function unoGame({window, document, settings}, playersExternal, e
     });
 
     function onGameEnd(message1, message2) {
-        const overlay = document.getElementsByClassName("overlay")[0];
-        const close = document.getElementsByClassName("close")[0];
-        const btnInstall = document.getElementsByClassName("install")[0];
+        const overlay = document.querySelector(".overlay");
+        const close = document.querySelector(".close");
+        const btnInstall = document.querySelector(".install");
 
         close.addEventListener("click", function (e) {
             e.preventDefault();
@@ -176,11 +172,10 @@ export default function unoGame({window, document, settings}, playersExternal, e
     colorChooser(window, document, engine, gameState);
 
     engine.on("roundover", async (data) => {
+        drawScreen("roundover");
         if (settings.mode === "net") {
-            drawScreen("roundover");
             return;
         }
-        logger.log("roundover");
         await handlers["roundover"](data);
         await delay(1000);
         await engine.nextDealer();
@@ -191,24 +186,8 @@ export default function unoGame({window, document, settings}, playersExternal, e
         await handlers["start"]({players: playersExternal, engine, seed: settings.seed});
         await engine.chooseDealer();
         await delay(700);
-        if (settings.showAll || settings.clickAll) {
-            settings.show = true;
-        } else {
-            settings.show = false;
-        }
+        settings.show = settings.showAll || settings.clickAll;
         await engine.deal();
-    }
-
-    function onChangeCurrent(data) {
-        if (settings.showAll || settings.clickAll) {
-            settings.show = true;
-        } else {
-            settings.show = false;
-        }
-
-        logger.log("Change current", data.currentPlayer, data.dealer);
-        engine.setCurrent(data.currentPlayer, data.dealer, data.direction, data.roundover);
-        return layout.drawCurrent(document, engine, myIndex, settings);
     }
 
     function onGameOver(data) {
@@ -221,13 +200,13 @@ export default function unoGame({window, document, settings}, playersExternal, e
         return true;
     }
 
-    // TODO delete this
+    // TODO may be delete this
     const getEngine = () => engine;
 
+    handlers["engineCreated"](engine);
+
     return {
-        on,
         start,
-        onChangeCurrent,
         getEngine
     };
 }

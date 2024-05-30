@@ -51,8 +51,8 @@ export default function netMode(window, document, settings, gameFunction) {
             settings.applyEffects = false;
             const game = gameFunction({window, document, settings});
             setupGameToNetwork(game, connection, logger, myId);
-            const actions = {"start": async (data) => {
-                const unoGame = await game.onStart(data);
+            const actions = {"start": (data) => {
+                const unoGame = game.onStart(data);
                 const loggerActions = loggerFunc(6, null, settings);
                 const engine = unoGame.getEngine();
                 const unoActions = actionsFuncUno(engine, loggerActions);
