@@ -9,6 +9,8 @@ export default {
     cardsDeal: 7,
     botCount: 3,
     playerIsBot: false,
+    idNameInStorage: "my-id",
+    idNameLen : 6,
     maxScore: 500,
     showAll: false,
     clickAll: false,

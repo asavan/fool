@@ -7,13 +7,18 @@ import enterName from "../names.js";
 import PromiseQueue from "../utils/async-queue.js";
 
 
-function makeid(length) {
-    return rngFunc.makeId(length, Math.random);
+function getMyId(window, settings, rngEngine) {
+    const data = window.sessionStorage.getItem(settings.idNameInStorage);
+    if (data) {
+        return data;
+    }
+    const newId = rngFunc.makeId(settings.idNameLen, rngEngine);
+    window.sessionStorage.setItem(settings.idNameInStorage, newId);
 }
 
 function onConnectionAnimation(document, connection) {
     connection.on("socket_open", () => {
-        const grid = document.getElementsByClassName("places")[0];
+        const grid = document.querySelector(".places");
         grid.classList.add("loading");
         connection.on("socket_close", () => {
             grid.classList.remove("loading");
@@ -26,7 +31,7 @@ function setupGameToNetwork(game, connection, logger, myId) {
     const OTHER_SIDE_ID = "server";
     const keys = Object.keys(actionsToSend({}, null));
     keys.push("username");
-    
+
     for (const handlerName of keys) {
         logger.log("setup handler", handlerName);
         game.on(handlerName, (n) => {
@@ -42,7 +47,7 @@ function setupGameToNetwork(game, connection, logger, myId) {
 export default function netMode(window, document, settings, gameFunction) {
     return new Promise((resolve, reject) => {
         enterName(window, document, settings);
-        const myId = makeid(6);
+        const myId = getMyId(window, settings, Math.random);;
         const logger = loggerFunc(2, null, settings);
         const connection = connectionFunc(settings, window.location, myId, logger);
         connection.on("error", (e) => {

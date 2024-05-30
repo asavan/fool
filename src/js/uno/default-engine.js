@@ -1,3 +1,5 @@
+import core from "./basic.js";
+
 function emptyPlayer() {
     return {score: 0, pile: []};
 }
@@ -19,6 +21,7 @@ export default function emptyEngine(settings, count) {
     const cardTaken = 0;
     const cardDiscarded = 0;
     const roundover = true;
+    const gameState = core.GameStage.CHOOSE_DEALER;
     const maxScore = settings.maxScore || 500;
     return {
         playersRaw,
@@ -28,9 +31,9 @@ export default function emptyEngine(settings, count) {
         discardPile,
         currentPlayer,
         roundover,
+        gameState,
         cardTaken,
         cardDiscarded,
         maxScore
     };
 }
-

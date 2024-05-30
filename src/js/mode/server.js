@@ -43,14 +43,16 @@ export default function server(window, document, settings, gameFunction) {
             reject(socketUrl);
             return;
         }
+        let qrCodeEl;
         connection.on("error", (e) => {
             logger.error(e);
             reject(e);
         });
         connection.on("socket_open", () => {
-            const code = makeQr(window, document, settings);
+            qrCodeEl = makeQr(window, document, settings);
             connection.on("socket_close", () => {
-                removeElem(code);
+                removeElem(qrCodeEl);
+                qrCodeEl = undefined;
             });
         });
 
@@ -71,12 +73,14 @@ export default function server(window, document, settings, gameFunction) {
 
         game.on("username", actions["username"]);
 
-        game.on("start", ({players, engine, seed}) => {
-            connection.closeSocket();
+        game.on("engineCreated", (engine) => {
+            // connection.closeSocket();
+            removeElem(qrCodeEl);
+            qrCodeEl = undefined;
+
             const loggerActions = loggerFunc(7, null, settings);   
             const unoActions = actionsFuncUno(engine, loggerActions);
             connection.registerHandler(unoActions, queue);
-            return connection.sendRawAll("start", {players, seed, engine: engine.toJson()});
         });
 
         connection.on("disconnect", (id) => {
@@ -91,9 +95,14 @@ export default function server(window, document, settings, gameFunction) {
         connection.on("open", (id) => {
             ++index;
             clients[id] = {"index": index};
+            logger.log("connected", id);
+            if (game.isInPlay()) {
+                // TODO find in players
+                return connection.sendRawAll("start", game.toJson());
+            }
         });
 
-        game.onConnect();        
+        game.onConnect();
         connection.connect(socketUrl);
         resolve(game);
     });

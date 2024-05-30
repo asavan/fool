@@ -30,8 +30,8 @@ export default function unoGame({window, document, settings}, playersExternal, e
         layout.drawPlayers({document, engine, myIndex, settings, playersExternal}, marker);
     }
 
-    function onDrawTiming(playerIndex) {
-        if (settings.show) {
+    function onDrawTiming(playerIndex, showAllCards) {
+        if (showAllCards) {
             return 200;
         } else if (playerIndex === myIndex) {
             return 120;
@@ -42,14 +42,7 @@ export default function unoGame({window, document, settings}, playersExternal, e
 
     engine.on("draw", ({playerIndex, card}) => {
         layout.drawPlayersDeal(window, {document, engine, myIndex, settings, playersExternal}, "draw", card, playerIndex);
-        const promises = [delay(onDrawTiming(playerIndex))];
-        if (settings.show) {
-            promises.push(delay(200));
-        } else if (playerIndex === myIndex) {
-            promises.push(delay(120));
-        } else {
-            promises.push(delay(50));
-        }
+        const promises = [delay(onDrawTiming(playerIndex, engine.showAllCards()))];
         if (playerIndex === myIndex || settings.mode === "server") {
             promises.push(handlers["draw"]({playerIndex, card}));
         }
@@ -58,36 +51,24 @@ export default function unoGame({window, document, settings}, playersExternal, e
 
     engine.on("drawExternal", ({playerIndex, card}) => {
         layout.drawPlayersDeal(window, {document, engine, myIndex, settings, playersExternal}, "drawExternal", card, playerIndex);
-        const promises = [delay(onDrawTiming(playerIndex))];
+        const promises = [delay(onDrawTiming(playerIndex, engine.showAllCards()))];
         if (settings.mode === "server") {
             promises.push(report("draw", {playerIndex, card}));
         }
         return Promise.all(promises);
     });
 
-    engine.on("changeCurrent", ({currentPlayer, dealer, direction, roundover}) => {
-        if (settings.showAll || settings.clickAll) {
-            settings.show = true;
-        } else {
-            settings.show = false;
-        }
-
+    engine.on("changeCurrent", (data) => {
         layout.drawCurrent(document, engine, myIndex, settings);
         const pause = delay(50);
         const promises = [pause];
         if (settings.mode !== "net") {
-            promises.push(handlers["changeCurrent"]({currentPlayer, dealer, myIndex, direction, roundover}));
+            promises.push(report("changeCurrent", data));
         }
         return Promise.allSettled(promises);
     });
 
     engine.on("changeCurrentExternal", () => {
-        if (settings.showAll || settings.clickAll) {
-            settings.show = true;
-        } else {
-            settings.show = false;
-        }
-
         layout.drawCurrent(document, engine, myIndex, settings);
         const pause = delay(50);
         const promises = [pause];
@@ -183,10 +164,9 @@ export default function unoGame({window, document, settings}, playersExternal, e
     });
 
     async function start() {
-        await handlers["start"]({players: playersExternal, engine, seed: settings.seed});
+        await delay(100);
         await engine.chooseDealer();
         await delay(700);
-        settings.show = settings.showAll || settings.clickAll;
         await engine.deal();
     }
 
@@ -203,6 +183,7 @@ export default function unoGame({window, document, settings}, playersExternal, e
     // TODO may be delete this
     const getEngine = () => engine;
     handlers["engineCreated"](engine);
+    drawScreen("firstDraw");
 
     return {
         start,

@@ -14,6 +14,10 @@ function repaintCard(p, cardEl) {
     return cardEl;
 }
 
+function showCards(engine, settings) {
+    return settings.showAll || settings.clickAll || engine.showAllCards();
+}
+
 function drawCard(p, cardItem) {
     const cardClone = cardItem.content.cloneNode(true).firstElementChild;
     return repaintCard(p, cardClone);
@@ -276,7 +280,7 @@ function drawLayout({document, engine, myIndex, settings, playersExternal}) {
         const elem = document.createElement("li");
         elem.classList.add("js-player");
 
-        if (settings.show) {
+        if (showCards(engine, settings)) {
             // elem.classList.add("show-all");
             drawHand(document, elem, pl.pile(), engine, settings);
         } else {
@@ -558,7 +562,7 @@ function drawMoveByCard(window, document, card, animTime) {
 }
 
 function drawPlayersDeal(window, {document, engine, myIndex, settings, playersExternal}, marker, card, playerIndex) {
-    if (settings.show) {
+    if (showCards(engine, settings)) {
         drawPlayers({document, engine, myIndex, settings, playersExternal}, marker);
         return;
     }
@@ -573,7 +577,7 @@ function drawPlayersDeal(window, {document, engine, myIndex, settings, playersEx
 }
 
 function drawPlayersMove(window, {document, engine, myIndex, settings, playersExternal}, marker, card, playerIndex) {
-    if (settings.show) {
+    if (showCards(engine, settings)) {
         return drawPlayers({document, engine, myIndex, settings, playersExternal}, marker);
     }
     if (playerIndex !== myIndex) {

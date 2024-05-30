@@ -1,13 +1,12 @@
-"use strict";
-
 const GOOD_COLORS = Object.freeze(["red", "yellow", "green", "blue"]);
 const BLACK_COLOR = "black";
 
 const GameStage = Object.freeze({
-    chooseDealer: 1,
-    dealing: 2,
-    round: 3,
-    gameOver: 4
+    CHOOSE_DEALER: 1,
+    DEALING: 2,
+    ROUND: 3,
+    ROUND_OVER: 4,
+    GAME_OVER: 5
 });
 
 

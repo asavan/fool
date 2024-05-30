@@ -1,7 +1,7 @@
 import enterName from "./names.js";
 import choosePlaceFunc from "./places.js";
 import unoGameFunc from "./uno-game.js";
-import {loggerFunc, assert} from "./helper.js";
+import {loggerFunc, assert, delay} from "./helper.js";
 import setupBots from "./bot/setup_bot.js";
 import emptyEngine from "./uno/default-engine.js";
 
@@ -43,6 +43,8 @@ export default function game({window, document, settings}) {
     let players = [];
     let botCount = 0;
     let queue;
+
+    const isInPlay = () => unoGame != null;
 
     const setQueue = (q) => {queue = q;};
 
@@ -112,6 +114,10 @@ export default function game({window, document, settings}) {
     function createUnoGame(engineRaw) {
         return unoGameFunc({window, document, settings}, players, engineRaw, handlers);
     }
+    
+    const toJson = () => {
+        return {players, seed: settings.seed, engine: unoGame.getEngine().toJson()};
+    };
 
     async function afterAllJoined() {
         assert(players.length > 0, "No players");
@@ -125,18 +131,25 @@ export default function game({window, document, settings}) {
         // TODO move to mode file
         setupBots(players, unoGame.getEngine(), queue, loggerBot);
         logger.log("Game init");
+        await handlers["start"](toJson());
         await unoGame.start();
     }
 
-    on("engineCreated", () => {
+
+    on("engineCreated", async () => {
+        await delay(100);
         logger.log("engineCreated");
         const grid = document.querySelector(".places");
-        grid.classList.remove("connected", "loading", "flying-cards");
+        if (grid) {
+            grid.classList.remove("connected", "loading", "flying-cards");
+        }
     });
 
     return {
         on,
         join,
+        isInPlay,
+        toJson,
         setQueue,
         onConnect,
         onStart,

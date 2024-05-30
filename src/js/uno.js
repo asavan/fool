@@ -23,6 +23,7 @@ export default function initCore(settings, rngFunc, logger, {
     cardTaken,
     cardDiscarded,
     maxScore,
+    gameState,
     cardOnBoard,
     currentColor
 }) {
@@ -285,6 +286,8 @@ export default function initCore(settings, rngFunc, logger, {
     }
 
     async function chooseDealerInner(rngFunc) {
+        // TODO update clients
+        gameState = core.GameStage.DEALING;
         deck = await deckFunc.newShuffledDeck(onShuffle, rngFunc);
         let candidates = [...players];
 
@@ -317,6 +320,7 @@ export default function initCore(settings, rngFunc, logger, {
             logger.error("No cand", candidates);
         }
         currentPlayer = dealer;
+        gameState = core.GameStage.DEALING;
         await report("changeCurrent", {currentPlayer, dealer, direction, roundover});
         logger.log("dealer was chosen", currentPlayer, dealer);
     }
@@ -521,6 +525,7 @@ export default function initCore(settings, rngFunc, logger, {
         ++cardDiscarded;
         if (pl.hasEmptyHand()) {
             roundover = true;
+            gameState = core.GameStage.ROUND_OVER;
         }
         await report("move", {playerIndex, card, currentColor});
         if (applyEffects) {
@@ -549,8 +554,10 @@ export default function initCore(settings, rngFunc, logger, {
         player.updateScore(diff);
         const score = player.getScore();
         if (score >= MAX_SCORE) {
+            gameState = core.GameStage.GAME_OVER;
             await report("gameover", { playerIndex, score, diff });
         } else {
+            gameState = core.GameStage.ROUND_OVER;
             await report("roundover", { playerIndex, score, diff });
         }
     }
@@ -648,9 +655,13 @@ export default function initCore(settings, rngFunc, logger, {
         return chooseDealerInner(rngFunc);
     }
     async function deal() {
+        // TODO update clients
+        gameState = core.GameStage.DEALING;
+
         await cleanAllHands(rngFunc);
         await dealN(settings.cardsDeal);
         roundover = false;
+        gameState = core.GameStage.ROUND;
         await report("changeCurrent", {currentPlayer, dealer, direction, roundover});
     }
 
@@ -663,15 +674,21 @@ export default function initCore(settings, rngFunc, logger, {
         return report("shuffleFake", d);
     }
 
+    const showAllCards = () => {
+        // maybe show cards on round end and on game end
+        return gameState === core.GameStage.CHOOSE_DEALER; 
+    };
+
     const toJson = () => {
         return {
             playersRaw: players.map(p => p.toJson()),
-            deckRaw: deck.toJson,
+            deckRaw: deck.toJson(),
             dealer,
             direction,
             discardPile,
             currentPlayer,
             roundover,
+            gameState,
             cardTaken,
             cardDiscarded,
             maxScore,
@@ -697,6 +714,7 @@ export default function initCore(settings, rngFunc, logger, {
         onDraw,
         onMove,
         onDiscard,
+        // TODO deprecated
         setCurrent,
         setCurrentObj,
         cleanHandExternal,
@@ -711,6 +729,7 @@ export default function initCore(settings, rngFunc, logger, {
         secretlySeeTopCard,
         setColorChooser,
         toJson,
+        showAllCards,
         // for tests only
         dealN
     };
