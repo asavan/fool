@@ -5,7 +5,7 @@ import layout from "./layout.js";
 
 import {prng_alea} from "esm-seedrandom";
 
-export default function unoGame(window, document, settings, playersExternal, handlers) {
+export default function unoGame({window, document, settings}, playersExternal, engineRaw, handlers) {
 
     const logger = loggerFunc(7, null, settings);
     const loggerLayout = loggerFunc(2, null, settings);
@@ -15,9 +15,8 @@ export default function unoGame(window, document, settings, playersExternal, han
         inColorChoose: false,
         inExternalMove: false
     };
-    const engine = coreUnoFunc(settings, myrng, logger);
-    let index = 0;
-    let myIndex = 0;
+    const myIndex = playersExternal.findIndex(p => p.external_id === settings.externalId);
+    const engine = coreUnoFunc(settings, myrng, logger, engineRaw);
 
     function on(name, f) {
         handlers[name] = f;
@@ -33,14 +32,6 @@ export default function unoGame(window, document, settings, playersExternal, han
 
     function drawScreen(marker) {
         layout.drawPlayers({document, engine, myIndex, settings, playersExternal}, marker);
-    }
-
-    for (const p of playersExternal) {
-        engine.addPlayer();
-        if (p.external_id == settings.externalId) {
-            myIndex = index;
-        }
-        ++index;
     }
 
     function onDrawTiming(playerIndex) {
@@ -79,12 +70,31 @@ export default function unoGame(window, document, settings, playersExternal, han
     });
 
     engine.on("changeCurrent", ({currentPlayer, dealer, direction, roundover}) => {
+        if (settings.showAll || settings.clickAll) {
+            settings.show = true;
+        } else {
+            settings.show = false;
+        }
+
         layout.drawCurrent(document, engine, myIndex, settings);
         const pause = delay(50);
         const promises = [pause];
         if (settings.mode !== "net") {
             promises.push(handlers["changeCurrent"]({currentPlayer, dealer, myIndex, direction, roundover}));
         }
+        return Promise.allSettled(promises);
+    });
+
+    engine.on("changeCurrentExternal", () => {
+        if (settings.showAll || settings.clickAll) {
+            settings.show = true;
+        } else {
+            settings.show = false;
+        }
+
+        layout.drawCurrent(document, engine, myIndex, settings);
+        const pause = delay(50);
+        const promises = [pause];
         return Promise.allSettled(promises);
     });
 
@@ -124,8 +134,11 @@ export default function unoGame(window, document, settings, playersExternal, han
         await delay(300);
     });
 
-    engine.on("deal", () => {
-        logger.error("NEVER");
+    engine.on("shuffleFake", async (deck) => {
+        // TODO play shuffle animation
+        drawScreen("shuffleFake");
+        logger.log("new deck", deck.length, ...deck);
+        await delay(300);        
     });
 
     function onGameEnd(message1, message2) {
@@ -186,16 +199,7 @@ export default function unoGame(window, document, settings, playersExternal, han
         await engine.deal();
     }
 
-    function onShuffle(deck) {
-        engine.setDeck(deck);
-        drawScreen("onShuffle");
-    }
-
     function onChangeCurrent(data) {
-        if (engine.getCurrentPlayer() !== data.myIndex && settings.mode === "server") {
-            logger.error("Wrong player", engine.getCurrentPlayer(), data.myIndex);
-            return;
-        }
         if (settings.showAll || settings.clickAll) {
             settings.show = true;
         } else {
@@ -205,12 +209,6 @@ export default function unoGame(window, document, settings, playersExternal, han
         logger.log("Change current", data.currentPlayer, data.dealer);
         engine.setCurrent(data.currentPlayer, data.dealer, data.direction, data.roundover);
         return layout.drawCurrent(document, engine, myIndex, settings);
-    }
-
-    async function onNewRound(data) {
-        const res = await engine.onNewRound(data);
-        drawScreen("onNewRound");
-        return res;
     }
 
     function onGameOver(data) {
@@ -223,15 +221,13 @@ export default function unoGame(window, document, settings, playersExternal, han
         return true;
     }
 
+    // TODO delete this
     const getEngine = () => engine;
 
     return {
         on,
         start,
-        onShuffle,
         onChangeCurrent,
-        onNewRound,
-        onGameOver,
         getEngine
     };
 }

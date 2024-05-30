@@ -1,5 +1,3 @@
-"use strict"; // jshint ;_;
-
 import {shuffleArray} from "./shuffle.js";
 
 function newDeck() {
@@ -64,7 +62,9 @@ function newExternalDeck(d, onShuffle, rngFunc) {
 
     const size = () => deck.length;
 
-    return {deal, addCardAndShuffle, setDeck, checkTop, size, shuffle, topCard};
+    const toJson = () => [...deck];
+
+    return {deal, addCardAndShuffle, setDeck, checkTop, size, shuffle, topCard, toJson};
 }
 
 export default {

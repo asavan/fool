@@ -8,7 +8,7 @@ function init(engine, logger) {
     return Object.assign({}, commonActions(engine, logger), {
         "pass": (data) => {
             logger.log("on pass", data);
-            return engine.onPass(data.playerIndex);
+            return engine.pass(data.playerIndex);
         },
         "changeCurrent": () => shouldNotHappen(logger)
     });

@@ -2,10 +2,10 @@
 
 import core from "./uno/basic.js";
 
-export default function newPlayer(ind) {
+export default function newPlayer(arr, ind, oldScore) {
     const i = ind;
-    const deck = [];
-    let score = 0;
+    const deck = [...arr];
+    let score = oldScore || 0;
 
     const getIndex = () => i;
     const addCard = (card) => deck.push(card);
@@ -28,7 +28,15 @@ export default function newPlayer(ind) {
         return removeIndex;
     };
 
+    const toJson = () => {
+        return {
+            score,
+            pile: pile()
+        };
+    };
+
     return {
+        toJson,
         addCard,
         pile,
         getIndex,

@@ -4,13 +4,10 @@ import assert from "node:assert/strict";
 import newPlayer from "../../src/js/player.js";
 
 test("player has card", () => {
-    const pile = [0, 1, 110];
-    const player = newPlayer(3);
+    const pile = [0, 1];
+    const player = newPlayer(pile, 3, 0);
 
-    for (const card of pile) {
-        player.addCard(card);
-    }
-
+    player.addCard(110);
 
     assert.ok(player.hasColor("red"), "No color");
     assert.ok(!player.hasColor("green"), "WHY green color?");
@@ -22,7 +19,7 @@ test("player has card", () => {
 });
 
 test("player score", () => {
-    const player = newPlayer(3);
+    const player = newPlayer([], 3, 0);
     assert.equal(player.getScore(), 0, "Wrong score");
     player.updateScore(20);
     assert.equal(player.getScore(), 20, "Wrong score after update");
@@ -30,11 +27,7 @@ test("player score", () => {
 
 test("player remove card", () => {
     const pile = [0, 1, 110];
-    const player = newPlayer(3);
-
-    for (const card of pile) {
-        player.addCard(card);
-    }
+    const player = newPlayer(pile, 3, 0);
 
     let index = player.removeCard(2);
     assert.equal(index, -1, "Not delete non existing card");
@@ -55,5 +48,7 @@ test("player remove card", () => {
     index = player.removeCard(110);
     assert.equal(index, -1, "Not delete non existing card");
     assert.equal(player.pile().length, 0, "Not delete non existing card");
+
+
 
 });

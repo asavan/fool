@@ -1,8 +1,9 @@
 import enterName from "./names.js";
 import choosePlaceFunc from "./places.js";
 import unoGameFunc from "./uno-game.js";
-import {loggerFunc} from "./helper.js";
+import {loggerFunc, assert} from "./helper.js";
 import setupBots from "./bot/setup_bot.js";
+import emptyEngine from "./uno/default-engine.js";
 
 function stub1() {
     // console.trace(message);
@@ -17,7 +18,7 @@ function makeCommonSeed(players) {
 }
 
 
-export default function game(window, document, settings) {
+export default function game({window, document, settings}) {
 
     const logger = loggerFunc(8, null, settings);
     const loggerBot = loggerFunc(6, null, settings);
@@ -32,6 +33,7 @@ export default function game(window, document, settings) {
         "shuffle",
         "clearPlayer",
         "roundover",
+        "engineCreated",
         "gameover",
         "start"
     ];
@@ -84,12 +86,13 @@ export default function game(window, document, settings) {
         return old_size > new_size;
     };
 
-    const onStart = (data) => {
+    const onStart = async (data) => {
         players = data.players;
         settings.seed = data.seed;
-        unoGame = createUnoGame();
+        unoGame = createUnoGame(data.engine);
         const grid = document.getElementsByClassName("places")[0];
         grid.classList.remove("connected", "loading", "flying-cards");
+        await handlers["engineCreated"](unoGame.getEngine());
         return unoGame;
     };
 
@@ -110,32 +113,27 @@ export default function game(window, document, settings) {
         return renderChoosePlace();
     }
 
-    function createUnoGame() {
-        return unoGameFunc(window, document, settings, players, handlers);
+    function createUnoGame(engineRaw) {
+        return unoGameFunc({window, document, settings}, players, engineRaw, handlers);
     }
 
-    function afterAllJoined() {
+    async function afterAllJoined() {
+        assert(players.length > 0, "No players");
         if (!settings.seed) {
             logger.log("settings", settings);
             settings.seed = makeCommonSeed(players);
         } else {
             logger.log("settings already set", settings);
         }
-        unoGame = createUnoGame();
+        unoGame = createUnoGame(emptyEngine(settings, players.length));
+        await handlers["engineCreated"](unoGame.getEngine());
+        // TODO move to mode file
         setupBots(players, unoGame.getEngine(), queue, loggerBot);
         logger.log("Game init");
-        return unoGame.start();
+        await unoGame.start();
     }
 
     const actionKeys = () => [...commands];
-
-    const getEngine = () => {
-        if (!unoGame) {
-            logger.error("No game");
-            return;
-        }
-        return unoGame.getEngine();
-    };
 
     return {
         on,
@@ -143,11 +141,9 @@ export default function game(window, document, settings) {
         setQueue,
         onConnect,
         onStart,
-        createUnoGame,
         afterAllJoined,
         disconnect,
         actionKeys,
-        addBot,
-        getEngine
+        addBot
     };
 }

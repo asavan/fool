@@ -14,7 +14,7 @@ export default function ai(window, document, settings, gameFunction) {
         }
         const logger = loggerFunc(20, null, settings);
         const queue = PromiseQueue(logger);
-        const game = gameFunction(window, document, settings);
+        const game = gameFunction({window, document, settings});
         game.setQueue(queue);
 
         game.join(playerName, playerName, settings.playerIsBot);

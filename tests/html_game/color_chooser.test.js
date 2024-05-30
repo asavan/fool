@@ -18,7 +18,7 @@ test("click color scenario", async () => {
     settings.maxScore = 3;
     settings.mode = "hotseat";
     settings.clickAll = true;
-    const game = gameFunction(dom.window, document, settings);
+    const game = gameFunction({window: dom.window, document, settings});
 
     game.on("move", (move) => console.log(move));
     game.on("shuffle", () => {});

@@ -7,7 +7,7 @@ import settingsOriginal from "../../src/js/settings.js";
 
 
 async function testMode(mode) {
-    const baseUrl = "http://localhost/?externalId=client1&seed=h&cardsDeal=1&maxScore=3";
+    const baseUrl = "http://localhost/?externalId=server";
     const urlToTest = baseUrl + "&mode=" + mode;
     const dom = await JSDOM.fromFile("src/index.html", {
         url: urlToTest,

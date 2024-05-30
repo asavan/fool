@@ -7,13 +7,12 @@ import {prng_alea} from "esm-seedrandom";
 
 import coreUnoFunc from "../../src/js/uno.js";
 import settings from "../../src/js/settings.js";
+import emptyEngine from "../../src/js/uno/default-engine.js";
 
 function setupEngine(count) {
     const myrng = prng_alea("a");
-    const engine = coreUnoFunc(settings, myrng, console);
-    for (let i = 0; i < count; ++i) {
-        engine.addPlayer();
-    }
+    const engineRaw = emptyEngine(settings, count);
+    const engine = coreUnoFunc(settings, myrng, console, engineRaw);
     return engine;
 }
 

@@ -4,5 +4,6 @@
         "android/": true,
         "coverage/": true,
         "docs/": true
-    }
+    },
+    "files.autoSave": "onFocusChange"
 }

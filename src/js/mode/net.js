@@ -21,11 +21,11 @@ function onConnectionAnimation(document, connection) {
     });
 }
 
-function setupGameToNetwork(game, connection, logger) {
+function setupGameToNetwork(game, connection, logger, myId) {
     const OTHER_SIDE_ID = "server";
     for (const handlerName of game.actionKeys()) {
         game.on(handlerName, (n) => {
-            if (n && n.externalId) {
+            if (n && n.externalId && myId !== n.externalId) {
                 logger.log("Ignore", n.externalId);
                 return;
             }
@@ -38,7 +38,7 @@ export default function netMode(window, document, settings, gameFunction) {
     return new Promise((resolve, reject) => {
         enterName(window, document, settings);
         const myId = makeid(6);
-        const logger = loggerFunc(2, document.querySelector(settings.loggerAnchor), settings);
+        const logger = loggerFunc(2, null, settings);
         const connection = connectionFunc(settings, window.location, myId, logger);
         connection.on("error", (e) => {
             logger.error(e);
@@ -49,12 +49,13 @@ export default function netMode(window, document, settings, gameFunction) {
             const queue = PromiseQueue(console);
             settings["externalId"] = myId;
             settings.applyEffects = false;
-            const game = gameFunction(window, document, settings);
-            setupGameToNetwork(game, connection, logger);
-            const actions = {"start": (data) => {
-                const unoGame = game.onStart(data);
-                const loggerActions = loggerFunc(6, null, settings);   
-                const unoActions = actionsFuncUno(unoGame, loggerActions);
+            const game = gameFunction({window, document, settings});
+            setupGameToNetwork(game, connection, logger, myId);
+            const actions = {"start": async (data) => {
+                const unoGame = await game.onStart(data);
+                const loggerActions = loggerFunc(6, null, settings);
+                const engine = unoGame.getEngine();
+                const unoActions = actionsFuncUno(engine, loggerActions);
                 connection.registerHandler(unoActions, queue);
                 return unoGame;
             }};

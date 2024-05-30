@@ -5,17 +5,17 @@ import rngFunc from "../utils/random.js";
 
 export default function bot(engine, queue, logger, botIndexes, currentChangeData) {
     if (currentChangeData.roundover) {
-        logger.log("onchangeCurrent roundover");
+        logger.log("best_card_bot roundover");
         return;
-
     }
+    
     const playerIndex = engine.getCurrentPlayer();
     if (currentChangeData.currentPlayer !== playerIndex) {
-        logger.error("onchangeCurrent bad player", playerIndex, currentChangeData, currentChangeData.currentPlayer);
+        logger.error("best_card_bot bad player", playerIndex, currentChangeData, currentChangeData.currentPlayer);
         return;
     }
     if (!botIndexes.includes(playerIndex)) {
-        logger.log("onchangeCurrent not bot", playerIndex);
+        logger.log("best_card_bot not bot", playerIndex);
         return;
     }
     const pl = engine.getPlayerByIndex(playerIndex);

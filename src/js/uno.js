@@ -2,36 +2,41 @@ import deckFunc from "./deck.js";
 import newPlayer from "./player.js";
 import core from "./uno/basic.js";
 
-import {assert} from "./helper.js";
-
 import handlersFunc from "./utils/handlers.js";
 
-function localAssert(condition, message) {
-    assert(condition, message);
+function assertHelper(logger) {
+    return (b, message) => {
+        if (b) return;
+        logger.error(message);
+        throw message;
+    };
 }
 
-export default function initCore(settings, rngFunc, logger) {
+export default function initCore(settings, rngFunc, logger, {
+    playersRaw,
+    dealer,
+    direction,
+    deckRaw,
+    discardPile,
+    currentPlayer,
+    roundover,
+    cardTaken,
+    cardDiscarded,
+    maxScore,
+    cardOnBoard,
+    currentColor
+}) {
 
-    const MAX_SCORE = settings.maxScore || 500;
+    const MAX_SCORE = maxScore;
+
+    // TODO remove this
     const applyEffects = settings.applyEffects;
-    const players = [];
-
-    let dealer = 0;
-    let direction = 1;
-    let deck;
-    let cardOnBoard;
-    let discardPile = [];
-    let currentPlayer = -1;
-    let currentColor;
-    let cardTaken = 0;
-    let cardDiscarded = 0;
-    let roundover = true;
-
-    let chooseColor = getCurrentColor;
-    const setColorChooser = (f) => {chooseColor = f;};
+    
+    const localAssert = assertHelper(logger);
+    
     const commands = [
         "shuffle",
-        "deal",
+        "shuffleFake",
         "draw",
         "discard",
         "discardExternal",
@@ -39,6 +44,7 @@ export default function initCore(settings, rngFunc, logger) {
         "clearPlayer",
         "clearPlayerExternal",
         "changeCurrent",
+        "changeCurrentExternal",
         "changeDealer",
         "gameover",
         "roundover",
@@ -47,20 +53,24 @@ export default function initCore(settings, rngFunc, logger) {
         "moveExternal"
     ];
 
-    const handlers = handlersFunc(commands);
-
-    
+    const handlers = handlersFunc(commands);    
     function on(name, f) {
         return handlers.on(name, f);
     }
 
     function report(callbackName, data) {
+        if (callbackName === "changeCurrent" && !applyEffects) {
+            logger.error("try to change current without effect");
+        }
         return handlers.call(callbackName, data);
     }
 
-    const onShuffle = (d) => handlers.call("shuffle", d);
+    const onShuffle = (d) => report("shuffle", d);
+    const players = playersRaw.map((p, ind) => newPlayer(p.pile, ind, p.score));
+    let deck = deckFunc.newExternalDeck(deckRaw, onShuffle, rngFunc);
 
-
+    let chooseColor = getCurrentColor;
+    const setColorChooser = (f) => {chooseColor = f;};
 
     function getCurrentColor() {
         return currentColor;
@@ -70,13 +80,15 @@ export default function initCore(settings, rngFunc, logger) {
         return direction;
     }
 
-    function calcNextFromCurrent(ind, size) {
+    
+    function nextPlayer(diff, size, direction, cur) {
         localAssert(size > 0, "Bad usage");
-        return (ind + direction + size) % size;
+        localAssert(direction === 1 || direction === -1, "Bad usage direction");
+        return (cur + (diff + 1) * direction + size) % size;
     }
-
-    function nextPlayer(ind, size) {
-        return (dealer + (ind + 1) * direction + size) % size;
+    
+    function calcNextFromCurrent(cur, size, direction) {
+        return nextPlayer(0, size, direction, cur);
     }
 
     function getCardOnBoard() {
@@ -184,8 +196,11 @@ export default function initCore(settings, rngFunc, logger) {
             logger.error("cannot pass");
             return false;
         }
-        await next();
-        await report("pass", {playerIndex});
+        if (applyEffects) {
+            await next();
+        } else {
+            await report("pass", {playerIndex});
+        }
         return true;
     }
 
@@ -206,17 +221,20 @@ export default function initCore(settings, rngFunc, logger) {
         const cardFromDeck = deck.deal();
         localAssert(cardFromDeck === card, "Different cards");
         const newColor = core.cardColor(card);
-        localAssert(newColor !== "black", "Black on discard");
+        if (newColor !== core.BLACK_COLOR) {
+            currentColor = newColor;
+        } else {
+            localAssert(roundover, "Black on discard in live round");
+        }
         cardOnBoard = card;
         discardPile.push(card);
-        currentColor = newColor;
         await report("discardExternal", card);
     }
 
     async function dealToDiscard(deck) {
         let card = deck.deal();
         cardOnBoard = card;
-        while (core.cardColor(card) === "black") {
+        while (core.cardColor(card) === core.BLACK_COLOR) {
             await report("discard", card);
             cardOnBoard = undefined;
             await deck.addCardAndShuffle(card);
@@ -275,7 +293,7 @@ export default function initCore(settings, rngFunc, logger) {
             const scores = new Array(n);
             let max = 0;
             for (let i = 0; i < n; i++) {
-                const dealIndex = nextPlayer(i, n);
+                const dealIndex = nextPlayer(i, n, direction, dealer);
                 const currentPlayer = candidates[dealIndex].getIndex();
                 const card = await dealToPlayer(deck, currentPlayer);
                 localAssert(card !== undefined);
@@ -304,17 +322,19 @@ export default function initCore(settings, rngFunc, logger) {
     }
 
     async function cleanAllHands(rngFunc) {
-        cardOnBoard = null;
+        cardOnBoard = undefined;
         discardPile = [];
+        const promises = [];
         for (const pl of players) {
             pl.cleanHand();
-            await report("clearPlayer", pl.getIndex());
+            promises.push(report("clearPlayer", pl.getIndex()));
         }
+        await Promise.allSettled(promises);
         deck = await deckFunc.newShuffledDeck(onShuffle, rngFunc);
     }
 
     function cleanHandExternal(playerIndex) {
-        cardOnBoard = null;
+        cardOnBoard = undefined;
         discardPile = [];
         players[playerIndex].cleanHand();
         return report("clearPlayerExternal", playerIndex);
@@ -322,7 +342,7 @@ export default function initCore(settings, rngFunc, logger) {
 
     function skip() {
         // TODO should we notify others
-        currentPlayer = calcNextFromCurrent(currentPlayer, players.length);
+        currentPlayer = calcNextFromCurrent(currentPlayer, players.length, direction);
         cardTaken = 0;
         cardDiscarded = 0;
     }
@@ -360,10 +380,11 @@ export default function initCore(settings, rngFunc, logger) {
     }
 
     async function dealN(initialDealt) {
+        localAssert(initialDealt*players.length < deck.size(), "Not enought cards to play");
         for (let round = 0; round < initialDealt; ++round) {
             const n = players.length;
             for (let i = 0; i < n; i++) {
-                const dealIndex = nextPlayer(i, n);
+                const dealIndex = nextPlayer(i, n, direction, dealer);
                 const currentPlayer = players[dealIndex].getIndex();
                 await dealToPlayer(deck, currentPlayer);
             }
@@ -445,7 +466,6 @@ export default function initCore(settings, rngFunc, logger) {
     function onTryMove(playerInd, card, nextColor) {
         if (playerInd !== currentPlayer) {
             logger.error("Wrong player", currentPlayer, playerInd);
-            // assert(false, "onTryMove");
             return false;
         }
 
@@ -535,29 +555,29 @@ export default function initCore(settings, rngFunc, logger) {
         }
     }
 
-    function onNewRound(data) {
+    function onEndRound(data) {
+        if (data.playerIndex !== currentPlayer) {
+            logger.log("End not for current Player");
+            // return false;
+        }
         const player = players[data.playerIndex];
+        if (!player.hasEmptyHand()) {
+            logger.error("End when not empty");
+            return false;
+        }
         const oldScore = player.getScore();
-        cardTaken = 0;
-        cardDiscarded = 0;
-
-        if (data.score != oldScore + data.diff) {
+        if (data.score !== (oldScore + data.diff)) {
             logger.error("Bad score");
-            return;
-        }
-        player.setScore(data.score);
-    }
-
-    function onPass(playerIndex) {
-        if (playerIndex != currentPlayer) {
-            logger.error("Bad pass", playerIndex, currentPlayer);
             return false;
         }
-        if (cardTaken == 0) {
-            logger.error("Bad pass", playerIndex);
+        const diff = calcScore();
+        if (diff !== data.diff) {
+            logger.error("Bad diff");
             return false;
         }
-        return next();
+        // Maybe not needed
+        roundover = true;
+        return onRoundEnd(data.playerIndex);
     }
 
     async function onMoveToDiscard(playerIndex, card, nextColor) {
@@ -577,12 +597,13 @@ export default function initCore(settings, rngFunc, logger) {
 
     function nextDealer() {
         direction = 1;
-        dealer = calcNextFromCurrent(dealer, players.length);
+        dealer = calcNextFromCurrent(dealer, players.length, direction);
         currentPlayer = dealer;
         logger.log("nextDealer", {currentPlayer, dealer, direction, roundover});
         return report("changeCurrent", {currentPlayer, dealer, direction, roundover});
     }
 
+    // TODO make private
     function setCurrent(c, d, dir, rover) {
         cardTaken = 0;
         cardDiscarded = 0;
@@ -597,6 +618,11 @@ export default function initCore(settings, rngFunc, logger) {
             direction = dir;
         }
         currentPlayer = c;
+        return report("changeCurrentExternal", {currentPlayer, dealer, direction, roundover});
+    }
+
+    function setCurrentObj(data) {
+        return setCurrent(data.currentPlayer, data.dealer, data.direction, data.roundover);
     }
 
     function state() {
@@ -634,7 +660,25 @@ export default function initCore(settings, rngFunc, logger) {
         } else {
             deck.setDeck(d);
         }
+        return report("shuffleFake", d);
     }
+
+    const toJson = () => {
+        return {
+            playersRaw: players.map(p => p.toJson()),
+            deckRaw: deck.toJson,
+            dealer,
+            direction,
+            discardPile,
+            currentPlayer,
+            roundover,
+            cardTaken,
+            cardDiscarded,
+            maxScore,
+            cardOnBoard,
+            currentColor
+        };
+    };
 
     return {
         chooseDealer,
@@ -654,6 +698,7 @@ export default function initCore(settings, rngFunc, logger) {
         onMove,
         onDiscard,
         setCurrent,
+        setCurrentObj,
         cleanHandExternal,
         nextDealer,
         onDrawPlayer,
@@ -661,11 +706,11 @@ export default function initCore(settings, rngFunc, logger) {
         getCurrentColor,
         getDirection,
         state,
-        onNewRound,
-        onPass,
+        onEndRound,
         deckSize,
         secretlySeeTopCard,
         setColorChooser,
+        toJson,
         // for tests only
         dealN
     };

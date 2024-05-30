@@ -6,7 +6,7 @@ export default function test(window, document, settings, gameFunction) {
         settings.seed = "c";
         settings.maxScore = 3;
         settings.clickAll = true;
-        const game = gameFunction(window, document, settings);
+        const game = gameFunction({window, document, settings});
 
         game.on("move", (move) => console.log(move));
         game.on("draw", () => {});

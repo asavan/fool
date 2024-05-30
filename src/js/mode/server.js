@@ -38,7 +38,7 @@ export default function server(window, document, settings, gameFunction) {
         });
 
         const queue = PromiseQueue(logger);
-        const game = gameFunction(window, document, settings);
+        const game = gameFunction({window, document, settings});
         game.setQueue(queue);
         const actions = {
             "username": (n, id) => {
@@ -68,7 +68,7 @@ export default function server(window, document, settings, gameFunction) {
             const loggerActions = loggerFunc(7, null, settings);   
             const unoActions = actionsFuncUno(engine, loggerActions);
             connection.registerHandler(unoActions, queue);
-            return connection.sendRawAll("start", {players, seed});
+            return connection.sendRawAll("start", {players, seed, engine: engine.toJson()});
         });
 
         connection.on("disconnect", (id) => {
