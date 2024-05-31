@@ -2,16 +2,6 @@ function stub(message) {
     console.log("Stub " + message);
 }
 
-function getWebSocketUrl(settings, location) {
-    if (settings.wh) {
-        return settings.wh;
-    }
-    if (location.protocol === "https:") {
-        return;
-    }
-    return "ws://" + location.hostname + ":" + settings.wsPort;
-}
-
 const connectionFunc = function (id, logger) {
 
     const handlers = {
@@ -258,7 +248,6 @@ const connectionFunc = function (id, logger) {
     return {
         connect, 
         on, 
-        getWebSocketUrl,
         registerHandler,
         sendRawTo, 
         sendRawAll, 

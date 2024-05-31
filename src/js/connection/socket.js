@@ -1,5 +1,5 @@
 import handlersFunc from "../utils/handlers.js";
-import createSignalingChannel from "./common.js";
+import {createSignalingChannel} from "./common.js";
 
 export default function connectionFunc(id, logger, isServer) {
     const handlers = handlersFunc(["close", "disconnect", "error", "open", "gameinit", "reconnect", "socket_open", "socket_close"]);
@@ -11,16 +11,6 @@ export default function connectionFunc(id, logger, isServer) {
     let currentHandler = {};
     let queue;
     let dataChannel;
-
-    function getWebSocketUrl(settings, location) {
-        if (settings.wh) {
-            return settings.wh;
-        }
-        if (location.protocol === "https:") {
-            return;
-        }
-        return "ws://" + location.hostname + ":" + settings.wsPort;
-    }
 
     function registerHandler(handler, q) {
         queue = q;
@@ -65,7 +55,7 @@ export default function connectionFunc(id, logger, isServer) {
                     return;
                 }
 
-                if (json.action === "get_server_id") {
+                if (json.action === "connected") {
                     if (isServer) {
                         signaling.send("open", {id}, json.from);
                         return handlers.call("open", {id: json.from});     
@@ -90,9 +80,7 @@ export default function connectionFunc(id, logger, isServer) {
 
             signaling.on("open", () => {
                 handlers.call("socket_open", {});
-                if (!isServer) {
-                    signaling.send("get_server_id", {id}, "all");   
-                }
+                signaling.send("connected", {id}, "all");   
                 return resolve();
             });
         });
@@ -123,7 +111,6 @@ export default function connectionFunc(id, logger, isServer) {
     return {
         connect, 
         on, 
-        getWebSocketUrl, 
         registerHandler, 
         sendRawTo, 
         sendRawAll,

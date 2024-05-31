@@ -4,7 +4,17 @@ function stub() {
     // do nothing.
 }
 
-export default function createSignalingChannel(id, socketUrl, logger) {
+export function getWebSocketUrl(settings, location) {
+    if (settings.wh) {
+        return settings.wh;
+    }
+    if (location.protocol === "https:") {
+        return null;
+    }
+    return "ws://" + location.hostname + ":" + settings.wsPort;
+}
+
+export function createSignalingChannel(id, socketUrl, logger) {
     const handlers = handlersFunc(["error", "open", "message", "beforeclose", "close"]);
     const ws = new WebSocket(socketUrl);
 
@@ -21,6 +31,16 @@ export default function createSignalingChannel(id, socketUrl, logger) {
         return ws.close();
     };
 
+    function ready() {
+        return new Promise((resolve) => {
+            if(ws.readyState === 1) {
+                resolve();
+            } else {
+                ws.addEventListener("open", resolve);
+            }
+        });
+    }
+
     const on = (name, f) => {
         return handlers.on(name, f);
     };
@@ -31,9 +51,9 @@ export default function createSignalingChannel(id, socketUrl, logger) {
         return handlers.call("message", json);
     }
 
-    ws.onopen = function() {
+    ws.addEventListener("open", function() {
         return handlers.call("open", id);
-    };
+    });
 
     ws.onclose = function (e) {
         logger.log("Websocket closed " + e.code + " " + e.reason);
@@ -52,5 +72,5 @@ export default function createSignalingChannel(id, socketUrl, logger) {
         logger.error(e);
         return handlers.call("error", id);
     };
-    return {on, send, close};
+    return {on, send, close, ready};
 }

@@ -1,8 +1,6 @@
 import handlersFunc from "../utils/handlers.js";
 
-function stub(message) {
-    console.log("Stub " + message);
-}
+import {createSignalingChannel} from "./common.js";
 
 
 const connectionFunc = function (id, logger) {
@@ -13,77 +11,10 @@ const connectionFunc = function (id, logger) {
         return handlers.on(name, f);
     }
 
-    function sendNegotiation(type, sdp, ws) {
-        const json = {from: user, action: type, data: sdp};
-        logger.log("Sending [" + user + "] " + JSON.stringify(sdp));
-        return ws.send(JSON.stringify(json));
-    }
-
-
-    function createSignalingChannel(socketUrl) {
-        return new Promise((resolve, reject) => {
-            const ws = new WebSocket(socketUrl);
-
-            const send = (type, sdp) => {
-                return sendNegotiation(type, sdp, ws);
-            };
-            const close = () => {
-                // iphone fires "onerror" on close socket
-                handlers.reset("error");;
-                ws.close();
-            };
-
-            const onmessage = stub;
-            const result = {onmessage, send, close};
-
-            ws.onopen = function () {
-                logger.log("Websocket opened");
-                handlers.call("socket_open", {});
-                sendNegotiation("connected", {}, ws);
-                resolve(result);
-            };
-
-            ws.onclose = function () {
-                logger.log("Websocket closed");
-                handlers.call("socket_close", {});
-            };
-
-            ws.onmessage = function (e) {
-                if (e.data instanceof Blob) {
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                        result.onmessage(reader.result);
-                    };
-                    reader.readAsText(e.data);
-                } else {
-                    result.onmessage(e.data);
-                }
-            };
-            ws.onerror = function (e) {
-                console.error(e);
-                handlers.call("error", e);
-                reject(e);
-            };
-            return result;
-        });
-    }
-
-
     // init
     let isConnected = false;
     let dataChannel = null;
     
-
-    function getWebSocketUrl(settings, location) {
-        if (settings.wh) {
-            return settings.wh;
-        }
-        if (location.protocol === "https:") {
-            return null;
-        }
-        return "ws://" + location.hostname + ":" + settings.wsPort;
-    }
-
     const sendRawTo = (action, data, to) => {
         if (!dataChannel) {
             return false;
@@ -99,7 +30,21 @@ const connectionFunc = function (id, logger) {
     // inspired by http://udn.realityripple.com/docs/Web/API/WebRTC_API/Perfect_negotiation#Implementing_perfect_negotiation
     // and https://w3c.github.io/webrtc-pc/#perfect-negotiation-example
     async function connect(socketUrl) {
-        const signaling = await createSignalingChannel(socketUrl);
+        const signaling = createSignalingChannel(id, socketUrl, logger);
+        signaling.on("close", (data) => {
+            return handlers.call("socket_close", data);
+        });
+
+        signaling.on("open", () => {
+            handlers.call("socket_open", {});
+            signaling.send("connected", {id}, "all");   
+        });
+
+        signaling.on("error", (data) => {
+            handlers.call("error", data);
+        });
+
+        await signaling.ready();
         const peerConnection = new RTCPeerConnection(null);
 
         peerConnection.onicecandidate = e => {
@@ -113,7 +58,7 @@ const connectionFunc = function (id, logger) {
                 message.sdpMLineIndex = e.candidate.sdpMLineIndex;
             }
             logger.log({"candidate": e.candidate});
-            signaling.send("candidate", message);
+            signaling.send("candidate", message, "server");
         };
         // window.pc = peerConnection;
 
@@ -134,13 +79,13 @@ const connectionFunc = function (id, logger) {
         await peerConnection.setLocalDescription(offer);
 
 
-        signaling.onmessage = async function(text) {
-            const json = JSON.parse(text);
+        signaling.on("message", async function(json) {
             if (json.from === user) {
                 console.error("same user");
                 return;
             }
 
+            // TODO delete server 
             if (json.from !== "server") {
                 console.log("not from server");
                 return;
@@ -150,7 +95,7 @@ const connectionFunc = function (id, logger) {
                 console.log("wrong recipient", user, json.to);
                 return;
             }
-            logger.log("Websocket message received: " + text);
+            logger.log("Websocket message received: ", json);
 
             if (json.action === "candidate") {
                 logger.log("ON CANDIDATE");
@@ -169,9 +114,9 @@ const connectionFunc = function (id, logger) {
             } else {
                 console.error("Unknown type " + json.action);
             }
-        };
+        });
 
-        await signaling.send("offer", {type: "offer", sdp: offer.sdp});
+        return signaling.send("offer", {type: "offer", sdp: offer.sdp}, "server");
     }
 
     function setupDataChannel(dataChannel, signaling) {
@@ -183,7 +128,7 @@ const connectionFunc = function (id, logger) {
         dataChannel.onopen = function () {
             logger.log("------ DATACHANNEL OPENED ------");
             isConnected = true;
-            signaling.send("close", {});
+            signaling.send("close", {}, "server");
             signaling.close();
             handlers.call("open", {id, sendRawTo});
         };
@@ -211,7 +156,7 @@ const connectionFunc = function (id, logger) {
         });
     }
 
-    return {connect, on, getWebSocketUrl, registerHandler, sendRawTo};
+    return {connect, on, registerHandler, sendRawTo};
 };
 
 export default connectionFunc;

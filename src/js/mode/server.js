@@ -2,7 +2,8 @@ import {removeElem, loggerFunc} from "../helper.js";
 import actionsFuncUno from "../actions_uno_server.js";
 import actionsToSend from "../actions_uno_client.js";
 import qrRender from "../lib/qrcode.js";
-import connectionFunc from "../connection/socket.js";
+import {getWebSocketUrl} from "../connection/common.js";
+import connectionFunc from "../connection/server.js";
 import PromiseQueue from "../utils/async-queue.js";
 
 function makeQr(window, document, settings) {
@@ -38,7 +39,7 @@ export default function server(window, document, settings, gameFunction) {
 
         const logger = loggerFunc(2, document.querySelector(settings.loggerAnchor), settings);        
         const connection = connectionFunc(myId, logger, true);
-        const socketUrl = connection.getWebSocketUrl(settings, window.location);
+        const socketUrl = getWebSocketUrl(settings, window.location);
         if (!socketUrl) {
             logger.error("Can't determine ws address", socketUrl);
             reject(socketUrl);
