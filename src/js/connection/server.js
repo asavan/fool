@@ -1,20 +1,11 @@
-function stub(message) {
-    console.log("Stub " + message);
-}
+import handlersFunc from "../utils/handlers.js";
+import {createSignalingChannel} from "./common.js";
 
 const connectionFunc = function (id, logger) {
-
-    const handlers = {
-        "recv": stub,
-        "open": stub,
-        "socket_open": stub,
-        "socket_close": stub,
-        "close": stub,
-        "error": stub,
-        "disconnect": stub,
-    };
-
-
+    const handlers = handlersFunc(["recv", "open", "error", "close", "socket_open", "socket_close", "disconnect"]);
+    function on(name, f) {
+        return handlers.on(name, f);
+    }
 
     function SetupFreshConnection(signaling, id) {
         const peerConnection = new RTCPeerConnection(null);
@@ -73,76 +64,37 @@ const connectionFunc = function (id, logger) {
         return pc;
     }
 
-
-    function createSignalingChannel(socketUrl) {
-        const ws = new WebSocket(socketUrl);
-
-        const send = (type, sdp, to) => {
-            const json = {from: id, to: to, action: type, data: sdp};
-            logger.log("Sending [server] to [" + to + "]: " + JSON.stringify(sdp));
-            return ws.send(JSON.stringify(json));
-        };
-
-        const close = () => {
-        // iphone fires "onerror" on close socket
-            handlers["error"] = stub;
-            ws.close();
-        };
-
-        const onmessage = stub;
-        const result = {onmessage, send, close};
-
-        ws.onopen = function () {
-            logger.log("Websocket opened");
-            handlers["socket_open"]();
-        };
-        ws.onclose = function () {
-            console.log("Websocket closed");
-            handlers["socket_close"]();
-        };
-
-        ws.onmessage = function (e) {
-            if (e.data instanceof Blob) {
-                const reader = new FileReader();
-                reader.onload = () => {
-                    result.onmessage(reader.result);
-                };
-                reader.readAsText(e.data);
-            } else {
-                result.onmessage(e.data);
-            }
-        };
-        ws.onerror = function (e) {
-            console.error(e);
-            handlers["error"](e);
-        };
-        return result;
-    }
-
     //init
 
     const clients = {};
 
     let signalChannel = null;
 
-    function on(name, f) {
-        handlers[name] = f;
-    }
-
-
     // inspired by http://udn.realityripple.com/docs/Web/API/WebRTC_API/Perfect_negotiation#Implementing_perfect_negotiation
     // and https://w3c.github.io/webrtc-pc/#perfect-negotiation-example
     function connect(socketUrl) {
-        const signaling = createSignalingChannel(socketUrl);
+        const signaling = createSignalingChannel(id, socketUrl, logger);
 
-        signaling.onmessage = async function(text) {
-            const json = JSON.parse(text);
+        signaling.on("close", (data) => {
+            return handlers.call("socket_close", data);
+        });
+
+        signaling.on("open", () => {
+            handlers.call("socket_open", {});
+            signaling.send("connected", {id}, "all");   
+        });
+
+        signaling.on("error", (data) => {
+            return handlers.call("error", data);
+        });
+
+        signaling.on("message", async function(json) {
             if (json.from === id) {
                 console.error("same user");
                 return;
             }
 
-            logger.log("Websocket message received: " + text);
+            logger.log("Websocket message received: ", json);
 
             if (json.action === "candidate") {
                 const client = clients[json.from];
@@ -167,7 +119,7 @@ const connectionFunc = function (id, logger) {
             } else {
                 console.error("Unknown type " + json.action);
             }
-        };
+        });
         signalChannel = signaling;
         return signaling;
     }
@@ -212,24 +164,24 @@ const connectionFunc = function (id, logger) {
     function setupDataChannel(dataChannel, id, clients) {
         dataChannel.onmessage = function (e) {
             logger.log("get data " + e.data);
-            handlers["recv"](e.data, id);
+            return handlers.call("recv", e.data);
         };
 
         dataChannel.onopen = function () {
             logger.log("------ DATACHANNEL OPENED ------");
             // TODO make sendRawTo to send to this dataChannel
-            handlers["open"]({sendRawTo, id});
+            return handlers.call("open", {sendRawTo, id});
         };
 
-        dataChannel.onclose = function () {
+        dataChannel.onclose = async function () {
             logger.log("------ DATACHANNEL CLOSED ------");
-            handlers["disconnect"](id);
+            await handlers.call("disconnect", id);
             delete clients[id];
         };
 
         dataChannel.onerror = function () {
             console.error("DC ERROR!!!");
-            handlers["disconnect"](id);
+            return handlers.call("disconnect", id);
         };
     }
 
