@@ -1,8 +1,8 @@
 import handlersFunc from "../utils/handlers.js";
 import createSignalingChannel from "./common.js";
 
-export default function connectionFunc(id, logger) {
-    const handlers = handlersFunc(["close", "disconnect", "error", "join", "gameinit", "reconnect"]);
+export default function connectionFunc(id, logger, isServer) {
+    const handlers = handlersFunc(["close", "disconnect", "error", "open", "gameinit", "reconnect", "socket_open", "socket_close"]);
 
     function on(name, f) {
         return handlers.on(name, f);
@@ -64,6 +64,15 @@ export default function connectionFunc(id, logger) {
                     logger.log("user in ignore list");
                     return;
                 }
+
+                if (json.action === "get_server_id") {
+                    if (isServer) {
+                        signaling.send("open", {id}, json.from);
+                        return handlers.call("open", {id: json.from});     
+                    }
+                    return;
+                }
+
                 if (handlers.actionKeys().includes(json.action)) {
                     logger.log("handlers.actionKeys");
                     return handlers.call(json.action, json);
@@ -75,13 +84,17 @@ export default function connectionFunc(id, logger) {
                 logger.log("Unknown action " + json.action);
             });
 
-            const sendRawAll = (type, data, ignore) => {
-                logger.log(data);
-                return signaling.send(type, data, "all", ignore);
-            };
+            signaling.on("close", (data) => {
+                return handlers.call("socket_close", data);
+            });
 
-            const sendRawTo = (type, data, to) => signaling.send(type, data, to);
-            signaling.on("open", () => resolve({sendRawAll, sendRawTo}));
+            signaling.on("open", () => {
+                handlers.call("socket_open", {});
+                if (!isServer) {
+                    signaling.send("get_server_id", {id}, "all");   
+                }
+                return resolve();
+            });
         });
     }
 

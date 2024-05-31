@@ -2,7 +2,7 @@ import {removeElem, loggerFunc} from "../helper.js";
 import actionsFuncUno from "../actions_uno_server.js";
 import actionsToSend from "../actions_uno_client.js";
 import qrRender from "../lib/qrcode.js";
-import connectionFunc from "../connection/server.js";
+import connectionFunc from "../connection/socket.js";
 import PromiseQueue from "../utils/async-queue.js";
 
 function makeQr(window, document, settings) {
@@ -37,7 +37,7 @@ export default function server(window, document, settings, gameFunction) {
     return new Promise((resolve, reject) => {
 
         const logger = loggerFunc(2, document.querySelector(settings.loggerAnchor), settings);        
-        const connection = connectionFunc(logger);
+        const connection = connectionFunc(myId, logger, true);
         const socketUrl = connection.getWebSocketUrl(settings, window.location);
         if (!socketUrl) {
             logger.error("Can't determine ws address", socketUrl);
@@ -96,10 +96,10 @@ export default function server(window, document, settings, gameFunction) {
         connection.on("open", (con) => {
             ++index;
             clients[con.id] = {"index": index};
-            logger.log("connected", con.id);
+            logger.log("connected", con.id, con);
             if (game.isInPlay()) {
                 // TODO find in players
-                return con.sendRawTo("start", game.toJson(), con.id);
+                return connection.sendRawTo("start", game.toJson(), con.id);
             }
         });
 

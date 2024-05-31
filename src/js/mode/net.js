@@ -1,4 +1,4 @@
-import connectionFunc from "../connection/client.js";
+import connectionFunc from "../connection/socket.js";
 import actionsFuncUno from "../actions_uno_client.js";
 import actionsToSend from "../actions_uno_server.js";
 import rngFunc from "../utils/random.js";
@@ -16,14 +16,18 @@ function getMyId(window, settings, rngEngine) {
     window.sessionStorage.setItem(settings.idNameInStorage, newId);
 }
 
-function onConnectionAnimation(document, connection) {
+function onConnectionAnimation(document, connection, logger) {
     connection.on("socket_open", () => {
         const grid = document.querySelector(".places");
         grid.classList.add("loading");
-        connection.on("socket_close", () => {
+        logger.log("socket_open");
+        const onClose = () => {
+            logger.log("socket_close");
             grid.classList.remove("loading");
             grid.classList.add("flying-cards");
-        });
+        };
+        connection.on("socket_close", onClose);
+        connection.on("open", onClose);
     });
 }
 
@@ -45,11 +49,12 @@ function setupGameToNetwork(game, connection, logger, myId) {
 }
 
 export default function netMode(window, document, settings, gameFunction) {
+    const OTHER_SIDE_ID = "server";
     return new Promise((resolve, reject) => {
         enterName(window, document, settings);
         const myId = getMyId(window, settings, Math.random);
         const logger = loggerFunc(2, null, settings);
-        const connection = connectionFunc(myId, logger);
+        const connection = connectionFunc(myId, logger, false);
         const socketUrl = connection.getWebSocketUrl(settings, window.location);
         if (!socketUrl) {
             logger.error("Can't determine ws address", socketUrl);
@@ -60,12 +65,13 @@ export default function netMode(window, document, settings, gameFunction) {
             logger.error(e);
             reject(e);
         });
-        onConnectionAnimation(document, connection);
-        connection.on("open", (con) => {
+        onConnectionAnimation(document, connection, logger);
+        connection.on("open", (id) => {
+            logger.log("Server id " + id);
             const queue = PromiseQueue(console);
             settings.applyEffects = false;
             const game = gameFunction({window, document, settings, myId});
-            setupGameToNetwork(game, con, logger, myId);
+            setupGameToNetwork(game, connection, logger, myId);
             const actions = {"start": (data) => {
                 const unoGame = game.onStart(data);
                 const loggerActions = loggerFunc(6, null, settings);

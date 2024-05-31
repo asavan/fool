@@ -15,7 +15,7 @@ export default function handlersFunc(arr) {
         return arr;
     };
     const on = (name, callback) => getSafe(name).push(callback);
-    const reset = (name) => { delete handlers[name];};
+    const reset = (name) => { handlers[name] = []; };
     const set = (f, arr1) => handlers[f] = arr1;
     const call = (name, arg) => {
         const promises = [];

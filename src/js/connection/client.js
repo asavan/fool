@@ -1,3 +1,5 @@
+import handlersFunc from "../utils/handlers.js";
+
 function stub(message) {
     console.log("Stub " + message);
 }
@@ -6,15 +8,10 @@ function stub(message) {
 const connectionFunc = function (id, logger) {
     const user = id;
 
-    const handlers = {
-        "recv": stub,
-        "open": stub,
-        "socket_open": stub,
-        "socket_close": stub,
-        "close": stub,
-        "error": stub,
-    };
-
+    const handlers = handlersFunc(["recv", "open", "error", "close", "socket_open", "socket_close"]);
+    function on(name, f) {
+        return handlers.on(name, f);
+    }
 
     function sendNegotiation(type, sdp, ws) {
         const json = {from: user, action: type, data: sdp};
@@ -32,7 +29,7 @@ const connectionFunc = function (id, logger) {
             };
             const close = () => {
                 // iphone fires "onerror" on close socket
-                handlers["error"] = stub;
+                handlers.reset("error");;
                 ws.close();
             };
 
@@ -41,14 +38,14 @@ const connectionFunc = function (id, logger) {
 
             ws.onopen = function () {
                 logger.log("Websocket opened");
-                handlers["socket_open"]();
+                handlers.call("socket_open", {});
                 sendNegotiation("connected", {}, ws);
                 resolve(result);
             };
 
             ws.onclose = function () {
                 logger.log("Websocket closed");
-                handlers["socket_close"]();
+                handlers.call("socket_close", {});
             };
 
             ws.onmessage = function (e) {
@@ -64,7 +61,7 @@ const connectionFunc = function (id, logger) {
             };
             ws.onerror = function (e) {
                 console.error(e);
-                handlers["error"](e);
+                handlers.call("error", e);
                 reject(e);
             };
             return result;
@@ -75,10 +72,7 @@ const connectionFunc = function (id, logger) {
     // init
     let isConnected = false;
     let dataChannel = null;
-
-    function on(name, f) {
-        handlers[name] = f;
-    }
+    
 
     function getWebSocketUrl(settings, location) {
         if (settings.wh) {
@@ -183,7 +177,7 @@ const connectionFunc = function (id, logger) {
     function setupDataChannel(dataChannel, signaling) {
         dataChannel.onmessage = function (e) {
             logger.log("data get " + e.data);
-            handlers["recv"](e.data);
+            handlers.call("recv", e.data);
         };
 
         dataChannel.onopen = function () {
@@ -191,7 +185,7 @@ const connectionFunc = function (id, logger) {
             isConnected = true;
             signaling.send("close", {});
             signaling.close();
-            handlers["open"]({sendRawTo});
+            handlers.call("open", {id, sendRawTo});
         };
 
         dataChannel.onclose = function () {

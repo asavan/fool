@@ -12,9 +12,7 @@ function getWebSocketUrl(settings, location) {
     return "ws://" + location.hostname + ":" + settings.wsPort;
 }
 
-const connectionFunc = function (logger) {
-    const server = "server";
-
+const connectionFunc = function (id, logger) {
 
     const handlers = {
         "recv": stub,
@@ -90,7 +88,7 @@ const connectionFunc = function (logger) {
         const ws = new WebSocket(socketUrl);
 
         const send = (type, sdp, to) => {
-            const json = {from: server, to: to, action: type, data: sdp};
+            const json = {from: id, to: to, action: type, data: sdp};
             logger.log("Sending [server] to [" + to + "]: " + JSON.stringify(sdp));
             return ws.send(JSON.stringify(json));
         };
@@ -149,7 +147,7 @@ const connectionFunc = function (logger) {
 
         signaling.onmessage = async function(text) {
             const json = JSON.parse(text);
-            if (json.from === server) {
+            if (json.from === id) {
                 console.error("same user");
                 return;
             }
@@ -193,7 +191,7 @@ const connectionFunc = function (logger) {
 
     const sendRawAll = (action, data, ignore) => {
         logger.log(data);
-        const json = {from: server, to: "all", action, data};
+        const json = {from: id, to: "all", action, data};
         for (const [id, client] of Object.entries(clients)) {
             if (ignore && ignore.includes(id)) {
                 logger.log("ignore " + id);
@@ -212,7 +210,7 @@ const connectionFunc = function (logger) {
     };
 
     const sendRawTo = (action, data, to) => {
-        const json = {from: server, to, action, data};
+        const json = {from: id, to, action, data};
         const client = clients[to];
         if (!client || !client.dc) {
             logger.log("No chanel " + to);
