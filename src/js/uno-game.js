@@ -42,10 +42,9 @@ export default function unoGame({window, document, settings}, playersExternal, e
 
     engine.on("draw", ({playerIndex, card}) => {
         layout.drawPlayersDeal(window, {document, engine, myIndex, settings, playersExternal}, "draw", card, playerIndex);
-        const promises = [delay(onDrawTiming(playerIndex, engine.showAllCards()))];
-        if (playerIndex === myIndex || settings.mode === "server") {
-            promises.push(handlers["draw"]({playerIndex, card}));
-        }
+        const pause = delay(onDrawTiming(playerIndex, engine.showAllCards()));
+        const network = handlers["draw"]({playerIndex, card});
+        const promises = [pause, network];
         return Promise.allSettled(promises);
     });
 
@@ -86,16 +85,13 @@ export default function unoGame({window, document, settings}, playersExternal, e
         logger.log("move", data);
         layout.drawPlayersMove(window, {document, engine, myIndex, settings, playersExternal}, "drawMove", data.card, data.playerIndex);
         const pause = delay(150);
-        const promises = [pause];
-        if (data.playerIndex === myIndex || settings.mode === "server") {
-            promises.push(report("move", data));
-        }
-        return Promise.all(promises);
+        const promises = [pause, report("move", data)];
+        return Promise.allSettled(promises);
     });
 
     engine.on("discard", async (p) => {
         const draw = layout.drawDiscard(document, engine, myIndex, settings);
-        await Promise.all([draw, handlers["discard"](p)]);
+        await Promise.allSettled([draw, handlers["discard"](p)]);
     });
 
     engine.on("discardExternal", (p) => {

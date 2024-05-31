@@ -321,7 +321,7 @@ export default function initCore(settings, rngFunc, logger, {
         }
         currentPlayer = dealer;
         gameState = core.GameStage.DEALING;
-        await report("changeCurrent", {currentPlayer, dealer, direction, roundover});
+        await report("changeCurrent", state());
         logger.log("dealer was chosen", currentPlayer, dealer);
     }
 
@@ -393,10 +393,11 @@ export default function initCore(settings, rngFunc, logger, {
                 await dealToPlayer(deck, currentPlayer);
             }
         }
+        // TODO delete this
         if (currentPlayer !== dealer) {
-            logger.error("dealN", {currentPlayer, dealer, direction, roundover});
+            logger.error("dealN", state());
             currentPlayer = dealer;
-            await report("changeCurrent", {currentPlayer, dealer, direction, roundover});
+            await report("changeCurrent", state());
         }
         const card = await dealToDiscard(deck);
         await calcCardEffect(card, currentPlayer);        
@@ -597,8 +598,7 @@ export default function initCore(settings, rngFunc, logger, {
 
     async function next() {
         skip();
-        logger.log("Current change", {currentPlayer, dealer, direction, roundover});
-        await report("changeCurrent", {currentPlayer, dealer, direction, roundover});
+        await report("changeCurrent", state());
         return true;
     }
 
@@ -606,8 +606,7 @@ export default function initCore(settings, rngFunc, logger, {
         direction = 1;
         dealer = calcNextFromCurrent(dealer, players.length, direction);
         currentPlayer = dealer;
-        logger.log("nextDealer", {currentPlayer, dealer, direction, roundover});
-        return report("changeCurrent", {currentPlayer, dealer, direction, roundover});
+        return report("changeCurrent", state());
     }
 
     // TODO make private
@@ -625,8 +624,10 @@ export default function initCore(settings, rngFunc, logger, {
             direction = dir;
         }
         currentPlayer = c;
-        gameState = govr;
-        return report("changeCurrentExternal", {currentPlayer, dealer, direction, roundover});
+        if (govr != null) {
+            gameState = govr;
+        }
+        return report("changeCurrentExternal", {});
     }
 
     function setCurrentObj(data) {
@@ -637,11 +638,11 @@ export default function initCore(settings, rngFunc, logger, {
         return {
             currentPlayer,
             dealer,
+            direction,
             currentColor,
             cardOnBoard,
             roundover,
-            color: core.cardColor(cardOnBoard),
-            type: core.cardType(cardOnBoard)
+            gameState
         };
     }
 
@@ -663,7 +664,7 @@ export default function initCore(settings, rngFunc, logger, {
         await dealN(settings.cardsDeal);
         roundover = false;
         gameState = core.GameStage.ROUND;
-        await report("changeCurrent", {currentPlayer, dealer, direction, roundover, gameState});
+        await report("changeCurrent", state());
     }
 
     function setDeck(d) {
@@ -724,7 +725,6 @@ export default function initCore(settings, rngFunc, logger, {
         pass,
         getCurrentColor,
         getDirection,
-        state,
         onEndRound,
         deckSize,
         secretlySeeTopCard,
