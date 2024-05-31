@@ -1,3 +1,5 @@
+import {assert} from "./assert.js";
+
 export default function handlersFunc(arr) {
     const handlers = {};
     for (const f of arr) {
@@ -7,14 +9,11 @@ export default function handlersFunc(arr) {
     const actionKeys = () => Object.keys(handlers);
     const getSafe = (name) => {
         const arr = handlers[name];
-        if (!Array.isArray(arr)) {
-            console.error("No key", name);
-            console.trace("No key", name);
-            throw "No name";
-        }
+        assert(Array.isArray(arr), "No key " + name);
         return arr;
     };
     const on = (name, callback) => getSafe(name).push(callback);
+    const setOnce = (name, callback) => {handlers[name] = [callback]};
     const reset = (name) => { handlers[name] = []; };
     const set = (f, arr1) => handlers[f] = arr1;
     const call = (name, arg) => {
@@ -32,6 +31,7 @@ export default function handlersFunc(arr) {
     return {
         on,
         set,
+        setOnce,
         call,
         reset,
         actionKeys

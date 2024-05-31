@@ -1,6 +1,8 @@
 export default {
     modes: ["net", "ai", "server", "hotseat"],
     mode: "net",
+    connections: ["webrtc", "websocket"],
+    connection: "websocket",
     wsPort : 8088,
     logger: true,
     loggerAnchor: ".log",

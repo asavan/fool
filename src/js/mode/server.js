@@ -3,7 +3,7 @@ import actionsFuncUno from "../actions_uno_server.js";
 import actionsToSend from "../actions_uno_client.js";
 import qrRender from "../lib/qrcode.js";
 import {getWebSocketUrl} from "../connection/common.js";
-import connectionFunc from "../connection/server.js";
+import connectionChooser from "../connection/connection_chooser.js";
 import PromiseQueue from "../utils/async-queue.js";
 
 function makeQr(window, document, settings) {
@@ -35,9 +35,10 @@ export default function server(window, document, settings, gameFunction) {
     const myId = "server";
     clients[myId] = {index};
 
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
 
-        const logger = loggerFunc(2, document.querySelector(settings.loggerAnchor), settings);        
+        const logger = loggerFunc(2, document.querySelector(settings.loggerAnchor), settings);
+        const connectionFunc = await connectionChooser(settings);
         const connection = connectionFunc(myId, logger, true);
         const socketUrl = getWebSocketUrl(settings, window.location);
         if (!socketUrl) {

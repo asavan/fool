@@ -1,5 +1,5 @@
 import {getWebSocketUrl} from "../connection/common.js";
-import connectionFunc from "../connection/client.js";
+import connectionChooser from "../connection/connection_chooser.js";
 import actionsFuncUno from "../actions_uno_client.js";
 import actionsToSend from "../actions_uno_server.js";
 import rngFunc from "../utils/random.js";
@@ -50,10 +50,11 @@ function setupGameToNetwork(game, connection, logger, myId) {
 }
 
 export default function netMode(window, document, settings, gameFunction) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         enterName(window, document, settings);
         const myId = getMyId(window, settings, Math.random);
         const logger = loggerFunc(2, null, settings);
+        const connectionFunc = await connectionChooser(settings);
         const connection = connectionFunc(myId, logger, false);
         const socketUrl = getWebSocketUrl(settings, window.location);
         if (!socketUrl) {
