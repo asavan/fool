@@ -13,7 +13,6 @@ test("click color scenario", async () => {
     const document = dom.window.document;
     const settings = {...settingsOriginal};
     const myId = "client1";
-    settings.externalId = "client1";
     settings.cardsDeal = 1;
     settings.seed = "h";
     settings.maxScore = 3;

@@ -63,7 +63,6 @@ export default function netMode(window, document, settings, gameFunction) {
         onConnectionAnimation(document, connection);
         connection.on("open", (con) => {
             const queue = PromiseQueue(console);
-            settings["externalId"] = myId;
             settings.applyEffects = false;
             const game = gameFunction({window, document, settings, myId});
             setupGameToNetwork(game, con, logger, myId);

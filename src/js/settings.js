@@ -15,7 +15,6 @@ export default {
     showAll: false,
     clickAll: false,
     show: true,
-    externalId: "server",
     applyEffects: true,
     colorOrder: ["red", "yellow", "green", "blue", "black"],
     sortByColor: "",

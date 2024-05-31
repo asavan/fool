@@ -5,8 +5,7 @@ import rngFunc from "../utils/random.js";
 export default function hotseat(window, document, settings, gameFunction) {
     return new Promise((resolve) => {
         const myId = "client1";
-        settings.externalId = myId;
-        if (settings.seed === "") {
+        if (!settings.seed) {
             settings.seed = rngFunc.makeId(6, Math.random);
         }
         settings.clickAll = true;

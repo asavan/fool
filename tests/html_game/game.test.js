@@ -13,7 +13,6 @@ test("simple 4 player scenario", async () => {
     const document = dom.window.document;
     const window = dom.window;
     const myId = "client1";
-    settings.externalId = myId;
     settings.cardsDeal = 1;
     settings.seed = "h";
     settings.maxScore = 3;
