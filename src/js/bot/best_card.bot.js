@@ -1,14 +1,15 @@
 import actionsFuncUno from "../actions_uno_server.js";
-import simpleBot from "../bot/simple.bot.js";
 import { delay } from "../helper.js";
 import rngFunc from "../utils/random.js";
+import core from "../uno/basic.js";
+import simpleBot from "./simple.bot.js";
 
 export default function bot(engine, queue, logger, botIndexes, currentChangeData) {
-    if (currentChangeData.roundover) {
-        logger.log("best_card_bot roundover");
+    if (currentChangeData.gameState !== core.GameStage.ROUND) {
+        logger.log("round not started yet");
         return;
     }
-    
+
     const playerIndex = engine.getCurrentPlayer();
     if (currentChangeData.currentPlayer !== playerIndex) {
         logger.error("best_card_bot bad player", playerIndex, currentChangeData, currentChangeData.currentPlayer);

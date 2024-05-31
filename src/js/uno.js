@@ -19,7 +19,6 @@ export default function initCore(settings, rngFunc, logger, {
     deckRaw,
     discardPile,
     currentPlayer,
-    roundover,
     cardTaken,
     cardDiscarded,
     maxScore,
@@ -143,9 +142,13 @@ export default function initCore(settings, rngFunc, logger, {
             logger.error("Different engines");
             return false;
         }
-        if (playerIndex !== currentPlayer && !core.isDrawCard(cardOnBoard) && !roundover) {
-            logger.error("draw not for current player", playerIndex, currentPlayer, roundover);
-        // return;
+        if (!(playerIndex === currentPlayer 
+            || core.isDrawCard(cardOnBoard) 
+            || gameState === core.GameStage.CHOOSE_DEALER 
+            || gameState === core.GameStage.DEALING)
+        ) {
+            logger.error("draw not for current player", state());
+            return false;
         }
         const cardFromDeck = await dealToPlayer(deck, playerIndex, true);
         if (cardFromDeck === undefined) {
@@ -163,8 +166,8 @@ export default function initCore(settings, rngFunc, logger, {
             return false;
         }
 
-        if (roundover) {
-            logger.log("onDrawPlayer start new round");
+        if (gameState !== core.GameStage.ROUND) {
+            logger.log("onDrawPlayer bad state", state());
             return false;
         }
 
@@ -188,8 +191,8 @@ export default function initCore(settings, rngFunc, logger, {
             return false;
         }
 
-        if (roundover) {
-            logger.log("pass start new round");
+        if (gameState !== core.GameStage.ROUND) {
+            logger.log("pass bad state", state());
             return false;
         }
 
@@ -225,7 +228,7 @@ export default function initCore(settings, rngFunc, logger, {
         if (newColor !== core.BLACK_COLOR) {
             currentColor = newColor;
         } else {
-            localAssert(roundover, "Black on discard in live round");
+            localAssert(gameState !== core.GameStage.ROUND, "Black on discard in live round");
         }
         cardOnBoard = card;
         discardPile.push(card);
@@ -287,7 +290,7 @@ export default function initCore(settings, rngFunc, logger, {
 
     async function chooseDealerInner(rngFunc) {
         // TODO update clients
-        gameState = core.GameStage.DEALING;
+        gameState = core.GameStage.CHOOSE_DEALER;
         deck = await deckFunc.newShuffledDeck(onShuffle, rngFunc);
         let candidates = [...players];
 
@@ -322,7 +325,7 @@ export default function initCore(settings, rngFunc, logger, {
         currentPlayer = dealer;
         gameState = core.GameStage.DEALING;
         await report("changeCurrent", state());
-        logger.log("dealer was chosen", currentPlayer, dealer);
+        logger.log("dealer was chosen", state());
     }
 
     async function cleanAllHands(rngFunc) {
@@ -400,7 +403,8 @@ export default function initCore(settings, rngFunc, logger, {
             await report("changeCurrent", state());
         }
         const card = await dealToDiscard(deck);
-        await calcCardEffect(card, currentPlayer);        
+        await calcCardEffect(card, currentPlayer);
+        gameState = core.GameStage.ROUND;        
     }
 
     function getCurrentPlayerObj() {
@@ -423,7 +427,7 @@ export default function initCore(settings, rngFunc, logger, {
             return false;
         }
 
-        if (roundover) {
+        if (gameState !== core.GameStage.ROUND) {
             logger.log("start new round");
             return false;
         }
@@ -486,8 +490,8 @@ export default function initCore(settings, rngFunc, logger, {
             return false;
         }
 
-        if (roundover) {
-            logger.log("start new round");
+        if (gameState !== core.GameStage.ROUND) {
+            logger.log("start new round", state());
             return false;
         }
 
@@ -517,7 +521,7 @@ export default function initCore(settings, rngFunc, logger, {
     }
 
     async function moveInner(playerIndex, card, nextColor) {
-        localAssert(!roundover, "Move on round end");
+        localAssert(gameState === core.GameStage.ROUND, "Move on round end");
         const pl = players[playerIndex];
         pl.removeCard(card);
         cardOnBoard = card;
@@ -525,13 +529,13 @@ export default function initCore(settings, rngFunc, logger, {
         currentColor = nextColor;
         ++cardDiscarded;
         if (pl.hasEmptyHand()) {
-            roundover = true;
+            // TODO send to other clients mb
             gameState = core.GameStage.ROUND_OVER;
         }
         await report("move", {playerIndex, card, currentColor});
         if (applyEffects) {
             await calcCardEffect(card, currentPlayer);
-            if (roundover) {
+            if (gameState === core.GameStage.ROUND_OVER || gameState === core.GameStage.GAME_OVER) {
                 await onRoundEnd(playerIndex);
             }
         }
@@ -549,8 +553,8 @@ export default function initCore(settings, rngFunc, logger, {
 
     async function onRoundEnd(playerIndex) {
         const player = players[playerIndex];
-        localAssert(player.hasEmptyHand());
-        localAssert(roundover);
+        localAssert(player.hasEmptyHand(), "End on not empty hand");
+        localAssert(gameState !== core.GameStage.ROUND, "Bad state onRoundEnd");
         const diff = calcScore();
         player.updateScore(diff);
         const score = player.getScore();
@@ -584,7 +588,7 @@ export default function initCore(settings, rngFunc, logger, {
             return false;
         }
         // Maybe not needed
-        roundover = true;
+        gameState = core.GameStage.ROUND_OVER;
         return onRoundEnd(data.playerIndex);
     }
 
@@ -606,32 +610,22 @@ export default function initCore(settings, rngFunc, logger, {
         direction = 1;
         dealer = calcNextFromCurrent(dealer, players.length, direction);
         currentPlayer = dealer;
+        gameState = core.GameStage.DEALING;
         return report("changeCurrent", state());
     }
 
-    // TODO make private
-    function setCurrent(c, d, dir, rover, govr) {
+    function setCurrentObj(data) {
         cardTaken = 0;
         cardDiscarded = 0;
-        if (rover !== undefined) {
-            roundover = rover;
-        }
-        if (d != null) {
-            dealer = d;
-            // roundover = false;
-        }
-        if (dir != null) {
-            direction = dir;
-        }
-        currentPlayer = c;
-        if (govr != null) {
-            gameState = govr;
-        }
+        localAssert(data.dealer !== undefined, "No dealer");
+        localAssert(data.currentPlayer !== undefined, "No currentPlayer");
+        localAssert(data.direction, "No direction");
+        localAssert(data.gameState !== undefined, "No gameState");
+        dealer = data.dealer;
+        currentPlayer = data.currentPlayer;
+        direction = data.direction;
+        gameState = data.gameState;
         return report("changeCurrentExternal", {});
-    }
-
-    function setCurrentObj(data) {
-        return setCurrent(data.currentPlayer, data.dealer, data.direction, data.roundover, data.gameState);
     }
 
     function state() {
@@ -641,7 +635,6 @@ export default function initCore(settings, rngFunc, logger, {
             direction,
             currentColor,
             cardOnBoard,
-            roundover,
             gameState
         };
     }
@@ -662,7 +655,6 @@ export default function initCore(settings, rngFunc, logger, {
 
         await cleanAllHands(rngFunc);
         await dealN(settings.cardsDeal);
-        roundover = false;
         gameState = core.GameStage.ROUND;
         await report("changeCurrent", state());
     }
@@ -689,7 +681,6 @@ export default function initCore(settings, rngFunc, logger, {
             direction,
             discardPile,
             currentPlayer,
-            roundover,
             gameState,
             cardTaken,
             cardDiscarded,
@@ -716,8 +707,6 @@ export default function initCore(settings, rngFunc, logger, {
         onDraw,
         onMove,
         onDiscard,
-        // TODO deprecated
-        setCurrent,
         setCurrentObj,
         cleanHandExternal,
         nextDealer,

@@ -17,10 +17,9 @@ export default function emptyEngine(settings, count) {
     const direction = 1;
     const deckRaw = [];
     const discardPile = [];
-    const currentPlayer = -1;
+    const currentPlayer = 0;
     const cardTaken = 0;
     const cardDiscarded = 0;
-    const roundover = true;
     const gameState = core.GameStage.CHOOSE_DEALER;
     const maxScore = settings.maxScore || 500;
     return {
@@ -30,7 +29,6 @@ export default function emptyEngine(settings, count) {
         deckRaw,
         discardPile,
         currentPlayer,
-        roundover,
         gameState,
         cardTaken,
         cardDiscarded,
