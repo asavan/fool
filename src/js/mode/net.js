@@ -49,12 +49,12 @@ function setupGameToNetwork(game, connection, logger, myId) {
     }
 }
 
-export default function netMode(window, document, settings, gameFunction) {
-    return new Promise(async (resolve, reject) => {
+export default async function netMode(window, document, settings, gameFunction) {
+    const connectionFunc = await connectionChooser(settings);
+    return new Promise((resolve, reject) => {
         enterName(window, document, settings);
         const myId = getMyId(window, settings, Math.random);
         const logger = loggerFunc(2, null, settings);
-        const connectionFunc = await connectionChooser(settings);
         const connection = connectionFunc(myId, logger, false);
         const socketUrl = getWebSocketUrl(settings, window.location);
         if (!socketUrl) {

@@ -29,16 +29,16 @@ function setupGameToNetwork(game, connection, logger) {
     }
 }
 
-export default function server(window, document, settings, gameFunction) {
+export default async function server(window, document, settings, gameFunction) {
     const clients = {};
     let index = 0;
     const myId = "server";
     clients[myId] = {index};
-
-    return new Promise(async (resolve, reject) => {
+    
+    const connectionFunc = await connectionChooser(settings);
+    return new Promise((resolve, reject) => {
 
         const logger = loggerFunc(2, document.querySelector(settings.loggerAnchor), settings);
-        const connectionFunc = await connectionChooser(settings);
         const connection = connectionFunc(myId, logger, true);
         const socketUrl = getWebSocketUrl(settings, window.location);
         if (!socketUrl) {
