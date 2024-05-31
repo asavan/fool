@@ -92,13 +92,13 @@ export default function server(window, document, settings, gameFunction) {
             logger.log({id, index}, "disconnect");
         });
 
-        connection.on("open", (id) => {
+        connection.on("open", (con) => {
             ++index;
-            clients[id] = {"index": index};
-            logger.log("connected", id);
+            clients[con.id] = {"index": index};
+            logger.log("connected", con.id);
             if (game.isInPlay()) {
                 // TODO find in players
-                return connection.sendRawAll("start", game.toJson());
+                return con.sendRawTo("start", game.toJson(), con.id);
             }
         });
 

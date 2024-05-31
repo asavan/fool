@@ -129,7 +129,7 @@ function matchColor(card, color) {
     if (!GOOD_COLORS.includes(color)) {
         return false;
     }
-    return (cardColor(card) === color) || (cardColor(card) === "black");
+    return (cardColor(card) === color) || (cardColor(card) === BLACK_COLOR);
 }
 
 function sameColorOrType(card, cardOnBoard, currentColor) {

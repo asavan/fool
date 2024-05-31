@@ -1,11 +1,9 @@
-"use strict";
-
 function stub(message) {
     console.log("Stub " + message);
 }
 
 
-const connectionFunc = function (settings, location, id, logger) {
+const connectionFunc = function (id, logger) {
     const user = id;
 
     const handlers = {
@@ -82,7 +80,7 @@ const connectionFunc = function (settings, location, id, logger) {
         handlers[name] = f;
     }
 
-    function getWebSocketUrl() {
+    function getWebSocketUrl(settings, location) {
         if (settings.wh) {
             return settings.wh;
         }
@@ -92,13 +90,21 @@ const connectionFunc = function (settings, location, id, logger) {
         return "ws://" + location.hostname + ":" + settings.wsPort;
     }
 
+    const sendRawTo = (action, data, to) => {
+        if (!dataChannel) {
+            return false;
+        }
+        if (!isConnected) {
+            console.error("Not connected");
+            return false;
+        }
+        const json = {from: id, to, action, data};
+        return dataChannel.send(JSON.stringify(json));
+    };
+
     // inspired by http://udn.realityripple.com/docs/Web/API/WebRTC_API/Perfect_negotiation#Implementing_perfect_negotiation
     // and https://w3c.github.io/webrtc-pc/#perfect-negotiation-example
-    async function connect() {
-        const socketUrl = getWebSocketUrl();
-        if (socketUrl == null) {
-            throw "Can't determine ws address";
-        }
+    async function connect(socketUrl) {
         const signaling = await createSignalingChannel(socketUrl);
         const peerConnection = new RTCPeerConnection(null);
 
@@ -171,7 +177,7 @@ const connectionFunc = function (settings, location, id, logger) {
             }
         };
 
-        return signaling.send("offer", {type: "offer", sdp: offer.sdp});
+        await signaling.send("offer", {type: "offer", sdp: offer.sdp});
     }
 
     function setupDataChannel(dataChannel, signaling) {
@@ -185,7 +191,7 @@ const connectionFunc = function (settings, location, id, logger) {
             isConnected = true;
             signaling.send("close", {});
             signaling.close();
-            handlers["open"]();
+            handlers["open"]({sendRawTo});
         };
 
         dataChannel.onclose = function () {
@@ -198,31 +204,6 @@ const connectionFunc = function (settings, location, id, logger) {
         };
     }
 
-    function sendMessage(messageBody) {
-        logger.log("data send1 " + messageBody);
-        if (!dataChannel) {
-            return false;
-        }
-        if (!isConnected) {
-            console.error("Not connected");
-            return false;
-        }
-        logger.log("data send " + messageBody);
-        dataChannel.send(messageBody);
-        return isConnected;
-    }
-
-    const sendRawTo = (action, data, to) => {
-        if (!dataChannel) {
-            return false;
-        }
-        if (!isConnected) {
-            console.error("Not connected");
-            return false;
-        }
-        const json = {from: id, to, action, data};
-        return dataChannel.send(JSON.stringify(json));
-    };
 
     function registerHandler(actions, queue) {
         on("recv", (data) => {
@@ -234,9 +215,9 @@ const connectionFunc = function (settings, location, id, logger) {
                 queue.add(() => callback(res, obj.from));
             }
         });
-    }  
+    }
 
-    return {connect, sendMessage, on, sendRawTo, registerHandler};
+    return {connect, on, getWebSocketUrl, registerHandler, sendRawTo};
 };
 
 export default connectionFunc;

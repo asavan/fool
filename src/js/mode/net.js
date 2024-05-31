@@ -47,20 +47,26 @@ function setupGameToNetwork(game, connection, logger, myId) {
 export default function netMode(window, document, settings, gameFunction) {
     return new Promise((resolve, reject) => {
         enterName(window, document, settings);
-        const myId = getMyId(window, settings, Math.random);;
+        const myId = getMyId(window, settings, Math.random);
         const logger = loggerFunc(2, null, settings);
-        const connection = connectionFunc(settings, window.location, myId, logger);
+        const connection = connectionFunc(myId, logger);
+        const socketUrl = connection.getWebSocketUrl(settings, window.location);
+        if (!socketUrl) {
+            logger.error("Can't determine ws address", socketUrl);
+            reject(socketUrl);
+            return;
+        }
         connection.on("error", (e) => {
             logger.error(e);
             reject(e);
         });
         onConnectionAnimation(document, connection);
-        connection.on("open", () => {
+        connection.on("open", (con) => {
             const queue = PromiseQueue(console);
             settings["externalId"] = myId;
             settings.applyEffects = false;
             const game = gameFunction({window, document, settings});
-            setupGameToNetwork(game, connection, logger, myId);
+            setupGameToNetwork(game, con, logger, myId);
             const actions = {"start": (data) => {
                 const unoGame = game.onStart(data);
                 const loggerActions = loggerFunc(6, null, settings);
@@ -74,7 +80,7 @@ export default function netMode(window, document, settings, gameFunction) {
             resolve(game);
         });
 
-        connection.connect().catch(e => {
+        connection.connect(socketUrl).catch(e => {
             logger.error(e);
             reject(e);
         });

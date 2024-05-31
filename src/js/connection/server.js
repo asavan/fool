@@ -26,28 +26,6 @@ const connectionFunc = function (logger) {
         "disconnect": stub,
     };
 
-    function setupDataChannel(dataChannel, id, clients) {
-        dataChannel.onmessage = function (e) {
-            logger.log("get data " + e.data);
-            handlers["recv"](e.data, id);
-        };
-
-        dataChannel.onopen = function () {
-            logger.log("------ DATACHANNEL OPENED ------");
-            handlers["open"](id);
-        };
-
-        dataChannel.onclose = function () {
-            logger.log("------ DATACHANNEL CLOSED ------");
-            handlers["disconnect"](id);
-            delete clients[id];
-        };
-
-        dataChannel.onerror = function () {
-            console.error("DC ERROR!!!");
-            handlers["disconnect"](id);
-        };
-    }
 
 
     function SetupFreshConnection(signaling, id) {
@@ -206,24 +184,10 @@ const connectionFunc = function (logger) {
         return signaling;
     }
 
-    const sendAll = (data) => {
-        logger.log("sendAll " + data);
-        for (const client of Object.values(clients)) {
-            if (client.dc) {
-                try {
-                    client.dc.send(data);
-                } catch(e) {
-                    console.log(e, client);
-                }
-            } else {
-                console.error("No connection", client);
-            }
-        }
-    };
-
     function closeSocket() {
         if (signalChannel) {
             signalChannel.close();
+            signalChannel = undefined;
         }
     }
 
@@ -257,6 +221,30 @@ const connectionFunc = function (logger) {
         return client.dc.send(JSON.stringify(json));
     };
 
+    function setupDataChannel(dataChannel, id, clients) {
+        dataChannel.onmessage = function (e) {
+            logger.log("get data " + e.data);
+            handlers["recv"](e.data, id);
+        };
+
+        dataChannel.onopen = function () {
+            logger.log("------ DATACHANNEL OPENED ------");
+            // TODO make sendRawTo to send to this dataChannel
+            handlers["open"]({sendRawTo, id});
+        };
+
+        dataChannel.onclose = function () {
+            logger.log("------ DATACHANNEL CLOSED ------");
+            handlers["disconnect"](id);
+            delete clients[id];
+        };
+
+        dataChannel.onerror = function () {
+            console.error("DC ERROR!!!");
+            handlers["disconnect"](id);
+        };
+    }
+
     function registerHandler(actions, queue) {
         on("recv", (data) => {
             // console.log(data);
@@ -269,7 +257,15 @@ const connectionFunc = function (logger) {
         });
     }
 
-    return {connect, sendAll, on, closeSocket, sendRawAll, sendRawTo, registerHandler, getWebSocketUrl};
+    return {
+        connect, 
+        on, 
+        getWebSocketUrl,
+        registerHandler,
+        sendRawTo, 
+        sendRawAll, 
+        closeSocket
+    };
 };
 
 export default connectionFunc;
