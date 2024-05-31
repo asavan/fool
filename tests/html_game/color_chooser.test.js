@@ -12,13 +12,14 @@ test("click color scenario", async () => {
     const dom = await JSDOM.fromFile("src/index.html");
     const document = dom.window.document;
     const settings = {...settingsOriginal};
+    const myId = "client1";
     settings.externalId = "client1";
     settings.cardsDeal = 1;
     settings.seed = "h";
     settings.maxScore = 3;
     settings.mode = "hotseat";
     settings.clickAll = true;
-    const game = gameFunction({window: dom.window, document, settings});
+    const game = gameFunction({window: dom.window, document, settings, myId});
 
     game.on("move", (move) => console.log(move));
     game.on("shuffle", () => {});

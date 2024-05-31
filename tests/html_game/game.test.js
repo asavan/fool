@@ -12,12 +12,13 @@ test("simple 4 player scenario", async () => {
     const settings = {...settingsOriginal};
     const document = dom.window.document;
     const window = dom.window;
-    settings.externalId = "client1";
+    const myId = "client1";
+    settings.externalId = myId;
     settings.cardsDeal = 1;
     settings.seed = "h";
     settings.maxScore = 3;
     settings.clickAll = true;
-    const game = gameFunction({window, document, settings});
+    const game = gameFunction({window, document, settings, myId});
 
     game.join("server", "server");
     for (let i = 1; i < 4; ++i) {

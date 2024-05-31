@@ -17,7 +17,7 @@ function makeCommonSeed(players) {
     return seed;
 }
 
-export default function game({window, document, settings}) {
+export default function game({window, document, settings, myId}) {
 
     const logger = loggerFunc(8, null, settings);
     const loggerBot = loggerFunc(6, null, settings);
@@ -63,7 +63,7 @@ export default function game({window, document, settings}) {
     const renderChoosePlace = () => choosePlaceFunc(document, afterAllJoined, swap, addBot, players);
 
     function join(name, external_id, isBot) {
-
+        assert(name, "No name");
         const found = players.findIndex(player => player.external_id === external_id);
 
         if (found === -1) {
@@ -81,7 +81,7 @@ export default function game({window, document, settings}) {
             return false;
         }
         const old_size = players.length;
-        players = players.filter(p => p.external_id != external_id);
+        players = players.filter(p => p.external_id !== external_id);
         const new_size = players.length;
         renderChoosePlace();
         return old_size > new_size;
@@ -95,9 +95,7 @@ export default function game({window, document, settings}) {
     };
 
     const onNameChange = (name) => {
-        // handlers["username"](data, "server");
-        // TODO remove server
-        return handlers["username"](name, "server");
+        return handlers["username"](name, myId);
     };
 
     const onConnect = () => {
@@ -112,7 +110,7 @@ export default function game({window, document, settings}) {
     }
 
     function createUnoGame(engineRaw) {
-        return unoGameFunc({window, document, settings}, players, engineRaw, handlers);
+        return unoGameFunc({window, document, settings}, {playersExternal: players, myId}, engineRaw, handlers);
     }
     
     const toJson = () => {

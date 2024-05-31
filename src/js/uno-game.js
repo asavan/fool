@@ -5,7 +5,7 @@ import layout from "./layout.js";
 
 import {prng_alea} from "esm-seedrandom";
 
-export default function unoGame({window, document, settings}, playersExternal, engineRaw, handlers) {
+export default function unoGame({window, document, settings}, {playersExternal, myId}, engineRaw, handlers) {
 
     const logger = loggerFunc(7, null, settings);
     const loggerLayout = loggerFunc(2, null, settings);
@@ -15,7 +15,8 @@ export default function unoGame({window, document, settings}, playersExternal, e
         inColorChoose: false,
         inExternalMove: false
     };
-    const myIndex = playersExternal.findIndex(p => p.external_id === settings.externalId);
+    const myIndex = playersExternal.findIndex(p => p.external_id === myId);
+    assert(myIndex >= 0, "Not my game");
     const engine = coreUnoFunc(settings, myrng, logger, engineRaw);
 
     function report(callbackName, data) {

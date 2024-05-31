@@ -31,7 +31,8 @@ function setupGameToNetwork(game, connection, logger) {
 export default function server(window, document, settings, gameFunction) {
     const clients = {};
     let index = 0;
-    clients["server"] = {"index": index};
+    const myId = "server";
+    clients[myId] = {index};
 
     return new Promise((resolve, reject) => {
 
@@ -57,7 +58,7 @@ export default function server(window, document, settings, gameFunction) {
         });
 
         const queue = PromiseQueue(logger);
-        const game = gameFunction({window, document, settings});
+        const game = gameFunction({window, document, settings, myId});
         game.setQueue(queue);
         const actions = {
             "username": (n, id) => {

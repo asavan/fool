@@ -1,19 +1,12 @@
-"use strict";
-
 export default function test(window, document, settings, gameFunction) {
     return new Promise((resolve) => {
+        const myId = "server";
         settings.cardsDeal = 1;
         settings.seed = "c";
         settings.maxScore = 3;
         settings.clickAll = true;
-        const game = gameFunction({window, document, settings});
+        const game = gameFunction({window, document, settings, myId});
 
-        game.on("move", (move) => console.log(move));
-        game.on("draw", () => {});
-        game.on("shuffle", () => {});
-        game.on("discard", () => {});
-        game.on("changeCurrent", () => {});
-        game.on("clearPlayer", () => {});
         game.join("server", "server");
         for (let i = 1; i < 4; ++i) {
             const name = "client" + i;
