@@ -68,8 +68,6 @@ const connectionFunc = function (id, logger) {
 
     const clients = {};
 
-    let signalChannel = null;
-
     // inspired by http://udn.realityripple.com/docs/Web/API/WebRTC_API/Perfect_negotiation#Implementing_perfect_negotiation
     // and https://w3c.github.io/webrtc-pc/#perfect-negotiation-example
     function connect(socketUrl) {
@@ -81,7 +79,7 @@ const connectionFunc = function (id, logger) {
 
         signaling.on("open", () => {
             handlers.call("socket_open", {});
-            signaling.send("connected", {id}, "all");   
+            signaling.send("connected", {id}, "all");
         });
 
         signaling.on("error", (data) => {
@@ -120,15 +118,7 @@ const connectionFunc = function (id, logger) {
                 console.error("Unknown type " + json.action);
             }
         });
-        signalChannel = signaling;
         return Promise.resolve(signaling);
-    }
-
-    function closeSocket() {
-        if (signalChannel) {
-            signalChannel.close();
-            signalChannel = undefined;
-        }
     }
 
     const sendRawAll = (action, data, ignore) => {
@@ -198,12 +188,11 @@ const connectionFunc = function (id, logger) {
     }
 
     return {
-        connect, 
-        on, 
+        connect,
+        on,
         registerHandler,
-        sendRawTo, 
-        sendRawAll, 
-        closeSocket
+        sendRawTo,
+        sendRawAll
     };
 };
 

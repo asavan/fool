@@ -101,19 +101,11 @@ export default function connectionFunc(id, logger, isServer) {
         return dataChannel.send(type, data, "all", ignore);
     };
 
-    function closeSocket() {
-        if (dataChannel) {
-            dataChannel.close();
-            dataChannel = undefined;
-        }
-    }
-
     return {
         connect, 
         on, 
         registerHandler, 
         sendRawTo, 
         sendRawAll,
-        closeSocket
     };
 }

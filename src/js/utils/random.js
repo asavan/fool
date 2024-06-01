@@ -1,5 +1,3 @@
-"use strict";
-
 function randomEl(arr, rngFunc) {
     return arr[Math.floor(rngFunc() * arr.length)];
 }

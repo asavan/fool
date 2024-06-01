@@ -71,7 +71,6 @@ export default async function server(window, document, settings, gameFunction) {
         game.on("username", actions["username"]);
 
         game.on("engineCreated", (engine) => {
-            // connection.closeSocket();
             removeElem(qrCodeEl);
             qrCodeEl = undefined;
 

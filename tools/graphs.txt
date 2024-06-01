@@ -1,0 +1,3 @@
+npx depcruise src --no-config --include-only "^src" --output-type dot | dot -T svg > dependency-graph.svg
+
+npx madge --image graph.svg ./src

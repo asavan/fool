@@ -29,3 +29,15 @@ test("simple server scenario webrtc", async () => {
     await mode(dom.window, document, settings, gameFunction).catch(e => console.log("Failed", e));
     assert.ok(true, "Ended well");
 });
+
+test("simple server scenario fake", async () => {
+    const settings = {...settingsOriginal};
+    settings.mode = "server";
+    settings.connection = "fake";
+    const dom = await JSDOM.fromFile("src/index.html", {
+        url: "http://localhost/",
+    });
+    const document = dom.window.document;
+    await mode(dom.window, document, settings, gameFunction).catch(e => console.log("Failed", e));
+    assert.ok(true, "Ended well");
+});
