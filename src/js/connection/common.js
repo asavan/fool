@@ -1,7 +1,18 @@
 import handlersFunc from "../utils/handlers.js";
 
+import rngFunc from "../utils/random.js";
+
 function stub() {
     // do nothing.
+}
+
+export function getMyId(window, settings, rngEngine) {
+    const data = window.sessionStorage.getItem(settings.idNameInStorage);
+    if (data) {
+        return data;
+    }
+    const newId = rngFunc.makeId(settings.idNameLen, rngEngine);
+    window.sessionStorage.setItem(settings.idNameInStorage, newId);
 }
 
 export function getWebSocketUrl(settings, location) {

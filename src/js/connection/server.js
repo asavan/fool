@@ -121,7 +121,7 @@ const connectionFunc = function (id, logger) {
             }
         });
         signalChannel = signaling;
-        return signaling;
+        return Promise.resolve(signaling);
     }
 
     function closeSocket() {

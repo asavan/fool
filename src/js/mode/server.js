@@ -106,7 +106,7 @@ export default async function server(window, document, settings, gameFunction) {
         });
 
         game.onConnect();
-        connection.connect(socketUrl);
+        connection.connect(socketUrl).catch(e => reject(e));
         resolve(game);
     });
 }

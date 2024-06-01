@@ -1,21 +1,10 @@
-import {getWebSocketUrl} from "../connection/common.js";
+import {getWebSocketUrl, getMyId} from "../connection/common.js";
 import connectionChooser from "../connection/connection_chooser.js";
 import actionsFuncUno from "../actions_uno_client.js";
 import actionsToSend from "../actions_uno_server.js";
-import rngFunc from "../utils/random.js";
 import {loggerFunc} from "../helper.js";
 import enterName from "../names.js";
 import PromiseQueue from "../utils/async-queue.js";
-
-
-function getMyId(window, settings, rngEngine) {
-    const data = window.sessionStorage.getItem(settings.idNameInStorage);
-    if (data) {
-        return data;
-    }
-    const newId = rngFunc.makeId(settings.idNameLen, rngEngine);
-    window.sessionStorage.setItem(settings.idNameInStorage, newId);
-}
 
 function onConnectionAnimation(document, connection, logger) {
     connection.on("socket_open", () => {
