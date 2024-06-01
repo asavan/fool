@@ -1,4 +1,4 @@
-import {shuffleArray} from "./shuffle.js";
+import {shuffleArray} from "../utils/shuffle.js";
 
 function newDeck() {
     const deck = [ ...Array(112).keys()];

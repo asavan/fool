@@ -1,4 +1,4 @@
-import layout from "../../src/js/layout.js";
+import layout from "../../src/js/views/layout.js";
 
 export default function setup() {
     const centerPile = document.querySelector(".center-pile");

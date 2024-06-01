@@ -1,6 +1,4 @@
-"use strict"; // jshint ;_;
-
-import core from "./uno/basic.js";
+import core from "./basic.js";
 
 export default function newPlayer(arr, ind, oldScore) {
     const i = ind;

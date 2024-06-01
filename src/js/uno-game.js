@@ -1,14 +1,17 @@
 import {delay, loggerFunc, assert} from "./helper.js";
-import coreUnoFunc from "./uno.js";
-import colorChooser from "./choose_color.js";
-import layout from "./layout.js";
+import coreUnoFunc from "./uno/engine.js";
+import colorChooser from "./views/choose_color.js";
+import layout from "./views/layout.js";
+import setupBots from "./bot/setup_bot.js";
 
 import {prng_alea} from "esm-seedrandom";
 
-export default function unoGame({window, document, settings}, {playersExternal, myId}, engineRaw, handlers) {
+export default function unoGame({window, document, settings}, {playersExternal, myId, queue}, engineRaw, handlers) {
 
     const logger = loggerFunc(7, null, settings);
     const loggerLayout = loggerFunc(2, null, settings);
+    const loggerBot = loggerFunc(6, null, settings);
+
     layout.setLogger(loggerLayout);
     const myrng = prng_alea(settings.seed);
     const gameState = {
@@ -179,6 +182,9 @@ export default function unoGame({window, document, settings}, {playersExternal, 
 
     // TODO may be delete this
     const getEngine = () => engine;
+
+    setupBots(playersExternal, engine, queue, loggerBot);
+
     handlers["engineCreated"](engine);
     drawScreen("firstDraw");
 

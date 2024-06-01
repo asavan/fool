@@ -3,7 +3,7 @@ import connectionChooser from "../connection/connection_chooser.js";
 import actionsFuncUno from "../actions_uno_client.js";
 import actionsToSend from "../actions_uno_server.js";
 import {loggerFunc} from "../helper.js";
-import enterName from "../names.js";
+import enterName from "../views/names.js";
 import PromiseQueue from "../utils/async-queue.js";
 
 function onConnectionAnimation(document, connection, logger) {

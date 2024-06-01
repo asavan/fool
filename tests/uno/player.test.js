@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import newPlayer from "../../src/js/player.js";
+import newPlayer from "../../src/js/uno/player.js";
 
 test("player has card", () => {
     const pile = [0, 1];

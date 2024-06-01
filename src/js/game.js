@@ -1,8 +1,7 @@
-import enterName from "./names.js";
-import choosePlaceFunc from "./places.js";
+import enterName from "./views/names.js";
+import choosePlaceFunc from "./views/places.js";
 import unoGameFunc from "./uno-game.js";
 import {loggerFunc, assert, delay} from "./helper.js";
-import setupBots from "./bot/setup_bot.js";
 import emptyEngine from "./uno/default-engine.js";
 
 function stub1() {
@@ -20,7 +19,6 @@ function makeCommonSeed(players) {
 export default function game({window, document, settings, myId}) {
 
     const logger = loggerFunc(8, null, settings);
-    const loggerBot = loggerFunc(6, null, settings);
 
     const commands = [
         "move",
@@ -110,7 +108,7 @@ export default function game({window, document, settings, myId}) {
     }
 
     function createUnoGame(engineRaw) {
-        return unoGameFunc({window, document, settings}, {playersExternal: players, myId}, engineRaw, handlers);
+        return unoGameFunc({window, document, settings}, {playersExternal: players, myId, queue}, engineRaw, handlers);
     }
     
     const toJson = () => {
@@ -126,8 +124,6 @@ export default function game({window, document, settings, myId}) {
             logger.log("settings already set", settings);
         }
         unoGame = createUnoGame(emptyEngine(settings, players.length));
-        // TODO move to mode file
-        setupBots(players, unoGame.getEngine(), queue, loggerBot);
         logger.log("Game init");
         await handlers["start"](toJson());
         await unoGame.start();

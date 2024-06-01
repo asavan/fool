@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import {prng_alea} from "esm-seedrandom";
 
 import core from "../../src/js/uno/basic.js";
-import coreUnoFunc from "../../src/js/uno.js";
+import coreUnoFunc from "../../src/js/uno/engine.js";
 import settings from "../../src/js/settings.js";
 import emptyEngine from "../../src/js/uno/default-engine.js";
 

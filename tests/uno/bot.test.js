@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 
 import core from "../../src/js/uno/basic.js";
 import emptyEngine from "../../src/js/uno/default-engine.js";
-import coreUnoFunc from "../../src/js/uno.js";
+import coreUnoFunc from "../../src/js/uno/engine.js";
 import settings from "../../src/js/settings.js";
 
 import simpleBot from "../../src/js/bot/simple.bot.js";

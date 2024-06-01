@@ -1,4 +1,4 @@
-import core from "./uno/basic.js";
+import core from "../uno/basic.js";
 
 function chooseColorInternal(document, gameState) {
     return new Promise((resolve) => {

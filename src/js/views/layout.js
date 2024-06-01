@@ -1,5 +1,5 @@
-import core from "./uno/basic.js";
-import {delay, assert} from "./helper.js";
+import core from "../uno/basic.js";
+import {delay} from "../utils/timer.js";
 
 let logger = console;
 
@@ -379,9 +379,7 @@ function drawCurrent(document, engine) {
 
 async function drawDeal(window, document, card, animTime) {
     const centerPile = document.querySelector(".center-pile");
-    assert(centerPile);
     const list = centerPile.querySelector(".hand");
-    assert(list);
 
     const flipItem = document.querySelector("#flip-card");
     const flipClone = flipItem.content.cloneNode(true).firstElementChild;

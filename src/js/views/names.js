@@ -1,5 +1,3 @@
-"use strict"; // jshint ;_;
-
 export default function enterName(window, document, settings, onUsermameExternal) {
     const formCont = document.querySelector(".name-form-cont");
     const data = window.sessionStorage.getItem("username");

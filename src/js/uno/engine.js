@@ -1,8 +1,8 @@
 import deckFunc from "./deck.js";
 import newPlayer from "./player.js";
-import core from "./uno/basic.js";
+import core from "./basic.js";
 
-import handlersFunc from "./utils/handlers.js";
+import handlersFunc from "../utils/handlers.js";
 
 function assertHelper(logger) {
     return (b, message) => {
