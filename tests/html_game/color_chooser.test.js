@@ -6,7 +6,8 @@ import clicker from "../helper/clicker.js";
 
 import gameFunction from "../../src/js/game.js";
 import settingsOriginal from "../../src/js/settings.js";
-import {delay, promiseState} from "../../src/js/helper.js";
+import {delay} from "../../src/js/utils/timer.js";
+import {promiseState} from "../../src/js/helper.js";
 
 test("click color scenario", async () => {
     const dom = await JSDOM.fromFile("src/index.html");

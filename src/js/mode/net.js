@@ -1,8 +1,8 @@
 import {getWebSocketUrl, getMyId} from "../connection/common.js";
 import connectionChooser from "../connection/connection_chooser.js";
-import actionsFuncUno from "../actions_uno_client.js";
-import actionsToSend from "../actions_uno_server.js";
-import {loggerFunc} from "../helper.js";
+import actionsFuncUno from "../actions/actions_uno_client.js";
+import actionsToSend from "../actions/actions_uno_server.js";
+import loggerFunc from "../views/logger.js";
 import enterName from "../views/names.js";
 import PromiseQueue from "../utils/async-queue.js";
 

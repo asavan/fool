@@ -1,5 +1,3 @@
-"use strict";
-
 import rngFunc from "../utils/random.js";
 
 export default function hotseat(window, document, settings, gameFunction) {

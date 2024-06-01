@@ -6,7 +6,7 @@ import gameFunction from "../../src/js/game.js";
 import settings from "../../src/js/settings.js";
 import mode from "../../src/js/mode/ai.js";
 
-import { delay } from "../../src/js/helper.js";
+import { delay } from "../../src/js/utils/timer.js";
 
 function defaultAiSettings(settings) {
     const localSettings = {...settings};

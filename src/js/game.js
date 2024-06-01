@@ -1,7 +1,8 @@
 import enterName from "./views/names.js";
 import choosePlaceFunc from "./views/places.js";
 import unoGameFunc from "./uno-game.js";
-import {loggerFunc, assert, delay} from "./helper.js";
+import loggerFunc from "./views/logger.js";
+import {assert} from "./utils/assert.js";
 import emptyEngine from "./uno/default-engine.js";
 
 function stub1() {
@@ -128,16 +129,6 @@ export default function game({window, document, settings, myId}) {
         await handlers["start"](toJson());
         await unoGame.start();
     }
-
-
-    on("engineCreated", async () => {
-        await delay(100);
-        logger.log("engineCreated");
-        const grid = document.querySelector(".places");
-        if (grid) {
-            grid.classList.remove("connected", "loading", "flying-cards");
-        }
-    });
 
     return {
         on,

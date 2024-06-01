@@ -1,6 +1,7 @@
-import {removeElem, loggerFunc} from "../helper.js";
-import actionsFuncUno from "../actions_uno_server.js";
-import actionsToSend from "../actions_uno_client.js";
+import {removeElem} from "../helper.js";
+import loggerFunc from "../views/logger.js";
+import actionsFuncUno from "../actions/actions_uno_server.js";
+import actionsToSend from "../actions/actions_uno_client.js";
 import qrRender from "../lib/qrcode.js";
 import {getWebSocketUrl} from "../connection/common.js";
 import connectionChooser from "../connection/connection_chooser.js";

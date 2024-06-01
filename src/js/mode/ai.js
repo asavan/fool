@@ -1,9 +1,6 @@
-"use strict";
-
 import rngFunc from "../utils/random.js";
 import PromiseQueue from "../utils/async-queue.js";
-import { loggerFunc } from "../helper.js";
-
+import loggerFunc from "../views/logger.js";
 
 export default function ai(window, document, settings, gameFunction) {
     return new Promise((resolve) => {

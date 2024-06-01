@@ -1,5 +1,5 @@
-import actionsFuncUno from "../actions_uno_server.js";
-import { delay } from "../helper.js";
+import actionsFuncUno from "../actions/actions_uno_server.js";
+import { delay } from "../utils/timer.js";
 import rngFunc from "../utils/random.js";
 import core from "../uno/basic.js";
 import simpleBot from "./simple.bot.js";

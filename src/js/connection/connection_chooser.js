@@ -1,4 +1,4 @@
-import {assert} from "../helper.js";
+import {assert} from "../utils/assert.js";
 
 export default async function connectionChooser(settings) {
     let mode;

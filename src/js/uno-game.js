@@ -1,4 +1,7 @@
-import {delay, loggerFunc, assert} from "./helper.js";
+import loggerFunc from "./views/logger.js";
+import {assert} from "./utils/assert.js";
+import {delay} from "./utils/timer.js";
+
 import coreUnoFunc from "./uno/engine.js";
 import colorChooser from "./views/choose_color.js";
 import layout from "./views/layout.js";
@@ -187,6 +190,13 @@ export default function unoGame({window, document, settings}, {playersExternal, 
 
     handlers["engineCreated"](engine);
     drawScreen("firstDraw");
+    logger.log("engineCreated");
+    delay(100).then(() => {
+        const grid = document.querySelector(".places");
+        if (grid) {
+            grid.classList.remove("connected", "loading", "flying-cards");
+        }    
+    });
 
     return {
         start,
