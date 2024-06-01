@@ -5,6 +5,8 @@ import core from "../../src/js/uno/basic.js";
 import emptyEngine from "../../src/js/uno/default-engine.js";
 import coreUnoFunc from "../../src/js/uno/engine.js";
 import settings from "../../src/js/settings.js";
+import rngFunc from "../../src/js/utils/random.js";
+
 
 import simpleBot from "../../src/js/bot/simple.bot.js";
 
@@ -35,4 +37,18 @@ test("bad not draw4", () => {
     const pile = [74, 52, 83, 92, 85, 91, 1];
     const bestCard = simpleBot.findBestGoodCard(pile, 111, "green");
     assert.equal(bestCard, 92);
+});
+
+test("best color on black card", () => {
+    const pile = [74, 83, 92, 85, 91, 1];
+    const randEl = (arr) => rngFunc.randomEl(arr, Math.random);
+    const bestColor = simpleBot.bestColor(pile, 83, randEl);
+    assert.equal(bestColor, "green", pile.map(core.cardToString));
+});
+
+test("best color on normal", () => {
+    const pile = [74, 52, 83, 92, 85, 91, 1];
+    const randEl = (arr) => rngFunc.randomEl(arr, Math.random);
+    const bestCard = simpleBot.bestColor(pile, 1, randEl);
+    assert.equal(bestCard, "red", pile.map(core.cardToString));
 });

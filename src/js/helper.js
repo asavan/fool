@@ -28,8 +28,6 @@ export function parseSettings(window, document, settingsOriginal) {
     return settings;
 }
 
-export const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
-
 export function promiseState(promise) {
     const pendingState = { status: "pending" };
 
@@ -38,13 +36,6 @@ export function promiseState(promise) {
             value === pendingState ? value : { status: "fulfilled", value },
         (reason) => ({ status: "rejected", reason }),
     );
-}
-
-export function assert(b, message) {
-    if (b) return;
-    console.error(message);
-    console.trace(message);
-    throw message;
 }
 
 export function pluralize(count, noun, suffix = "s"){
@@ -72,36 +63,4 @@ export function setupMedia() {
     } else {
         console.log("No mediaDevices");
     }
-}
-
-export function loggerFunc(level, el, settings) {
-    const logHtml = (message) => {
-        if (el) {
-            if (typeof message == "object" && JSON && JSON.stringify ) {
-                el.innerHTML += JSON.stringify(message) + "<br />";
-            } else {
-                el.innerHTML += message + "<br />";
-            }
-        }
-    };
-
-    const logInner = (data, ...args) => {
-        if (level < settings.logLevel) {
-            return;
-        }
-        logHtml(data);
-        return console.log(data, ...args);
-    };
-    const errorInner = (data, ...args) => {
-        if (level >= settings.logLevel) {
-            logHtml(data);
-        }
-        console.trace(data);
-        return console.error(data, ...args);
-    };
-    
-    return {
-        log: logInner,
-        error: errorInner
-    };
 }
