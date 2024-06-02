@@ -20,7 +20,7 @@ export function getWebSocketUrl(settings, location) {
         return settings.wh;
     }
     if (location.protocol === "https:") {
-        return null;
+        return;
     }
     return "ws://" + location.hostname + ":" + settings.wsPort;
 }

@@ -340,7 +340,7 @@ footer {
   margin: auto;
 }
 
-@media (width <= 450px) {
+@media (max-width: 450px) {
   .hidden2 {
     display: none;
   }
