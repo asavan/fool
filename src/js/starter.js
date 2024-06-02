@@ -1,6 +1,6 @@
 import settingsOriginal from "./settings.js";
 import gameFunction from "./game.js";
-import {parseSettings} from "./helper.js";
+import {parseSettings} from "./utils/parse-settings.js";
 import {assert} from "./utils/assert.js";
 
 export default async function starter(window, document) {

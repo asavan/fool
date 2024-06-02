@@ -70,15 +70,15 @@ export default function game({window, document, settings, myId}) {
         } else {
             players[found].name = name;
         }
-        renderChoosePlace();        
+        renderChoosePlace();
         return true;
     }
 
     const disconnect = (external_id) => {
-        logger.log("disconnect", external_id);
         if (unoGame != null) {
             return false;
         }
+        logger.log("disconnect", external_id);
         const old_size = players.length;
         players = players.filter(p => p.external_id !== external_id);
         const new_size = players.length;
@@ -111,7 +111,7 @@ export default function game({window, document, settings, myId}) {
     function createUnoGame(engineRaw) {
         return unoGameFunc({window, document, settings}, {playersExternal: players, myId, queue}, engineRaw, handlers);
     }
-    
+
     const toJson = () => {
         return {players, seed: settings.seed, engine: unoGame.getEngine().toJson()};
     };

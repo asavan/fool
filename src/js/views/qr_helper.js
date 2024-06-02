@@ -24,6 +24,12 @@ function qrRender(url, element) {
     return element;
 }
 
+export function removeElem(el) {
+    if (el) {
+        el.remove();
+    }
+}
+
 export function makeQr(window, document, settings) {
     const staticHost = settings.sh || window.location.origin;
     const url = new URL(staticHost);

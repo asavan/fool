@@ -1,11 +1,10 @@
-import {removeElem} from "../helper.js";
 import loggerFunc from "../views/logger.js";
 import actionsFuncUno from "../actions/actions_uno_server.js";
 import actionsToSend from "../actions/actions_uno_client.js";
 import {getWebSocketUrl} from "../connection/common.js";
 import connectionChooser from "../connection/connection_chooser.js";
 import PromiseQueue from "../utils/async-queue.js";
-import { makeQr } from "../views/qr_helper.js";
+import { makeQr, removeElem } from "../views/qr_helper.js";
 
 function setupGameToNetwork(game, connection, logger) {
     const keys = Object.keys(actionsToSend({}, null));
@@ -28,7 +27,7 @@ export default async function server(window, document, settings, gameFunction) {
     let index = 0;
     const myId = "server";
     clients[myId] = {index};
-    
+
     const connectionFunc = await connectionChooser(settings);
     return new Promise((resolve, reject) => {
 
@@ -74,7 +73,7 @@ export default async function server(window, document, settings, gameFunction) {
             removeElem(qrCodeEl);
             qrCodeEl = undefined;
 
-            const loggerActions = loggerFunc(7, null, settings);   
+            const loggerActions = loggerFunc(7, null, settings);
             const unoActions = actionsFuncUno(engine, loggerActions);
             connection.registerHandler(unoActions, queue);
         });
