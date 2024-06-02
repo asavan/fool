@@ -2,7 +2,16 @@ import handlersFunc from "../utils/handlers.js";
 import {createSignalingChannel} from "./common.js";
 
 export default function connectionFunc(id, logger, isServer) {
-    const handlers = handlersFunc(["close", "disconnect", "error", "open", "gameinit", "reconnect", "socket_open", "socket_close"]);
+    const handlers = handlersFunc([
+        "close",
+        "disconnect",
+        "error",
+        "open",
+        "gameinit",
+        "reconnect",
+        "socket_open",
+        "socket_close"
+    ]);
 
     function on(name, f) {
         return handlers.on(name, f);
@@ -17,8 +26,8 @@ export default function connectionFunc(id, logger, isServer) {
         currentHandler = handler;
     }
 
-    function callCurrentHandler(method, data) {    
-        const callback = currentHandler[method];  
+    function callCurrentHandler(method, data) {
+        const callback = currentHandler[method];
         if (typeof callback !== "function") {
             logger.log("Not function");
             return;
@@ -27,7 +36,7 @@ export default function connectionFunc(id, logger, isServer) {
             logger.log("No queue");
             return;
         }
-        queue.add(() => callback(data.data, data.from));        
+        queue.add(() => callback(data.data, data.from));
     }
 
     function connect(socketUrl) {
@@ -58,7 +67,7 @@ export default function connectionFunc(id, logger, isServer) {
                 if (json.action === "connected") {
                     if (isServer) {
                         signaling.send("open", {id}, json.from);
-                        return handlers.call("open", {id: json.from});     
+                        return handlers.call("open", {id: json.from});
                     }
                     return;
                 }
@@ -80,7 +89,7 @@ export default function connectionFunc(id, logger, isServer) {
 
             signaling.on("open", () => {
                 handlers.call("socket_open", {});
-                signaling.send("connected", {id}, "all");   
+                signaling.send("connected", {id}, "all");
                 return resolve();
             });
         });
@@ -102,10 +111,10 @@ export default function connectionFunc(id, logger, isServer) {
     };
 
     return {
-        connect, 
-        on, 
-        registerHandler, 
-        sendRawTo, 
+        connect,
+        on,
+        registerHandler,
+        sendRawTo,
         sendRawAll,
     };
 }

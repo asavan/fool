@@ -36,7 +36,9 @@ export default function bot(engine, queue, logger, botIndexes, currentChangeData
             }
         } else {
             callback = unoActions["move"];
-            data = { playerIndex, card: bestCard, currentColor: simpleBot.bestColor(pile, bestCard, (arr) => rngFunc.randomEl(arr, Math.random)) };
+            const randEl = (arr) => rngFunc.randomEl(arr, Math.random);
+            const currentColor = simpleBot.bestColor(pile, bestCard, randEl);
+            data = { playerIndex, card: bestCard, currentColor };
             ++moveCount;
         }
 

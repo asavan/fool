@@ -5,7 +5,7 @@ export default function setupBots(players, engine, queue, loggerBot) {
         loggerBot.log("No queue - no bots");
         return;
     }
-    
+
     const simpleBotIndexes = [];
     let index = 0;
     for (const player of players) {

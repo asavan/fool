@@ -31,9 +31,9 @@ export default function initCore(settings, rngFunc, logger, {
 
     // TODO remove this
     const applyEffects = settings.applyEffects;
-    
+
     const localAssert = assertHelper(logger);
-    
+
     const commands = [
         "shuffle",
         "shuffleFake",
@@ -53,7 +53,7 @@ export default function initCore(settings, rngFunc, logger, {
         "moveExternal"
     ];
 
-    const handlers = handlersFunc(commands);    
+    const handlers = handlersFunc(commands);
     function on(name, f) {
         return handlers.on(name, f);
     }
@@ -80,13 +80,13 @@ export default function initCore(settings, rngFunc, logger, {
         return direction;
     }
 
-    
+
     function nextPlayer(diff, size, direction, cur) {
         localAssert(size > 0, "Bad usage");
         localAssert(direction === 1 || direction === -1, "Bad usage direction");
         return (cur + (diff + 1) * direction + size) % size;
     }
-    
+
     function calcNextFromCurrent(cur, size, direction) {
         return nextPlayer(0, size, direction, cur);
     }
@@ -142,9 +142,9 @@ export default function initCore(settings, rngFunc, logger, {
             logger.error("Different engines");
             return false;
         }
-        if (!(playerIndex === currentPlayer 
-            || core.isDrawCard(cardOnBoard) 
-            || gameState === core.GameStage.CHOOSE_DEALER 
+        if (!(playerIndex === currentPlayer
+            || core.isDrawCard(cardOnBoard)
+            || gameState === core.GameStage.CHOOSE_DEALER
             || gameState === core.GameStage.DEALING)
         ) {
             logger.error("draw not for current player", state());
@@ -404,7 +404,7 @@ export default function initCore(settings, rngFunc, logger, {
         }
         const card = await dealToDiscard(deck);
         await calcCardEffect(card, currentPlayer);
-        gameState = core.GameStage.ROUND;        
+        gameState = core.GameStage.ROUND;
     }
 
     function getCurrentPlayerObj() {
@@ -670,7 +670,7 @@ export default function initCore(settings, rngFunc, logger, {
 
     const showAllCards = () => {
         // maybe show cards on round end and on game end
-        return gameState === core.GameStage.CHOOSE_DEALER; 
+        return gameState === core.GameStage.CHOOSE_DEALER;
     };
 
     const toJson = () => {

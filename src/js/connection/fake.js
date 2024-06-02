@@ -2,7 +2,16 @@ import handlersFunc from "../utils/handlers.js";
 import { delay } from "../utils/timer.js";
 
 export default function connectionFunc(id, logger, isServer) {
-    const handlers = handlersFunc(["close", "disconnect", "error", "open", "gameinit", "reconnect", "socket_open", "socket_close"]);
+    const handlers = handlersFunc([
+        "close",
+        "disconnect",
+        "error",
+        "open",
+        "gameinit",
+        "reconnect",
+        "socket_open",
+        "socket_close"
+    ]);
 
     function on(name, f) {
         return handlers.on(name, f);

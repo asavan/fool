@@ -13,12 +13,12 @@ export default function hotseat(window, document, settings, gameFunction) {
             const name = "client" + i;
             game.join(name, name);
         }
-        
+
         game.on("gameover", () => {
             const btnAdd = document.querySelector(".butInstall");
             btnAdd.classList.remove("hidden2");
         });
-        
+
         game.afterAllJoined().then(() => resolve(game));
     });
 }

@@ -14,7 +14,7 @@ const connectionFunc = function (id, logger) {
     // init
     let isConnected = false;
     let dataChannel = null;
-    
+
     const sendRawTo = (action, data, to) => {
         if (!dataChannel) {
             return false;
@@ -27,7 +27,8 @@ const connectionFunc = function (id, logger) {
         return dataChannel.send(JSON.stringify(json));
     };
 
-    // inspired by http://udn.realityripple.com/docs/Web/API/WebRTC_API/Perfect_negotiation#Implementing_perfect_negotiation
+    // inspired by
+    // http://udn.realityripple.com/docs/Web/API/WebRTC_API/Perfect_negotiation#Implementing_perfect_negotiation
     // and https://w3c.github.io/webrtc-pc/#perfect-negotiation-example
     async function connect(socketUrl) {
         const signaling = createSignalingChannel(id, socketUrl, logger);
@@ -37,7 +38,7 @@ const connectionFunc = function (id, logger) {
 
         signaling.on("open", () => {
             handlers.call("socket_open", {});
-            signaling.send("connected", {id}, "all");   
+            signaling.send("connected", {id}, "all");
         });
 
         signaling.on("error", (data) => {
@@ -85,7 +86,7 @@ const connectionFunc = function (id, logger) {
                 return;
             }
 
-            // TODO delete server 
+            // TODO delete server
             if (json.from !== "server") {
                 console.log("not from server");
                 return;

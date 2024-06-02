@@ -7,7 +7,7 @@ export default function ai(window, document, settings, gameFunction) {
         const playerName = "Player";
         const myId = playerName;
         if (!settings.seed) {
-            settings.seed = rngFunc.makeId(6, Math.random); 
+            settings.seed = rngFunc.makeId(6, Math.random);
         }
         const logger = loggerFunc(20, null, settings);
         const queue = PromiseQueue(logger);
@@ -19,13 +19,13 @@ export default function ai(window, document, settings, gameFunction) {
         for (let i = 0; i < settings.botCount; ++i) {
             game.addBot();
         }
-        
+
         game.on("gameover", () => {
             const btnAdd = document.querySelector(".butInstall");
             btnAdd.classList.remove("hidden2");
         });
 
-        
+
         game.afterAllJoined().then(() => {
             resolve(game);
         });

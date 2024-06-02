@@ -44,7 +44,7 @@ export function createSignalingChannel(id, socketUrl, logger) {
 
     function ready() {
         return new Promise((resolve) => {
-            if(ws.readyState === 1) {
+            if (ws.readyState === 1) {
                 resolve();
             } else {
                 ws.addEventListener("open", resolve);

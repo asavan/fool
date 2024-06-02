@@ -48,7 +48,10 @@ export default function unoGame({window, document, settings}, {playersExternal, 
     }
 
     engine.on("draw", ({playerIndex, card}) => {
-        layout.drawPlayersDeal(window, {document, engine, myIndex, settings, playersExternal}, "draw", card, playerIndex);
+        layout.drawPlayersDeal(window,
+            {document, engine, myIndex, settings, playersExternal},
+            "draw", card, playerIndex
+        );
         const pause = delay(onDrawTiming(playerIndex, engine.showAllCards()));
         const network = handlers["draw"]({playerIndex, card});
         const promises = [pause, network];
@@ -56,7 +59,10 @@ export default function unoGame({window, document, settings}, {playersExternal, 
     });
 
     engine.on("drawExternal", ({playerIndex, card}) => {
-        layout.drawPlayersDeal(window, {document, engine, myIndex, settings, playersExternal}, "drawExternal", card, playerIndex);
+        layout.drawPlayersDeal(window,
+            {document, engine, myIndex, settings, playersExternal},
+            "drawExternal", card, playerIndex
+        );
         const promises = [delay(onDrawTiming(playerIndex, engine.showAllCards()))];
         if (settings.mode === "server") {
             promises.push(report("draw", {playerIndex, card}));
@@ -90,7 +96,12 @@ export default function unoGame({window, document, settings}, {playersExternal, 
 
     engine.on("move", (data) => {
         logger.log("move", data);
-        layout.drawPlayersMove(window, {document, engine, myIndex, settings, playersExternal}, "drawMove", data.card, data.playerIndex);
+        layout.drawPlayersMove(window,
+            {document, engine, myIndex, settings, playersExternal},
+            "drawMove",
+            data.card,
+            data.playerIndex
+        );
         const pause = delay(150);
         const promises = [pause, report("move", data)];
         return Promise.allSettled(promises);
@@ -118,7 +129,7 @@ export default function unoGame({window, document, settings}, {playersExternal, 
         // TODO play shuffle animation
         drawScreen("shuffleFake");
         logger.log("new deck", deck.length, ...deck);
-        await delay(300);        
+        await delay(300);
     });
 
     function onGameEnd(message1, message2) {
@@ -195,7 +206,7 @@ export default function unoGame({window, document, settings}, {playersExternal, 
         const grid = document.querySelector(".places");
         if (grid) {
             grid.classList.remove("connected", "loading", "flying-cards");
-        }    
+        }
     });
 
     return {

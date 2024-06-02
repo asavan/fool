@@ -23,7 +23,7 @@ export default function loggerFunc(level, el, settings) {
         console.trace(data);
         return console.error(data, ...args);
     };
-    
+
     return {
         log: logInner,
         error: errorInner

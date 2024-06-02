@@ -41,6 +41,15 @@ export default [
                 "error",
                 "always"
             ],
+            "@stylistic/js/no-extra-semi": ["error"],
+            "@stylistic/js/keyword-spacing": ["error"],
+            "@stylistic/js/semi-spacing": ["error"],
+            "@stylistic/js/no-trailing-spaces": ["error"],
+            "@stylistic/js/no-tabs": ["error"],
+            "@stylistic/js/max-len": ["error", {"code": 120}],
+            "@stylistic/js/no-whitespace-before-property": ["error"],
+            "@stylistic/js/no-mixed-spaces-and-tabs": ["error"],
+            "@stylistic/js/no-multi-spaces": ["error"],
             "@stylistic/js/comma-spacing": ["error"],
             "@stylistic/js/no-multi-spaces": ["error"]
         }

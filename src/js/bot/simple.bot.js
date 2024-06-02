@@ -2,14 +2,16 @@ import { assert } from "../utils/assert.js";
 import core from "../uno/basic.js";
 
 function findGoodCards(pile, cardOnBoard, currentColor) {
-    assert(core.matchColor(cardOnBoard, currentColor), "Bad color " + JSON.stringify({pile, cardOnBoard, currentColor}) + " " + core.cardToString(cardOnBoard));
+    assert(core.matchColor(cardOnBoard, currentColor),
+        "Bad color " + JSON.stringify({pile, cardOnBoard, currentColor}) + " " + core.cardToString(cardOnBoard));
     const hasColor = core.pileHasColor(pile, currentColor);
     const goodColors = pile.filter((card) => core.suitable(card, cardOnBoard, currentColor, hasColor));
     return goodColors;
 }
 
 function findGoodNonBlackCards(pile, cardOnBoard, currentColor) {
-    assert(core.matchColor(cardOnBoard, currentColor), "Bad color " + JSON.stringify({pile, cardOnBoard, currentColor}) + " " + core.cardToString(cardOnBoard));
+    assert(core.matchColor(cardOnBoard, currentColor),
+        "Bad color " + JSON.stringify({pile, cardOnBoard, currentColor}) + " " + core.cardToString(cardOnBoard));
     return pile.filter((card) => core.sameColorOrTypeNonBlack(card, cardOnBoard, currentColor));
 }
 

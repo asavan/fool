@@ -68,7 +68,8 @@ const connectionFunc = function (id, logger) {
 
     const clients = {};
 
-    // inspired by http://udn.realityripple.com/docs/Web/API/WebRTC_API/Perfect_negotiation#Implementing_perfect_negotiation
+    // inspired by
+    // http://udn.realityripple.com/docs/Web/API/WebRTC_API/Perfect_negotiation#Implementing_perfect_negotiation
     // and https://w3c.github.io/webrtc-pc/#perfect-negotiation-example
     function connect(socketUrl) {
         const signaling = createSignalingChannel(id, socketUrl, logger);
@@ -132,7 +133,7 @@ const connectionFunc = function (id, logger) {
             if (client.dc) {
                 try {
                     client.dc.send(JSON.stringify(json));
-                } catch(e) {
+                } catch (e) {
                     console.log(e, client);
                 }
             } else {

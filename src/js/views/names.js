@@ -7,7 +7,7 @@ export default function enterName(window, document, settings, onUsermameExternal
             onUsermameExternal(name);
         }
     };
-    
+
     if (data) {
         formCont.replaceChildren();
         notifyExt(data);

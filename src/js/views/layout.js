@@ -67,7 +67,7 @@ function drawDeck(document, parent, card, engine, clickAll, myIndex) {
             let playerIndex = myIndex;
             if (clickAll) {
                 playerIndex = engine.getCurrentPlayer();
-            } 
+            }
             const res = await engine.onDrawPlayer(playerIndex);
             if (!res) {
                 await engine.pass(playerIndex);
@@ -103,7 +103,7 @@ function drawPlayersInner({document, engine, myIndex, settings, playersExternal}
     } else {
         logger.log("Draw inner");
     }
-    
+
     let i = 0;
     for (const pl of players) {
         const angleDeg = 90 + increaseDeg*(i-myIndex);
@@ -439,8 +439,9 @@ async function drawDealOther(window, document, card, animTime, target, newCount)
     flipList.appendChild(backClone);
     list.appendChild(flipClone);
 
-    const dx = -target.getBoundingClientRect().x + flipList.getBoundingClientRect().x - target.getBoundingClientRect().width/2;
-    const dy = target.getBoundingClientRect().y - flipList.getBoundingClientRect().y + target.getBoundingClientRect().height/2;
+    const tRect = target.getBoundingClientRect();
+    const dx = -tRect.x + flipList.getBoundingClientRect().x - tRect.width/2;
+    const dy = tRect.y - flipList.getBoundingClientRect().y + tRect.height/2;
 
     const newspaperSpinning = [
         { transform: "rotateY(180deg)" },
@@ -503,7 +504,7 @@ async function drawMove(window, document, newCard1, animTime) {
     if (typeof flipList.animate === "function") {
         flipList.animate(slide, timing);
         newCard1.animate(shrink, timing);
-        await delay(animTime);    
+        await delay(animTime);
     }
     const cardToRepaint = list.querySelector(".card");
     repaintCard(card, cardToRepaint);
@@ -567,8 +568,10 @@ function drawPlayersDeal(window, {document, engine, myIndex, settings, playersEx
 
     if (playerIndex !== myIndex) {
         const player = document.querySelector(`[data-id="${playerIndex}"]`);
+        // TODO change to one selector
+        const elemCardCount = player.querySelector(".card-count");
         const pl = engine.getPlayerByIndex(playerIndex);
-        return drawDealOther(window, document, card, settings.moveAnim, player.querySelector(".card-count"), pl.pile().length);
+        return drawDealOther(window, document, card, settings.moveAnim, elemCardCount, pl.pile().length);
     }
 
     return drawDeal(window, document, card, settings.dealAnim);
@@ -580,8 +583,10 @@ function drawPlayersMove(window, {document, engine, myIndex, settings, playersEx
     }
     if (playerIndex !== myIndex) {
         const player = document.querySelector(`[data-id="${playerIndex}"]`);
+        // TODO change to one selector
+        const elemCardCount = player.querySelector(".card-count");
         const pl = engine.getPlayerByIndex(playerIndex);
-        return drawMoveOther(window, document, player.querySelector(".card-count"), settings.moveAnim, card, pl.pile().length);
+        return drawMoveOther(window, document, elemCardCount, settings.moveAnim, card, pl.pile().length);
     }
     return drawMoveByCard(window, document, card, settings.moveAnim);
 }
