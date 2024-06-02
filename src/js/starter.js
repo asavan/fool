@@ -4,7 +4,8 @@ import {parseSettings} from "./helper.js";
 import {assert} from "./utils/assert.js";
 
 export default async function starter(window, document) {
-    const settings = parseSettings(window, document, settingsOriginal);
+    const settings = {...settingsOriginal};
+    parseSettings(window.location.search, settings);
 
     let mode;
     if (settings.mode === "net") {

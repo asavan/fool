@@ -12,9 +12,7 @@ function stringToBoolean(string){
     }
 }
 
-export function parseSettings(window, document, settingsOriginal) {
-    const settings = {...settingsOriginal};
-    const queryString = window.location.search;
+export function parseSettings(queryString, settings) {
     const urlParams = new URLSearchParams(queryString);
     for (const [key, value] of urlParams) {
         if (typeof settings[key] === "number") {
@@ -25,7 +23,6 @@ export function parseSettings(window, document, settingsOriginal) {
             settings[key] = value;
         }
     }
-    return settings;
 }
 
 export function promiseState(promise) {

@@ -40,7 +40,6 @@ public class AndroidWebServerActivity extends Activity {
         {
             Map<String, String> mainParams = new LinkedHashMap<>();
             mainParams.put("mode", "ai");
-            mainParams.put("showAll", "true");
             btnUtils.addButtonTwa(WEB_GAME_URL, mainParams, R.id.twa_ai);
             btnUtils.addButtonTwa(hostUtils.getStaticHost(IpUtils.LOCALHOST), mainParams, R.id.twa_ai_localhost);
             btnUtils.addButtonWebView(WEB_VIEW_URL, mainParams, R.id.ai);

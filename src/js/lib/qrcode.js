@@ -1,6 +1,7 @@
 /* eslint-disable */
 /**
  * @fileoverview
+ *   https://github.com/papnkukn/qrcode-svg
  * - modified davidshimjs/qrcodejs library for use in node.js
  * - Using the 'QRCode for Javascript library'
  * - Fixed dataset of 'QRCode for Javascript library' for support full-spec.
@@ -221,16 +222,11 @@ function QRCode(options) {
 
     //Get type number
     function _getTypeNumber(content, ecl) {
-        var length = _getUTF8Length(content);
+        const length = _getUTF8Length(content);
 
-        var type = 1;
-        var limit = 0;
-        for (var i = 0, len = QRCodeLimitLength.length; i <= len; i++) {
-            var table = QRCodeLimitLength[i];
-            if (!table) {
-                throw new Error("Content too long: expected " + limit + " but got " + length);
-            }
-
+        let type = 1;
+        let limit = 0;
+        for (const table of QRCodeLimitLength) {
             switch (ecl) {
             case "L":
                 limit = table[0];
@@ -403,20 +399,4 @@ QRCode.prototype.svg = function(opt) {
     return svg;
 };
 
-function bigPicture(elem) {
-    elem.addEventListener("click", () => elem.classList.toggle("big"));
-}
-
-function render(url, element) {
-    const qrcode = new QRCode({
-        content: url,
-        container: "svg-viewbox", //Responsive use
-        join: true //Crisp rendering and 4-5x reduced file size
-    });
-    const svg = qrcode.svg();
-    element.innerHTML = svg;
-    bigPicture(element);
-    return element;
-}
-
-export default render;
+export default QRCode;
