@@ -19,10 +19,11 @@ function addWhParam(host, param) {
     return url.toString();
 }
 
-function renderQRCodeSVG(text, selector) {
+function renderQRCodeSVG(text, selector, level) {
     const divElement = document.querySelector(selector);
     const qrSVG = new window.QRCodeSVG(text, {
-        level: 'M',
+        level: level,
+        padding: 3,
         image: {
           source: "../../src/images/reverse_black.svg",
           width: '10%',
@@ -39,10 +40,14 @@ function renderQRCodeSVG(text, selector) {
 export default function setup() {
     const toCode = defaultHost(defaultSh);
     const toCodeLong = addWhParam(toCode, defaultWh(defaultSh));
+    console.log(toCode.length, toCodeLong.length);
     makeQrPlain(toCode, document, ".qrcode0");
-    makeQrPlain(toCodeLong, document, ".qrcode1");
-    renderQRCodeSVG(toCode, ".qrcode2");
-    renderQRCodeSVG(toCodeLong, ".qrcode3");
+    renderQRCodeSVG(toCode, ".qrcode1", "L");
+    renderQRCodeSVG(toCode.toUpperCase(), ".qrcode2", "L");
+    renderQRCodeSVG(toCode, ".qrcode3", "M");
+    renderQRCodeSVG(toCode, ".qrcode4", "Q");
+    makeQrPlain(toCodeLong, document, ".qrcode5");
+    renderQRCodeSVG(toCodeLong, ".qrcode6", "L");
 }
 
 setup();

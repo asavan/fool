@@ -7,74 +7,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="theme-color" content="#ffffff">
     <link id="favicon" rel="icon" href="../../src/images/icon_reverse.svg" sizes="any" type="image/svg+xml">
-    <link href="../../src/css/style.css" rel="stylesheet"></head>
     <script type="module" src="./qrcode.js"></script>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.qrcode.big {
+  position: absolute;
+  top: 0;
+  left: 0;
+  max-width: 450px;
+  width: 100%;
+}
+
+.qrcode {
+  width: 300px;
+  margin: auto;
+}
+
+</style>
+
 </head>
 
 <body>
-<div class="name-form-cont"></div>
-
 <div class="log"></div>
 <div class="qrcode qrcode0"></div>
 <div class="qrcode qrcode1"></div>
 <div class="qrcode qrcode2"></div>
 <div class="qrcode qrcode3"></div>
 <div class="qrcode qrcode4"></div>
-<div class="qrcode5"></div>
-<div class="qrcode6"></div>
-<div id="popup1" class="overlay">
-    <div class="popup">
-        <h2>You win</h2>
-        <a class="close" href="#">&times;</a>
-        <div class="content">
-            Result 0
-        </div>
-    </div>
-</div>
-<footer>
-    <button id="butInstall" class="butInstall install hidden hidden2">Install as app</button>
-</footer>
-
-<template id="card">
-    <li class="sprite-container card">
-        <div class="sprite"></div>
-    </li>
-</template>
-
-<template id="back">
-    <li class="sprite-container">
-        <div class="sprite-back"></div>
-    </li>
-</template>
-
-<template id="flip-card">
-    <li class="flip-class-cont">
-    <ul class="card-flip is-flipped">
-    </ul>
-    </li>
-</template>
-
-<template id="nameform">
-    <form class="nameform">
-        <label for="nameinput">Enter your name:</label>
-        <div class="row">
-        <input class="nameinput"  id="nameinput" type="text" name="name" />
-        <input class="namesubmit" type="submit" value="Send">
-        </div>
-    </form>
-</template>
-
-<div class="hidden devtools">
-<svg xmlns="http://www.w3.org/2000/svg" version="1.1">
-    <defs>
-      <filter id="goo">
-        <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
-        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo" />
-
-      </filter>
-    </defs>
-  </svg>
-</div>
-
+<div class="qrcode qrcode5"></div>
+<div class="qrcode qrcode6"></div>
 </body>
 </html>
