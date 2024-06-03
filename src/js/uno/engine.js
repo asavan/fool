@@ -5,6 +5,7 @@ import core from "./basic.js";
 import handlersFunc from "../utils/handlers.js";
 
 function assertHelper(logger) {
+    /* #__PURE__ */
     return (b, message) => {
         if (b) return;
         logger.error(message);

@@ -1,6 +1,6 @@
 /* eslint-env serviceworker */
 
-const version = "1.4.8";
+const version = __SERVICE_WORKER_VERSION__;
 const CACHE = "cache-only-" + version;
 
 self.addEventListener("install", function (evt) {
@@ -55,8 +55,8 @@ async function fromCache(request) {
     throw new Error("request-not-in-cache");
 }
 
+const filesToCache = self.__WB_MANIFEST.map((e) => e.url);
 async function precache() {
-    const filesToCache = self.__WB_MANIFEST.map((e) => e.url);
     const cache = await caches.open(CACHE);
     return await cache.addAll([
         "./",

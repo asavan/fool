@@ -50,7 +50,8 @@ const aConfig = () => {
                 filename: "[name].[contenthash].css"
             }),
             new webpack.DefinePlugin({
-                __USE_SERVICE_WORKERS__: false
+                __USE_SERVICE_WORKERS__: false,
+                __USE_DEBUG_ASSERT__: false,
             }),
             new CopyPlugin({
                 patterns: [

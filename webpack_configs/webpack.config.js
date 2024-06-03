@@ -33,7 +33,8 @@ const devConfig = () => {
                 filename: "[name].css"
             }),
             new webpack.DefinePlugin({
-                __USE_SERVICE_WORKERS__: false
+                __USE_SERVICE_WORKERS__: false,
+                __USE_DEBUG_ASSERT__: true
             }),
             new CopyPlugin({
                 patterns: [

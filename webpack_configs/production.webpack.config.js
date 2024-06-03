@@ -10,7 +10,12 @@ import {InjectManifest} from "workbox-webpack-plugin";
 import CopyPlugin from "copy-webpack-plugin";
 import webpack from "webpack";
 
+// import PACKAGE from "../package.json" with { type: "json" };
+import { createRequire } from "module";
+const PACKAGE = createRequire(import.meta.url)("../package.json");
+
 const prodConfig = () => {
+    console.log(PACKAGE.version);
     const dirname = path.dirname(fileURLToPath(import.meta.url));
     return {
 
@@ -30,17 +35,12 @@ const prodConfig = () => {
                 }
             ]
         },
-        optimization: {
-            minimizer: [new TerserJSPlugin({
-                terserOptions: {
-                    mangle: true,
-                    compress: {
-                        drop_console: true
-                    }
-                }
-            }), new CssMinimizerPlugin()],
-        },
         plugins: [
+            new webpack.DefinePlugin({
+                __USE_SERVICE_WORKERS__: true,
+                __USE_DEBUG_ASSERT__: false,
+                __SERVICE_WORKER_VERSION__: JSON.stringify(PACKAGE.version)
+            }),
             new MiniCssExtractPlugin({
                 filename: "[name].[contenthash].css"
             }),
@@ -60,9 +60,6 @@ const prodConfig = () => {
                     /^.*well-known\/.*$/,
                 ]
             }),
-            new webpack.DefinePlugin({
-                __USE_SERVICE_WORKERS__: true
-            }),
             new CopyPlugin({
                 patterns: [
                     { from: "./src/images", to: "./images" },
@@ -71,7 +68,27 @@ const prodConfig = () => {
                     { from: "./.well-known", to: "./.well-known" }
                 ],
             })
-        ]
+        ],
+        optimization: {
+            minimizer: [new TerserJSPlugin({
+                terserOptions: {
+                    mangle: true,
+                    ecma: 2022,
+                    compress: {
+                        unsafe: true,
+                        unsafe_math: true,
+                        unsafe_arrows: true,
+                        drop_console: true,
+                        pure_new: true,
+                        passes: 2,
+                        keep_fargs: false,
+                        pure_funcs: [
+                            "assert", "localAssert"
+                        ],
+                    }
+                }
+            }), new CssMinimizerPlugin()],
+        }
     };
 };
 

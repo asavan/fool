@@ -12,7 +12,9 @@ export default [
             sourceType: "module",
             globals: {
                 ...globals.browser,
-                __USE_SERVICE_WORKERS__: "readonly"
+                __USE_SERVICE_WORKERS__: "readonly",
+                __SERVICE_WORKER_VERSION__: "readonly",
+                __USE_DEBUG_ASSERT__: "readonly"
             }
         }
     },
