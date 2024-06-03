@@ -55,14 +55,14 @@ export default function choosePlace(document, onSeatsFinished, onSwap, onAddBot,
     {
         const start = document.createElement("button");
         start.textContent = "Start";
-        start.classList.add("start-button", "clickable");
+        start.classList.add("start-button", "clickable", "flat-button");
         start.addEventListener("click", onAllSeated);
         box.appendChild(start);
     }
     {
         const botButton = document.createElement("button");
         botButton.textContent = "add bot";
-        botButton.classList.add("bot-button", "clickable");
+        botButton.classList.add("bot-button", "clickable", "flat-button");
         botButton.addEventListener("click", onBotAdd);
         box.appendChild(botButton);
     }

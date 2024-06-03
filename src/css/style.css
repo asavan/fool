@@ -193,8 +193,8 @@ ul {
   position: relative;
 }
 
-
-.start-button {
+.flat-button {
+  --button-color: var(--current-color);
   display:block;
   position:absolute;
   top:50%;
@@ -202,24 +202,21 @@ ul {
   width:100px;
   height:100px;
   margin:-50px;
-  background:red;
+  background: var(--button-color);
+  border-color: var(--button-color);
+  border-style: solid;
   border-radius:50%;
   text-align:center;
   line-height:100px;
 }
 
+.start-button {
+  --button-color: var(--color-red);
+}
+
 .bot-button {
-  display:block;
-  position:absolute;
-  top:75%;
-  left:50%;
-  width:100px;
-  height:100px;
-  margin:-50px;
-  background:green;
-  border-radius:50%;
-  text-align:center;
-  line-height:100px;
+  --button-color: var(--color-green);
+  top: 75%;
 }
 
 .center-pile {
