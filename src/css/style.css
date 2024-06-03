@@ -195,6 +195,7 @@ ul {
 
 .flat-button {
   --button-color: var(--current-color);
+
   display:block;
   position:absolute;
   top:50%;
@@ -203,8 +204,7 @@ ul {
   height:100px;
   margin:-50px;
   background: var(--button-color);
-  border-color: var(--button-color);
-  border-style: solid;
+  border: none;
   border-radius:50%;
   text-align:center;
   line-height:100px;
@@ -216,6 +216,7 @@ ul {
 
 .bot-button {
   --button-color: var(--color-green);
+
   top: 75%;
 }
 
