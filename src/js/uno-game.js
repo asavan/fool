@@ -21,14 +21,14 @@ export default function unoGame({window, document, settings}, {playersExternal, 
         inColorChoose: false,
         inExternalMove: false
     };
-    const myIndex = playersExternal.findIndex(p => p.external_id === myId);
+    const myIndex = playersExternal.findIndex(p => p.externalId === myId);
     assert(myIndex >= 0, "Not my game");
     const engine = coreUnoFunc(settings, myrng, logger, engineRaw);
 
     function report(callbackName, data) {
         if (data && data.playerIndex !== undefined) {
             const playerExt = playersExternal[data.playerIndex];
-            Object.assign(data, {externalId: playerExt.external_id, myIndex});
+            Object.assign(data, {externalId: playerExt.externalId, myIndex});
         }
         return handlers[callbackName](data);
     }

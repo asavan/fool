@@ -12,7 +12,7 @@ function stub1() {
 function makeCommonSeed(players) {
     let seed = "";
     for (const pl of players) {
-        seed += pl.external_id;
+        seed += pl.externalId;
     }
     return seed;
 }
@@ -20,6 +20,8 @@ function makeCommonSeed(players) {
 export default function game({window, document, settings, myId}) {
 
     const logger = loggerFunc(8, null, settings);
+
+    assert(myId, "No id");
 
     const commands = [
         "move",
@@ -88,12 +90,13 @@ export default function game({window, document, settings, myId}) {
         onClick
     }, players);
 
-    function join(name, external_id, isBot) {
+    function join(name, externalId, isBot) {
         assert(name, "No name");
-        const found = players.findIndex(player => player.external_id === external_id);
+        assert(externalId, "No externalId");
+        const found = players.findIndex(player => player.externalId === externalId);
 
         if (found === -1) {
-            players.push({name, external_id, is_bot: !!isBot});
+            players.push({name, externalId, is_bot: !!isBot});
         } else {
             players[found].name = name;
         }
@@ -101,13 +104,13 @@ export default function game({window, document, settings, myId}) {
         return true;
     }
 
-    const disconnect = (external_id) => {
+    const disconnect = (externalId) => {
         if (unoGame != null) {
             return false;
         }
-        logger.log("disconnect", external_id);
+        logger.log("disconnect", externalId);
         const old_size = players.length;
-        players = players.filter(p => p.external_id !== external_id);
+        players = players.filter(p => p.externalId !== externalId);
         const new_size = players.length;
         renderChoosePlace();
         return old_size > new_size;
@@ -121,7 +124,8 @@ export default function game({window, document, settings, myId}) {
     };
 
     const onNameChange = (name) => {
-        return handlers["username"](name, myId);
+        logger.log("change name");
+        return handlers["username"]({name, externalId: myId});
     };
 
     const onConnect = () => {
@@ -163,10 +167,20 @@ export default function game({window, document, settings, myId}) {
         await unoGame.start();
     }
 
+    const hasExternalPlayer = (externalId) => {
+        const pl = players.find(p => p.externalId === externalId);
+        if (pl === undefined) {
+            return false;
+        }
+        return !pl.banned;
+    };
+
+    const canSeeGame = (externalId) => isInPlay() && hasExternalPlayer(externalId);
+
     return {
         on,
         join,
-        isInPlay,
+        canSeeGame,
         toJson,
         setQueue,
         onConnect,

@@ -43,7 +43,12 @@ export default function connectionFunc(id, logger, isServer) {
         setTimeout(() => {handlers.call("open", {id: "client1"});}, 200);
         setTimeout(() => {
             if (isServer) {
-                const json = {from: id, to: "server", action: "username", data: "client1"};
+                const json = {
+                    from: id,
+                    to: "server",
+                    action: "username",
+                    data: {name:"client 1", externalId: "client1"}
+                };
                 callCurrentHandler("username", json);
             }
         }, 400);

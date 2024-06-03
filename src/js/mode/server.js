@@ -5,6 +5,7 @@ import {getWebSocketUrl} from "../connection/common.js";
 import connectionChooser from "../connection/connection_chooser.js";
 import PromiseQueue from "../utils/async-queue.js";
 import { makeQr, removeElem } from "../views/qr_helper.js";
+import {assert} from "../utils/assert.js";
 
 function setupGameToNetwork(game, connection, logger) {
     const keys = Object.keys(actionsToSend({}, null));
@@ -30,8 +31,8 @@ export default async function server(window, document, settings, gameFunction) {
 
     const connectionFunc = await connectionChooser(settings);
     return new Promise((resolve, reject) => {
-
-        const logger = loggerFunc(2, document.querySelector(settings.loggerAnchor), settings);
+        // const el = document.querySelector(settings.loggerAnchor);
+        const logger = loggerFunc(2, null, settings);
         const connection = connectionFunc(myId, logger, true);
         const socketUrl = getWebSocketUrl(settings, window.location);
         if (!socketUrl) {
@@ -56,11 +57,14 @@ export default async function server(window, document, settings, gameFunction) {
         const game = gameFunction({window, document, settings, myId});
         game.setQueue(queue);
         const actions = {
-            "username": (n, id) => {
-                logger.log("User joined", n, id);
-                const client = clients[id];
-                client.username = n;
-                return game.join(n, id, settings.playerIsBot);
+            "username": (data) => {
+                logger.log("User joined", data);
+                const { name, externalId } = data;
+                assert(name, "No name");
+                assert(externalId, "No externalId");
+                const client = clients[externalId];
+                client.username = name;
+                return game.join(name, externalId, settings.playerIsBot);
             }
         };
 
@@ -90,10 +94,11 @@ export default async function server(window, document, settings, gameFunction) {
         connection.on("open", (con) => {
             ++index;
             clients[con.id] = {"index": index};
-            logger.log("connected", con.id, con);
-            if (game.isInPlay()) {
-                // TODO find in players
+            logger.log("connected", con);
+            if (game.canSeeGame(con.id)) {
                 return connection.sendRawTo("start", game.toJson(), con.id);
+            } else {
+                logger.log("Try see game", con.id);
             }
         });
 
