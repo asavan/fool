@@ -1,5 +1,4 @@
 import * as QRCodeSVG1 from "./qrcode_bundled.js";
-import {makeQrPlain, bigPicture} from "../../src/js/views/qr_helper.js";
 
 function defaultSh() {
     return "192.168.0.1";
@@ -33,7 +32,6 @@ function renderQRCodeSVG(text, selector, level) {
         },
       });
       divElement.innerHTML = qrSVG.toString();
-      bigPicture(divElement);
 }
 
 
@@ -41,12 +39,10 @@ export default function setup() {
     const toCode = defaultHost(defaultSh);
     const toCodeLong = addWhParam(toCode, defaultWh(defaultSh));
     console.log(toCode.length, toCodeLong.length);
-    makeQrPlain(toCode, document, ".qrcode0");
     renderQRCodeSVG(toCode, ".qrcode1", "L");
     renderQRCodeSVG(toCode.toUpperCase(), ".qrcode2", "L");
     renderQRCodeSVG(toCode, ".qrcode3", "M");
     renderQRCodeSVG(toCode, ".qrcode4", "Q");
-    makeQrPlain(toCodeLong, document, ".qrcode5");
     renderQRCodeSVG(toCodeLong, ".qrcode6", "L");
 }
 

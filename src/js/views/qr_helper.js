@@ -1,4 +1,4 @@
-import QRCode from "../lib/qrcode.js";
+import { QRCodeSVG } from "@akamfoad/qrcode";
 
 export function bigPicture(elem) {
     elem.addEventListener("click", () => elem.classList.toggle("big"));
@@ -11,17 +11,21 @@ function chomp(string, c) {
     return string;
 }
 
-function qrRender(url, element) {
-    const qrcode = new QRCode({
-        content: url,
-        container: "svg-viewbox", //Responsive use
-        ecl: "L",
-        join: true //Crisp rendering and 4-5x reduced file size
+function renderQRCodeSVG(text, divElement) {
+    const qrSVG = new QRCodeSVG(text, {
+        level: "M",
+        padding: 3,
+        image: {
+            source: "../../images/reverse_black.svg",
+            width: "10%",
+            height: "20%",
+            x: "center",
+            y: "center",
+        },
     });
-    const svg = qrcode.svg();
-    element.innerHTML = svg;
-    bigPicture(element);
-    return element;
+    divElement.innerHTML = qrSVG.toString();
+    bigPicture(divElement);
+    return divElement;
 }
 
 export function removeElem(el) {
@@ -32,9 +36,9 @@ export function removeElem(el) {
 
 export function makeQrPlain(staticHost, document, selector) {
     const url = new URL(staticHost);
-    const urlStr = chomp(url.toString(), "/").toUpperCase();
+    const urlStr = chomp(url.toString(), "/");
     console.log("enemy url", urlStr);
-    return qrRender(urlStr, document.querySelector(selector));
+    return renderQRCodeSVG(urlStr, document.querySelector(selector));
 }
 
 export function makeQr(window, document, settings) {

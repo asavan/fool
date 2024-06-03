@@ -103,7 +103,6 @@ function updateQrContentForWifi() {
   generateQRCode();
   // Only proceed if both values are present
   if (ssid !== undefined && password !== undefined) {
-    // eslint-disable-next-line no-undef
     qrContent = `WIFI:S:${ssid};T:WPA;P:${password};;`;
     const exclude = "`";
     generateQRCode();
