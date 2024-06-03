@@ -1,6 +1,6 @@
 import QRCode from "../lib/qrcode.js";
 
-function bigPicture(elem) {
+export function bigPicture(elem) {
     elem.addEventListener("click", () => elem.classList.toggle("big"));
 }
 
@@ -30,10 +30,14 @@ export function removeElem(el) {
     }
 }
 
-export function makeQr(window, document, settings) {
-    const staticHost = settings.sh || window.location.origin;
+export function makeQrPlain(staticHost, document, selector) {
     const url = new URL(staticHost);
     const urlStr = chomp(url.toString(), "/").toUpperCase();
     console.log("enemy url", urlStr);
-    return qrRender(urlStr, document.querySelector(".qrcode"));
+    return qrRender(urlStr, document.querySelector(selector));
+}
+
+export function makeQr(window, document, settings) {
+    const staticHost = settings.sh || window.location.origin;
+    return makeQrPlain(staticHost, document, ".qrcode");
 }
