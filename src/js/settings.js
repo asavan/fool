@@ -11,6 +11,7 @@ export default {
     playerIsBot: false,
     idNameInStorage: "my-id",
     idNameLen : 6,
+    maxClickToBan: 5,
     maxScore: 500,
     showAll: false,
     clickAll: false,

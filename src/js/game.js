@@ -43,6 +43,23 @@ export default function game({window, document, settings, myId}) {
     let botCount = 0;
     let queue;
 
+    ///
+    let clickCount = 0;
+    const maxClickToBan = settings.maxClickToBan;
+    let lastTryToKick = -1;
+
+    const onClick = (id) => {
+        if (lastTryToKick === id) {
+            ++clickCount;
+        } else {
+            lastTryToKick = id;
+            clickCount = 1;
+        }
+        if (clickCount >= maxClickToBan) {
+            banPlayer(lastTryToKick);
+        }
+    };
+
     const isInPlay = () => unoGame != null;
 
     const setQueue = (q) => {queue = q;};
@@ -59,7 +76,17 @@ export default function game({window, document, settings, myId}) {
         return join(name, externalId, true);
     }
 
-    const renderChoosePlace = () => choosePlaceFunc(document, afterAllJoined, swap, addBot, players);
+    function banPlayer(id1) {
+        logger.log("banPlayer " + id1);
+        players[id1].banned = true;
+    }
+
+    const renderChoosePlace = () => choosePlaceFunc(document, {
+        onSeatsFinished: afterAllJoined,
+        onSwap: swap,
+        onAddBot: addBot,
+        onClick
+    }, players);
 
     function join(name, external_id, isBot) {
         assert(name, "No name");
@@ -108,6 +135,11 @@ export default function game({window, document, settings, myId}) {
         return renderChoosePlace();
     }
 
+    function filterPlayers() {
+        players = players.filter(p => !p.banned && p.name);
+        logger.log("after filter", players);
+    }
+
     function createUnoGame(engineRaw) {
         return unoGameFunc({window, document, settings}, {playersExternal: players, myId, queue}, engineRaw, handlers);
     }
@@ -124,6 +156,7 @@ export default function game({window, document, settings, myId}) {
         } else {
             logger.log("settings already set", settings);
         }
+        filterPlayers();
         unoGame = createUnoGame(emptyEngine(settings, players.length));
         logger.log("Game init");
         await handlers["start"](toJson());

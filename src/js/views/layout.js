@@ -1,5 +1,6 @@
 import core from "../uno/basic.js";
 import {delay} from "../utils/timer.js";
+import { assert } from "../utils/assert.js";
 
 let logger = console;
 
@@ -266,6 +267,8 @@ function drawLayout({document, engine, myIndex, settings, playersExternal}) {
     places.classList.add("circle-wrapper");
     box.appendChild(places);
     const increaseDeg = 360 / engine.size();
+    assert(engine.size() === playersExternal.length,
+        "engine not equal to presenter " + JSON.stringify({e: engine.size(), p: playersExternal.length}));
     const players = engine.getPlayerIterator();
     let i = 0;
     const dealer = engine.getDealer();

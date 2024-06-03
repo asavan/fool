@@ -1,10 +1,11 @@
-export default function choosePlace(document, onSeatsFinished, onSwap, onAddBot, players) {
+export default function choosePlace(document, {onSeatsFinished, onSwap, onAddBot, onClick}, players) {
     const box = document.querySelector(".places");
     box.replaceChildren();
     const places = document.createElement("ul");
     places.classList.add("circle-wrapper");
     box.appendChild(places);
-    const increaseDeg = 360 / players.length;
+    const nonBannedPlayers = players.filter(p => !p.banned);
+    const increaseDeg = 360 / nonBannedPlayers.length;
     let angleDeg = 90;
     let selected = null;
     function onSelect(e) {
@@ -13,6 +14,8 @@ export default function choosePlace(document, onSeatsFinished, onSwap, onAddBot,
             console.log("WRONG TARGET");
             return;
         }
+        onClick(parseInt(e.target.dataset.id));
+
         if (selected) {
             selected.classList.remove("selected");
             onSwap(selected.dataset.id, e.target.dataset.id);
@@ -40,6 +43,9 @@ export default function choosePlace(document, onSeatsFinished, onSwap, onAddBot,
         const player = players[i];
         if (player == null) {
             angleDeg += increaseDeg;
+            continue;
+        }
+        if (player.banned) {
             continue;
         }
         const elem = document.createElement("li");
