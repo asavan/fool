@@ -20,9 +20,9 @@ export default function bot(engine, queue, logger, botIndexes, currentChangeData
         return;
     }
     const pl = engine.getPlayerByIndex(playerIndex);
-    const pile = pl.pile();
     const unoActions = actionsFuncUno(engine, logger);
     const calcAction = (trycount) => {
+        const pile = pl.pile();
         const bestCard = simpleBot.findBestGoodCard(pile, engine.getCardOnBoard(), engine.getCurrentColor());
         let callback;
         let data;

@@ -67,4 +67,7 @@
 1) React and Socket.IO https://github.com/mizanxali/uno-online
 2) Canvas + Socket.IO https://eperezcosano.github.io/uno-part2
 
-
+#### Полезное
+Запуск одного теста
+node --test --test-name-pattern="test"
+git tag v1.4.9 HEAD -m "Version 1.4.9 released"
