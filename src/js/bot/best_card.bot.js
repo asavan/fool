@@ -53,11 +53,9 @@ export default function bestCardBot({engine, queue, logger, botIndexes, settings
         const action = async () => {
             await delay(settings.botMovePause);
             const moveCount = await calcAction(0)();
-            // await delay(700);
             if (moveCount === 0) {
                 await delay(settings.botSecondMovePause);
                 await calcAction(1)();
-                // await delay(700);
             }
         };
         queue.add(action);

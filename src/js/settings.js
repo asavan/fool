@@ -34,6 +34,7 @@ export default {
     drawClosed: 50,
     beforeDeal: 100,
     shufflePause: 300,
+    changeCurrentPause: 50,
     moveAnim: 250,
     maxNameLen: 15
 };

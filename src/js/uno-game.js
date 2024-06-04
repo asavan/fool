@@ -76,7 +76,7 @@ export default function unoGame({window, document, settings}, {playersExternal, 
 
     engine.on("changeCurrent", (data) => {
         layout.drawCurrent(document, engine, myIndex, settings);
-        const pause = delay(50);
+        const pause = delay(settings.changeCurrentPause);
         const promises = [pause];
         if (settings.mode !== "net") {
             promises.push(report("changeCurrent", data));
@@ -86,7 +86,7 @@ export default function unoGame({window, document, settings}, {playersExternal, 
 
     engine.on("changeCurrentExternal", () => {
         layout.drawCurrent(document, engine, myIndex, settings);
-        const pause = delay(50);
+        const pause = delay(settings.changeCurrentPause);
         const promises = [pause];
         return Promise.allSettled(promises);
     });

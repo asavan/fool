@@ -14,6 +14,21 @@ function defaultAiSettings(settings) {
     localSettings.seed = "v";
     localSettings.mode = "ai";
     localSettings.maxScore = 3;
+
+    localSettings.botMovePause = 10;
+    localSettings.botSecondMovePause = 10;
+    localSettings.discardAnimBeforeFlip = 2;
+    localSettings.discardAnimAfterFlip = 2;
+    localSettings.betweenRounds = 10;
+    localSettings.beforeChooseDealer = 1;
+    localSettings.drawShow = 10;
+    localSettings.drawMy = 10;
+    localSettings.drawClosed = 1;
+    localSettings.moveAnim = 10;
+    localSettings.movePause = 10;
+    localSettings.shufflePause = 10;
+
+
     return localSettings;
 }
 

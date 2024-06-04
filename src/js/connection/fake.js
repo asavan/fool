@@ -39,8 +39,8 @@ export default function connectionFunc(id, logger, isServer) {
     }
 
     async function connect() {
-        setTimeout(() => {handlers.call("socket_open", {});}, 100);
-        setTimeout(() => {handlers.call("open", {id: "client1"});}, 200);
+        setTimeout(() => {handlers.call("socket_open", {});}, 10);
+        setTimeout(() => {handlers.call("open", {id: "client1"});}, 20);
         setTimeout(() => {
             if (isServer) {
                 const json = {
@@ -51,8 +51,8 @@ export default function connectionFunc(id, logger, isServer) {
                 };
                 callCurrentHandler("username", json);
             }
-        }, 400);
-        await delay(1000);
+        }, 40);
+        await delay(100);
     }
 
     const sendRawTo = () => {};

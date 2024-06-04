@@ -33,7 +33,7 @@ function findBestGoodCard(pile, cardOnBoard, currentColor) {
 
 function mostWeightedColor(nonBlackCards) {
     assert(nonBlackCards.length > 0);
-    const colorStats = {}; // Object.fromEntries(core.GOOD_COLORS.map((color) => [color, 0]));
+    const colorStats = {};
     for (const card of nonBlackCards) {
         if (colorStats[core.cardColor(card)] === undefined) {
             colorStats[core.cardColor(card)] = 0;
