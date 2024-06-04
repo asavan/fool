@@ -12,8 +12,10 @@ import {prng_alea} from "esm-seedrandom";
 export default function unoGame({window, document, settings}, {playersExternal, myId, queue}, engineRaw, handlers) {
 
     const logger = loggerFunc(7, null, settings);
+    const traceLogger = loggerFunc(1, null, settings);
+    const debugLogger = loggerFunc(4, null, settings);
     const loggerLayout = loggerFunc(2, null, settings);
-    const loggerBot = loggerFunc(6, null, settings);
+    const loggerBot = loggerFunc(3, null, settings);
 
     layout.setLogger(loggerLayout);
     const myrng = prng_alea(settings.seed);
@@ -23,7 +25,9 @@ export default function unoGame({window, document, settings}, {playersExternal, 
     };
     const myIndex = playersExternal.findIndex(p => p.externalId === myId);
     assert(myIndex >= 0, "Not my game");
-    const engine = coreUnoFunc(settings, myrng, logger, engineRaw);
+    const engine = coreUnoFunc({settings, rngFunc: myrng, applyEffects: settings.applyEffects},
+        {logger, traceLogger, debugLogger},
+        engineRaw);
 
     function report(callbackName, data) {
         if (data && data.playerIndex !== undefined) {
@@ -39,11 +43,11 @@ export default function unoGame({window, document, settings}, {playersExternal, 
 
     function onDrawTiming(playerIndex, showAllCards) {
         if (showAllCards) {
-            return 200;
+            return settings.drawShow;
         } else if (playerIndex === myIndex) {
-            return 120;
+            return settings.drawMy;
         } else {
-            return 50;
+            return settings.drawClosed;
         }
     }
 
@@ -95,14 +99,14 @@ export default function unoGame({window, document, settings}, {playersExternal, 
     });
 
     engine.on("move", (data) => {
-        logger.log("move", data);
+        debugLogger.log("move", data);
         layout.drawPlayersMove(window,
             {document, engine, myIndex, settings, playersExternal},
             "drawMove",
             data.card,
             data.playerIndex
         );
-        const pause = delay(150);
+        const pause = delay(settings.movePause);
         const promises = [pause, report("move", data)];
         return Promise.allSettled(promises);
     });
@@ -122,14 +126,14 @@ export default function unoGame({window, document, settings}, {playersExternal, 
         drawScreen("shuffle");
         logger.log("new deck", deck.length, ...deck);
         await handlers["shuffle"](deck);
-        await delay(300);
+        await delay(settings.shufflePause);
     });
 
     engine.on("shuffleFake", async (deck) => {
         // TODO play shuffle animation
         drawScreen("shuffleFake");
-        logger.log("new deck", deck.length, ...deck);
-        await delay(300);
+        logger.log("new deck fake", deck.length, deck);
+        await delay(settings.shufflePause);
     });
 
     function onGameEnd(message1, message2) {
@@ -172,15 +176,16 @@ export default function unoGame({window, document, settings}, {playersExternal, 
             return;
         }
         await handlers["roundover"](data);
-        await delay(1000);
+        await delay(settings.betweenRounds);
         await engine.nextDealer();
+        await delay(settings.beforeDeal);
         await engine.deal();
     });
 
     async function start() {
-        await delay(100);
+        await delay(settings.beforeChooseDealer);
         await engine.chooseDealer();
-        await delay(700);
+        await delay(settings.betweenRounds);
         await engine.deal();
     }
 
@@ -197,11 +202,11 @@ export default function unoGame({window, document, settings}, {playersExternal, 
     // TODO may be delete this
     const getEngine = () => engine;
 
-    setupBots(playersExternal, engine, queue, loggerBot);
+    setupBots({players: playersExternal, engine, queue, logger: loggerBot, settings});
 
     handlers["engineCreated"](engine);
     drawScreen("firstDraw");
-    logger.log("engineCreated");
+    traceLogger.log("engineCreated");
     delay(100).then(() => {
         const grid = document.querySelector(".places");
         if (grid) {

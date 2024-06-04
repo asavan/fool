@@ -13,25 +13,25 @@ function assertHelper(logger) {
     };
 }
 
-export default function initCore(settings, rngFunc, logger, {
-    playersRaw,
-    dealer,
-    direction,
-    deckRaw,
-    discardPile,
-    currentPlayer,
-    cardTaken,
-    cardDiscarded,
-    maxScore,
-    gameState,
-    cardOnBoard,
-    currentColor
-}) {
+export default function initCore({settings, rngFunc, applyEffects},
+    {logger, traceLogger, debugLogger},
+    {
+        playersRaw,
+        dealer,
+        direction,
+        deckRaw,
+        discardPile,
+        currentPlayer,
+        cardTaken,
+        cardDiscarded,
+        maxScore,
+        gameState,
+        cardOnBoard,
+        currentColor
+    }
+) {
 
     const MAX_SCORE = maxScore;
-
-    // TODO remove this
-    const applyEffects = settings.applyEffects;
 
     const localAssert = assertHelper(logger);
 
@@ -156,7 +156,7 @@ export default function initCore(settings, rngFunc, logger, {
             logger.error("onDraw bad");
             return false;
         }
-        logger.log("onDraw", cardFromDeck, core.cardToString(cardFromDeck));
+        traceLogger.log("onDraw", cardFromDeck, core.cardToString(cardFromDeck));
         cardTaken++;
         return true;
     }
@@ -182,7 +182,7 @@ export default function initCore(settings, rngFunc, logger, {
             return false;
         }
         cardTaken++;
-        logger.log("onDrawPlayer", cardFromDeck);
+        debugLogger.log("onDrawPlayer", cardFromDeck);
         return cardFromDeck != null;
     }
 
@@ -248,7 +248,7 @@ export default function initCore(settings, rngFunc, logger, {
         }
         discardPile.push(card);
         currentColor = core.cardColor(card);
-        logger.log("dealToDiscardEnd", core.cardToString(card), card);
+        debugLogger.log("dealToDiscardEnd", state());
         await report("discard", card);
         return card;
     }
@@ -305,7 +305,7 @@ export default function initCore(settings, rngFunc, logger, {
                 const card = await dealToPlayer(deck, currentPlayer);
                 localAssert(card !== undefined);
                 const score = core.cardScore(card);
-                logger.log(">> Player " + i + " draws "
+                traceLogger.log(">> Player " + i + " draws "
                                 + core.cardToString(card) + " and gets " + score + " points");
                 scores[dealIndex] = score;
                 max = Math.max(max, score);
@@ -326,7 +326,7 @@ export default function initCore(settings, rngFunc, logger, {
         currentPlayer = dealer;
         gameState = core.GameStage.DEALING;
         await report("changeCurrent", state());
-        logger.log("dealer was chosen", state());
+        traceLogger.log("dealer was chosen", state());
     }
 
     async function cleanAllHands(rngFunc) {
@@ -358,7 +358,7 @@ export default function initCore(settings, rngFunc, logger, {
     async function calcCardEffect(card, playerIndex) {
         localAssert(playerIndex === currentPlayer);
         const type = core.cardType(card);
-        logger.log("calcCardEffect", {playerIndex, card}, core.cardToString(card));
+        traceLogger.log("calcCardEffect", {playerIndex, card}, core.cardToString(card));
 
         if (type === "Reverse") {
             reverse();
@@ -655,7 +655,9 @@ export default function initCore(settings, rngFunc, logger, {
         gameState = core.GameStage.DEALING;
 
         await cleanAllHands(rngFunc);
+        traceLogger.log("after cleanAllHands");
         await dealN(settings.cardsDeal);
+        traceLogger.log("after dealN");
         gameState = core.GameStage.ROUND;
         await report("changeCurrent", state());
     }

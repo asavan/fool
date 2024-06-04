@@ -33,11 +33,14 @@ function findBestGoodCard(pile, cardOnBoard, currentColor) {
 
 function mostWeightedColor(nonBlackCards) {
     assert(nonBlackCards.length > 0);
-    const colorStats = Object.fromEntries(core.GOOD_COLORS.map((color) => [color, 0]));
+    const colorStats = {}; // Object.fromEntries(core.GOOD_COLORS.map((color) => [color, 0]));
     for (const card of nonBlackCards) {
+        if (colorStats[core.cardColor(card)] === undefined) {
+            colorStats[core.cardColor(card)] = 0;
+        }
         colorStats[core.cardColor(card)] += core.cardScore(card);
     }
-    let maxScore = 0;
+    let maxScore = -1;
     let maxColor;
     for (const [color, score] of Object.entries(colorStats)) {
         if (maxScore < score) {
@@ -45,7 +48,8 @@ function mostWeightedColor(nonBlackCards) {
             maxScore = score;
         }
     }
-    assert(maxColor !== undefined);
+    assert(maxColor, nonBlackCards.map(core.cardToString));
+    assert(core.GOOD_COLORS.includes(maxColor), nonBlackCards.map(core.cardToString));
     return maxColor;
 }
 
@@ -69,5 +73,7 @@ export default {
     findGoodCards,
     findBestScoreCard,
     findBestGoodCard,
-    bestColor
+    bestColor,
+    // for tests
+    mostWeightedColor
 };

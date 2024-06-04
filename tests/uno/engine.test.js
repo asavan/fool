@@ -11,7 +11,9 @@ import emptyEngine from "../../src/js/uno/default-engine.js";
 function setupEngine(count) {
     const myrng = prng_alea("a");
     const engineRaw = emptyEngine(settings, count);
-    const engine = coreUnoFunc(settings, myrng, console, engineRaw);
+    const engine = coreUnoFunc({settings, rngFunc: myrng, applyEffects: true},
+        {logger: console, traceLogger: console, debugLogger: console},
+        engineRaw);
     return engine;
 }
 

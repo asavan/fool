@@ -1,24 +1,27 @@
 import bestCardBot from "./best_card.bot.js";
 
-export default function setupBots(players, engine, queue, loggerBot) {
+export default function setupBots({players, engine, queue, logger, settings}) {
     if (queue == null) {
-        loggerBot.log("No queue - no bots");
+        logger.log("No queue - no bots");
         return;
     }
 
-    const simpleBotIndexes = [];
+    const botIndexes = [];
     let index = 0;
     for (const player of players) {
         if (player.is_bot) {
-            simpleBotIndexes.push(index);
+            botIndexes.push(index);
         }
         ++index;
     }
-    if (simpleBotIndexes.length === 0) {
-        loggerBot.log("No bots, skipping");
+    if (botIndexes.length === 0) {
+        logger.log("No bots, skipping");
         return;
     }
-    engine.on("changeCurrent", (currentChangeData) => {
-        bestCardBot(engine, queue, loggerBot, simpleBotIndexes, currentChangeData);
+
+    const bot = bestCardBot({engine, queue, logger, botIndexes, settings});
+
+    engine.on("changeCurrent", (data) => {
+        bot.tryMove(data);
     });
 }

@@ -9,7 +9,7 @@ export default function ai(window, document, settings, gameFunction) {
         if (!settings.seed) {
             settings.seed = rngFunc.makeId(6, Math.random);
         }
-        const logger = loggerFunc(20, null, settings);
+        const logger = loggerFunc(3, null, settings);
         const queue = PromiseQueue(logger);
         const game = gameFunction({window, document, settings, myId});
         game.setQueue(queue);

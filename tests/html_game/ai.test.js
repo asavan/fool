@@ -57,3 +57,42 @@ test("ai clickAll", async () => {
     localSettings.clickAll = true;
     await aiTest(localSettings, "Player");
 });
+
+test("ai long", async () => {
+    const localSettings = {...settings};
+    localSettings.mode = "ai";
+    localSettings.playerIsBot = true;
+    localSettings.maxScore = 60;
+    localSettings.logLevel = 5;
+    localSettings.botMovePause = 10;
+    localSettings.botSecondMovePause = 10;
+    localSettings.discardAnimBeforeFlip = 2;
+    localSettings.discardAnimAfterFlip = 2;
+    localSettings.betweenRounds = 10;
+    localSettings.beforeChooseDealer = 1;
+    localSettings.drawShow = 10;
+    localSettings.drawMy = 10;
+    localSettings.drawClosed = 1;
+    localSettings.moveAnim = 10;
+    localSettings.movePause = 10;
+    localSettings.shufflePause = 10;
+
+    const dom = await JSDOM.fromFile("src/index.html", {
+        url: "http://localhost/",
+    });
+    const document = dom.window.document;
+    const game = await mode(dom.window, document, localSettings, gameFunction);
+    const gameFinish = new Promise((resolve) => {
+        game.on("gameover", () => {
+            const btnAdd = document.querySelector(".butInstall");
+            btnAdd.classList.remove("hidden2");
+            resolve();
+        });
+    });
+    const firstPlayerName = document.querySelector(".player-name");
+    assert.ok(firstPlayerName, "No players");
+    assert.equal(firstPlayerName.textContent, "bot 1");
+    await gameFinish;
+    const elem = document.querySelector(".overlay.show");
+    assert.ok(elem, "No win window");
+});

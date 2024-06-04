@@ -355,9 +355,9 @@ async function drawDiscard(document, engine, myIndex, settings) {
     flipList.appendChild(newCard);
     flipList.appendChild(backClone);
     list.appendChild(flipClone);
-    await delay(200);
+    await delay(settings.discardAnimBeforeFlip);
     flipList.classList.remove("is-flipped");
-    await delay(800);
+    await delay(settings.discardAnimAfterFlip);
     drawCenter(document, engine.getCardOnBoard(), engine, settings, myIndex);
 }
 
