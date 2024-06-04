@@ -57,6 +57,7 @@ async function clearMyHand(data) {
 
 async function cleanHandMeOne({document, logger, settings}, cardElem) {
     if (!cardElem) {
+        logger.log("No elem cleanHandMeOne");
         return;
     }
     const animTime = settings.drawMy;
