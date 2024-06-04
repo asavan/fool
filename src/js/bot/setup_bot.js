@@ -1,6 +1,6 @@
 import bestCardBot from "./best_card.bot.js";
 
-export default function setupBots({players, engine, queue, logger, settings}) {
+export default function setupBots({players, engine, queue, logger, settings, rngEngine}) {
     if (queue == null) {
         logger.log("No queue - no bots");
         return;
@@ -19,7 +19,7 @@ export default function setupBots({players, engine, queue, logger, settings}) {
         return;
     }
 
-    const bot = bestCardBot({engine, queue, logger, botIndexes, settings});
+    const bot = bestCardBot({engine, queue, logger, botIndexes, settings, rngEngine});
 
     engine.on("changeCurrent", (data) => {
         bot.tryMove(data);

@@ -4,7 +4,7 @@ import rngFunc from "../utils/random.js";
 import core from "../uno/basic.js";
 import simpleBot from "./simple.bot.js";
 
-export default function bestCardBot({engine, queue, logger, botIndexes, settings}) {
+export default function bestCardBot({engine, queue, logger, botIndexes, settings, rngEngine}) {
     const tryMove = (currentChangeData) => {
         if (currentChangeData.gameState !== core.GameStage.ROUND) {
             logger.log("round not started yet");
@@ -21,6 +21,10 @@ export default function bestCardBot({engine, queue, logger, botIndexes, settings
             return;
         }
         const pl = engine.getPlayerByIndex(playerIndex);
+        if (pl.hasEmptyHand()) {
+            logger.log("best_card_bot no cards", playerIndex);
+            return;
+        }
         const unoActions = actionsFuncUno(engine, logger);
         const calcAction = (trycount) => {
             const pile = pl.pile();
@@ -37,7 +41,7 @@ export default function bestCardBot({engine, queue, logger, botIndexes, settings
                 }
             } else {
                 callback = unoActions["move"];
-                const randEl = (arr) => rngFunc.randomEl(arr, Math.random);
+                const randEl = (arr) => rngFunc.randomEl(arr, rngEngine);
                 const currentColor = simpleBot.bestColor(pile, bestCard, randEl);
                 data = { playerIndex, card: bestCard, currentColor };
                 ++moveCount;

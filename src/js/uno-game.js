@@ -202,7 +202,7 @@ export default function unoGame({window, document, settings}, {playersExternal, 
     // TODO may be delete this
     const getEngine = () => engine;
 
-    setupBots({players: playersExternal, engine, queue, logger: loggerBot, settings});
+    setupBots({players: playersExternal, engine, queue, logger: loggerBot, settings, rngEngine: myrng});
 
     handlers["engineCreated"](engine);
     drawScreen("firstDraw");

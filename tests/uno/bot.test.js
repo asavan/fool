@@ -65,3 +65,14 @@ test("bot mostWeightedColor", () => {
     assert.equal(core.cardColor(card), "green");
     assert.equal(bestColor, "green", pile.map(core.cardToString));
 });
+
+test("bot black and green", () => {
+    const card = 28;
+    const blackCard = 83;
+    assert.equal(core.cardColor(blackCard), core.BLACK_COLOR);
+    const pile = [card, blackCard];
+    const randEl = (arr) => rngFunc.randomEl(arr, Math.random);
+    const bestColor = simpleBot.bestColor(pile, blackCard, randEl);
+    assert.equal(core.cardColor(card), "green");
+    assert.equal(bestColor, "green", pile.map(core.cardToString));
+});

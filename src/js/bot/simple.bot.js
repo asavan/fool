@@ -24,6 +24,7 @@ function findBestScoreCard(pile) {
 }
 
 function findBestGoodCard(pile, cardOnBoard, currentColor) {
+    assert(pile.length > 0, "findBestGoodCard on empty hand");
     const nonBlack = findGoodNonBlackCards(pile, cardOnBoard, currentColor);
     if (nonBlack.length > 0) {
         return findBestScoreCard(nonBlack);
@@ -54,7 +55,7 @@ function mostWeightedColor(nonBlackCards) {
 }
 
 function bestColor(pile, card, randomEl) {
-    assert(pile.includes(card));
+    assert(pile.includes(card), "Card not in hand");
     const color = core.cardColor(card);
     if (core.GOOD_COLORS.includes(color)) {
         return color;
@@ -71,9 +72,9 @@ function bestColor(pile, card, randomEl) {
 
 export default {
     findGoodCards,
-    findBestScoreCard,
     findBestGoodCard,
     bestColor,
     // for tests
+    findBestScoreCard,
     mostWeightedColor
 };
