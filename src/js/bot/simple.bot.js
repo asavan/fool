@@ -71,10 +71,8 @@ function bestColor(pile, card, randomEl) {
 }
 
 export default {
-    findGoodCards,
     findBestGoodCard,
     bestColor,
     // for tests
-    findBestScoreCard,
     mostWeightedColor
 };

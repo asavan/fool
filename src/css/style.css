@@ -105,7 +105,9 @@ ul {
   width: 100%;
   aspect-ratio: 1/1;
   background-color: var(--current-color);
-  transition: background-color 1000ms linear;
+  transition: 
+    background-color 1s linear,
+    transform 500ms;
 }
 
 /* stylelint-enable property-no-vendor-prefix */
