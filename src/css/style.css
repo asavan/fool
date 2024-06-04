@@ -499,7 +499,7 @@ footer {
 .card-flip {
   width: var(--card-width);
   height: calc(var(--card-width)*1.5);
-  transition: transform 1s;
+  transition: transform 800ms;
   transform-style: preserve-3d;
   transform-origin: 100% 0%;
   cursor: pointer;

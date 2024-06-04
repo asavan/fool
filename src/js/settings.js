@@ -26,7 +26,7 @@ export default {
     botMovePause: 700,
     botSecondMovePause: 300,
     dealAnim: 500,
-    discardAnimBeforeFlip: 200,
+    discardAnimBeforeFlip: 100,
     discardAnimAfterFlip: 800,
     betweenRounds: 900,
     beforeChooseDealer: 100,
