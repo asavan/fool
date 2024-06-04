@@ -2,39 +2,22 @@ import core from "../uno/basic.js";
 import {delay} from "../utils/timer.js";
 import { assert } from "../utils/assert.js";
 
+import {drawBack, drawBlank, drawCard, repaintCard} from "./basic_views.js";
+
+import ClearHands from "./clear_hands.js";
+
 let logger = console;
 
 function setLogger(log) {
     logger = log;
 }
 
-function repaintCard(p, cardEl) {
-    cardEl.style.setProperty("--sprite-x", (1400 - (p%14)*100) + "%");
-    cardEl.style.setProperty("--sprite-y", (800 - Math.floor(p/14)*100) + "%");
-    cardEl.dataset.card = p;
-    return cardEl;
-}
 
 function showCards(engine, settings) {
     return settings.showAll || settings.clickAll || engine.showAllCards();
 }
 
-function drawCard(p, cardItem) {
-    const cardClone = cardItem.content.cloneNode(true).firstElementChild;
-    return repaintCard(p, cardClone);
-}
 
-function drawBlank(document) {
-    const blank = document.createElement("li");
-    blank.classList.add("blank");
-    return blank;
-}
-
-function drawBack(document) {
-    const backItem = document.querySelector("#back");
-    const backClone = backItem.content.cloneNode(true).firstElementChild;
-    return backClone;
-}
 
 function drawHand(document, parent, pile, engine, settings) {
     const hand = document.createElement("ul");
@@ -595,6 +578,8 @@ function drawPlayersMove(window, {document, engine, myIndex, settings, playersEx
 }
 
 export default {
+    clearHandOther: ClearHands.clearHandOther,
+    cleanHand: ClearHands.cleanHand,
     drawPlayers,
     drawDiscard,
     drawCurrent,

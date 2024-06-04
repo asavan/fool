@@ -25,7 +25,7 @@ export default function handlersFunc(arr) {
             }
             promises.push(f(arg));
         }
-        return Promise.allSettled(promises);
+        return Promise.all(promises);
     };
 
     return {

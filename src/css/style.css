@@ -521,6 +521,17 @@ footer {
   height: 100%;
 }
 
+.absolute {
+  position: absolute;
+}
+
+.above {
+  z-index: 1;
+  transform: translateZ(10px);
+}
+
+
+
 .card-face-back {
   transform: rotateY(180deg);
 

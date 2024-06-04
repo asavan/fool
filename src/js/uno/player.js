@@ -15,6 +15,7 @@ export default function newPlayer(arr, ind, oldScore) {
     const hasColor = (color) => core.pileHasColor(deck, color);
     const hasCard = (card) => deck.includes(card);
     const hasEmptyHand = () => deck.length === 0;
+    const isUno = () => deck.length === 1;
 
     const removeCard = (card) => {
         const removeIndex = deck.indexOf(card);
@@ -37,6 +38,7 @@ export default function newPlayer(arr, ind, oldScore) {
         toJson,
         addCard,
         pile,
+        isUno,
         getIndex,
         cleanHand,
         removeCard,

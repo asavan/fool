@@ -14,7 +14,7 @@ export default function unoGame({window, document, settings}, {playersExternal, 
     const logger = loggerFunc(7, null, settings);
     const traceLogger = loggerFunc(1, null, settings);
     const debugLogger = loggerFunc(4, null, settings);
-    const loggerLayout = loggerFunc(2, null, settings);
+    const loggerLayout = loggerFunc(20, null, settings);
     const loggerBot = loggerFunc(3, null, settings);
 
     layout.setLogger(loggerLayout);
@@ -160,8 +160,16 @@ export default function unoGame({window, document, settings}, {playersExternal, 
     });
 
     engine.on("clearPlayer", async (playerIndex) => {
-        await handlers["clearPlayer"](playerIndex);
-        drawScreen("clearPlayer");
+        const promises = [handlers["clearPlayer"](playerIndex)];
+        promises.push(layout.cleanHand({
+            playerIndex,
+            myIndex,
+            document,
+            settings,
+            animTime: settings.drawMy,
+            logger: loggerLayout}));
+        await Promise.all(promises);
+        // drawScreen("clearPlayer");
     });
 
     engine.on("clearPlayerExternal", () => {

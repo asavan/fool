@@ -17,6 +17,7 @@ export default {
     clickAll: false,
     show: true,
     applyEffects: true,
+    lastCardNoColor: true,
     colorOrder: ["red", "yellow", "green", "blue", "black"],
     sortByColor: "",
     direction: ["center"],

@@ -439,6 +439,9 @@ export default function initCore({settings, rngFunc, applyEffects},
         }
 
         if (core.cardType(card) === "Wild") {
+            if (settings.lastCardNoColor && getCurrentPlayerObj().isUno()) {
+                return currentColor;
+            }
             const newColor = await chooseColor(playerInd);
             if (!core.GOOD_COLORS.includes(newColor)) {
                 logger.error("Wrong color", newColor);
@@ -451,7 +454,9 @@ export default function initCore({settings, rngFunc, applyEffects},
             if (getCurrentPlayerObj().hasColor(currentColor)) {
                 return false;
             }
-
+            if (settings.lastCardNoColor && getCurrentPlayerObj().isUno()) {
+                return currentColor;
+            }
             const newColor = await chooseColor(playerInd);
 
             if (!core.GOOD_COLORS.includes(newColor)) {
