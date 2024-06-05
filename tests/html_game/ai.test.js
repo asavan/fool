@@ -15,6 +15,8 @@ function defaultAiSettings(settings) {
     localSettings.mode = "ai";
     localSettings.maxScore = 3;
 
+    localSettings.botCount = 3;
+
     localSettings.botMovePause = 10;
     localSettings.botSecondMovePause = 10;
     localSettings.discardAnimBeforeFlip = 2;
@@ -67,8 +69,9 @@ test("ai scenario", async () => {
 });
 
 
-test("ai clickAll", async () => {
+test("ai legacyView", async () => {
     const localSettings = defaultAiSettings(settings);
+    localSettings.legacyView = true;
     localSettings.clickAll = true;
     await aiTest(localSettings, "Player");
 });
