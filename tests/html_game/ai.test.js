@@ -8,15 +8,8 @@ import mode from "../../src/js/mode/ai.js";
 
 import { delay } from "../../src/js/utils/timer.js";
 
-function defaultAiSettings(settings) {
-    const localSettings = {...settings};
-    localSettings.cardsDeal = 1;
-    localSettings.seed = "v";
-    localSettings.mode = "ai";
-    localSettings.maxScore = 3;
-
-    localSettings.botCount = 3;
-
+function fastMove() {
+    const localSettings = {};
     localSettings.botMovePause = 10;
     localSettings.botSecondMovePause = 10;
     localSettings.discardAnimBeforeFlip = 2;
@@ -29,8 +22,18 @@ function defaultAiSettings(settings) {
     localSettings.moveAnim = 10;
     localSettings.movePause = 10;
     localSettings.shufflePause = 10;
+    return localSettings;
+}
 
+function defaultAiSettings(settings) {
+    const localSettings = Object.assign({}, settings, fastMove());
+    localSettings.cardsDeal = 1;
+    localSettings.seed = "v";
+    localSettings.mode = "ai";
+    localSettings.maxScore = 3;
 
+    localSettings.botCount = 3;
+    
     return localSettings;
 }
 
@@ -77,23 +80,12 @@ test("ai legacyView", async () => {
 });
 
 test("ai long", async () => {
-    const localSettings = {...settings};
+    const localSettings = Object.assign({}, settings, fastMove());
+
     localSettings.mode = "ai";
     localSettings.playerIsBot = true;
     localSettings.maxScore = 60;
     localSettings.logLevel = 5;
-    localSettings.botMovePause = 10;
-    localSettings.botSecondMovePause = 10;
-    localSettings.discardAnimBeforeFlip = 2;
-    localSettings.discardAnimAfterFlip = 2;
-    localSettings.betweenRounds = 10;
-    localSettings.beforeChooseDealer = 1;
-    localSettings.drawShow = 10;
-    localSettings.drawMy = 10;
-    localSettings.drawClosed = 1;
-    localSettings.moveAnim = 10;
-    localSettings.movePause = 10;
-    localSettings.shufflePause = 10;
 
     const dom = await JSDOM.fromFile("src/index.html", {
         url: "http://localhost/",
