@@ -27,7 +27,11 @@ public class AndroidWebServerActivity extends Activity {
             addButtons(IpUtils.getIPAddressSafe());
             Map<String, String> mainParams = new LinkedHashMap<>();
             mainParams.put("mode", "ai");
+            mainParams.put("playerIsBot", "true");
+            mainParams.put("botCount", "2");
+            mainParams.put("botMovePause", "7000");
             mainParams.put("showAll", "true");
+            mainParams.put("clickAll", "true");
             btnUtils.launchWebView(WEB_VIEW_URL, mainParams);
         } catch (Exception e) {
             Log.e(MAIN_LOG_TAG, "main", e);

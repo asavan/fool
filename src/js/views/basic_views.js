@@ -1,4 +1,6 @@
-export function drawBlank(document) {
+import core from "../uno/basic.js";
+
+function drawBlank(document) {
     const blank = document.createElement("li");
     blank.classList.add("blank");
     return blank;
@@ -22,3 +24,104 @@ export function drawCard(p, cardItem) {
     return repaintCard(p, cardClone);
 }
 
+
+function drawDeck(document, parent, card, engine, clickAll, myIndex) {
+    const hand = document.createElement("ul");
+    const cardItem = document.querySelector("#card");
+    hand.classList.add("hand");
+    if (card != null) {
+        hand.appendChild(drawCard(card, cardItem));
+    } else {
+        hand.appendChild(drawBlank(document));
+    }
+
+    if (engine.deckSize() === 0) {
+        hand.appendChild(drawBlank(document));
+    } else {
+        const backClone = drawBack(document);
+        backClone.addEventListener("click", async (e) => {
+            e.preventDefault();
+            let playerIndex = myIndex;
+            if (clickAll) {
+                playerIndex = engine.getCurrentPlayer();
+            }
+            const res = await engine.onDrawPlayer(playerIndex);
+            if (!res) {
+                await engine.pass(playerIndex);
+            }
+        });
+        hand.appendChild(backClone);
+    }
+
+    parent.appendChild(hand);
+}
+
+
+export function addDirectionElem(size, direction, parent, document, className, className2) {
+    if (size === 2 || direction === 0) {
+        return;
+    }
+    const old = parent.querySelector("." + className);
+    if (old) {
+        old.remove();
+    }
+    const directionElem = document.createElement("span");
+    directionElem.classList.add(className);
+
+    const directionElem1 = document.createElement("div");
+    directionElem1.classList.add("direction");
+    if (className2) {
+        directionElem1.classList.add(className2);
+    }
+
+    if (direction === 1) {
+        directionElem1.classList.add("mirror");
+    }
+    directionElem.appendChild(directionElem1);
+    parent.appendChild(directionElem);
+}
+
+export function drawHand(document, parent, pile, settings) {
+    const hand = document.createElement("ul");
+    const cardItem = document.querySelector("#card");
+    hand.classList.add("hand");
+    if (settings && settings.sortByColor) {
+        core.sortByTemplate(pile, settings.sortByColor, settings.colorOrder);
+    }
+    for (const p of pile) {
+        hand.appendChild(drawCard(p, cardItem));
+    }
+    parent.appendChild(hand);
+}
+
+export function drawCenterCircle(box, document, engine) {
+    addDirectionElem(engine.size(), engine.getDirection(), box, document, "big-circle");
+}
+
+export function drawCenter(document, p, engine, settings, myIndex) {
+    const box = document.querySelector(".places");
+    let discardPile = box.querySelector(".center-pile");
+    if (!discardPile) {
+        discardPile = document.createElement("div");
+        discardPile.classList.add("center-pile");
+        box.appendChild(discardPile);
+    } else {
+        discardPile.replaceChildren();
+    }
+    drawDeck(document, discardPile, p, engine, settings.clickAll, myIndex);
+}
+
+
+export function mapColor(color) {
+    const colors = {
+        "green": "rgba(85, 170, 85, 0.4)",
+        "red" : "rgba(255, 85, 85, 0.4)",
+        "yellow": "rgba(255, 170, 0, 0.4)",
+        "blue": "rgba(85, 85, 255, 0.4)",
+    };
+    const c = colors[color];
+    if (c != null) {
+        return c;
+    }
+    return "rgba(240, 248, 255, 0.3)"; // aliceblue;
+}

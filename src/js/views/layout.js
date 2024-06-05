@@ -1,8 +1,12 @@
-import core from "../uno/basic.js";
 import {delay} from "../utils/timer.js";
 import { assert } from "../utils/assert.js";
 
-import {drawBack, drawBlank, drawCard, repaintCard} from "./basic_views.js";
+import {drawBack, drawCard, repaintCard,
+    addDirectionElem, drawHand,
+    drawCenterCircle, drawCenter,
+    mapColor} from "./basic_views.js";
+
+import drawPlayersInner from "./legacy.js";
 
 import ClearHands from "./clear_hands.js";
 
@@ -17,163 +21,6 @@ function showCards(engine, settings) {
     return settings.showAll || settings.clickAll || engine.showAllCards();
 }
 
-
-
-function drawHand(document, parent, pile, engine, settings) {
-    const hand = document.createElement("ul");
-    const cardItem = document.querySelector("#card");
-    hand.classList.add("hand");
-    if (settings && settings.sortByColor) {
-        core.sortByTemplate(pile, settings.sortByColor, settings.colorOrder);
-    }
-    for (const p of pile) {
-        hand.appendChild(drawCard(p, cardItem));
-    }
-    parent.appendChild(hand);
-}
-
-function drawDeck(document, parent, card, engine, clickAll, myIndex) {
-    const hand = document.createElement("ul");
-    const cardItem = document.querySelector("#card");
-    hand.classList.add("hand");
-    if (card != null) {
-        hand.appendChild(drawCard(card, cardItem));
-    } else {
-        hand.appendChild(drawBlank(document));
-    }
-
-    if (engine.deckSize() === 0) {
-        hand.appendChild(drawBlank(document));
-    } else {
-        const backClone = drawBack(document);
-        backClone.addEventListener("click", async (e) => {
-            e.preventDefault();
-            let playerIndex = myIndex;
-            if (clickAll) {
-                playerIndex = engine.getCurrentPlayer();
-            }
-            const res = await engine.onDrawPlayer(playerIndex);
-            if (!res) {
-                await engine.pass(playerIndex);
-            }
-        });
-        hand.appendChild(backClone);
-    }
-
-    parent.appendChild(hand);
-}
-
-function drawPlayersInner({document, engine, myIndex, settings, playersExternal}, marker) {
-    const root = document.documentElement;
-    // root.style.setProperty("--card-width", "30px");
-    root.style.setProperty("--current-color", mapColor(engine.getCurrentColor()));
-
-    const box = document.querySelector(".places");
-    box.replaceChildren();
-    if (settings.direction.includes("center")) {
-        drawCenterCircle(box, document, engine);
-    }
-
-    const places = document.createElement("ul");
-    places.classList.add("circle-wrapper");
-    // places.style.position = 'relative';
-    box.appendChild(places);
-    const increaseDeg = 360 / engine.size();
-    const players = engine.getPlayerIterator();
-    const dealer = engine.getDealer();
-    const currentPlayer = engine.getCurrentPlayer();
-    if (marker) {
-        logger.log("Draw inner", marker);
-    } else {
-        logger.log("Draw inner");
-    }
-
-    let i = 0;
-    for (const pl of players) {
-        const angleDeg = 90 + increaseDeg*(i-myIndex);
-        const elem = document.createElement("li");
-        elem.classList.add("show-all");
-        const nameElem = document.createElement("span");
-        const playerName = playersExternal[i].name;
-        nameElem.textContent = playerName;
-        nameElem.classList.add("player-name");
-        elem.appendChild(nameElem);
-
-        const score = pl.getScore();
-        if (score > 0) {
-            const scoreElem = document.createElement("span");
-            scoreElem.textContent = score;
-            elem.appendChild(scoreElem);
-        }
-        drawHand(document, elem, pl.pile(), engine, settings);
-        elem.dataset.id = i;
-        elem.dataset.angle = angleDeg + "deg";
-        elem.style.setProperty("--angle-deg", angleDeg + "deg");
-        elem.classList.add("circle", "player-hand", "js-player");
-        if (dealer === i) {
-            elem.classList.add("dealer");
-        }
-        if (currentPlayer === i) {
-            elem.classList.add("current-player");
-        }
-
-        places.appendChild(elem);
-        ++i;
-    }
-    drawCenter(document, engine.getCardOnBoard(), engine, settings, myIndex);
-    places.addEventListener("click", async (e) => {
-        e.preventDefault();
-        const cardEl = e.target.parentElement;
-
-        if (cardEl && cardEl.classList.contains("card")) {
-            const playerEl = cardEl.parentElement.parentElement;
-            const card = parseInt(cardEl.dataset.card);
-            const playerId = parseInt(playerEl.dataset.id);
-            await engine.moveToDiscard(playerId, card);
-        }
-    });
-}
-
-function drawCenterCircle(box, document, engine) {
-    addDirectionElem(engine.size(), engine.getDirection(), box, document, "big-circle");
-}
-
-function drawCenter(document, p, engine, settings, myIndex) {
-    const box = document.querySelector(".places");
-    let discardPile = box.querySelector(".center-pile");
-    if (!discardPile) {
-        discardPile = document.createElement("div");
-        discardPile.classList.add("center-pile");
-        box.appendChild(discardPile);
-    } else {
-        discardPile.replaceChildren();
-    }
-    drawDeck(document, discardPile, p, engine, settings.clickAll, myIndex);
-}
-
-function addDirectionElem(size, direction, parent, document, className, className2) {
-    if (size === 2 || direction === 0) {
-        return;
-    }
-    const old = parent.querySelector("." + className);
-    if (old) {
-        old.remove();
-    }
-    const directionElem = document.createElement("span");
-    directionElem.classList.add(className);
-
-    const directionElem1 = document.createElement("div");
-    directionElem1.classList.add("direction");
-    if (className2) {
-        directionElem1.classList.add(className2);
-    }
-
-    if (direction === 1) {
-        directionElem1.classList.add("mirror");
-    }
-    directionElem.appendChild(directionElem1);
-    parent.appendChild(directionElem);
-}
 
 function drawMyHand({document, engine, myIndex, settings, playersExternal}, box) {
     const myPlayer = engine.getPlayerByIndex(myIndex);
@@ -209,7 +56,7 @@ function drawMyHand({document, engine, myIndex, settings, playersExternal}, box)
         elem.classList.add("dealer");
     }
 
-    drawHand(document, elem, myPlayer.pile(), engine, settings);
+    drawHand(document, elem, myPlayer.pile(), settings);
     elem.addEventListener("click", async (e) => {
         e.preventDefault();
         const cardEl = e.target.parentElement;
@@ -223,19 +70,7 @@ function drawMyHand({document, engine, myIndex, settings, playersExternal}, box)
 }
 
 
-function mapColor(color) {
-    const colors = {
-        "green": "rgba(85, 170, 85, 0.4)",
-        "red" : "rgba(255, 85, 85, 0.4)",
-        "yellow": "rgba(255, 170, 0, 0.4)",
-        "blue": "rgba(85, 85, 255, 0.4)",
-    };
-    const c = colors[color];
-    if (c != null) {
-        return c;
-    }
-    return "rgba(240, 248, 255, 0.3)"; // aliceblue;
-}
+
 
 
 function drawLayout({document, engine, myIndex, settings, playersExternal}) {
@@ -268,7 +103,18 @@ function drawLayout({document, engine, myIndex, settings, playersExternal}) {
 
         if (showCards(engine, settings)) {
             // elem.classList.add("show-all");
-            drawHand(document, elem, pl.pile(), engine, settings);
+            drawHand(document, elem, pl.pile(), settings);
+            if (settings.clickAll) {
+                const plNum = i;
+                elem.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    const cardEl = e.target.parentElement;
+                    if (cardEl && cardEl.classList.contains("card")) {
+                        const card = parseInt(cardEl.dataset.card);
+                        return engine.moveToDiscard(plNum, card);
+                    }
+                });
+            }
         } else {
             const pileElem = document.createElement("div");
 
@@ -315,8 +161,8 @@ function drawPlayers(data, marker) {
     } else {
         logger.trace("drawPlayers", marker);
     }
-    if (data.settings.clickAll) {
-        drawPlayersInner(data, marker);
+    if (data.settings.legacyView) {
+        drawPlayersInner(data, marker, logger);
         return;
     }
 
