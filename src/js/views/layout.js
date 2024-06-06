@@ -8,6 +8,8 @@ import {drawBack, drawCard, repaintCard,
 
 import drawPlayersInner from "./legacy.js";
 
+import shuffle from "./shuffle.js";
+
 import ClearHands from "./clear_hands.js";
 
 let logger = console;
@@ -418,7 +420,7 @@ function drawPlayersMove(window, {document, engine, myIndex, settings, playersEx
         // TODO change to one selector
         const elemCardCount = player.querySelector(".card-count");
         const pl = engine.getPlayerByIndex(playerIndex);
-        return drawMoveOther(window, document, elemCardCount, settings.moveAnim, card, pl.pile().length);
+        return drawMoveOther(window, document, elemCardCount, settings.moveOtherAnim, card, pl.pile().length);
     }
     return drawMoveByCard(window, document, card, settings.moveAnim);
 }
@@ -436,5 +438,6 @@ export default {
     drawMoveByCard,
     drawMove,
     drawPlayersMove,
+    drawShuffle: shuffle,
     setLogger
 };

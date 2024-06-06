@@ -1,3 +1,8 @@
+function randomInteger(min, max, rngFunc) {
+    const rand = min + rngFunc() * (max - min);
+    return Math.floor(rand);
+}
+
 function randomEl(arr, rngFunc) {
     return arr[Math.floor(rngFunc() * arr.length)];
 }
@@ -16,5 +21,6 @@ function makeId(length, rngFunc) {
 
 export default {
     makeId,
-    randomEl
+    randomEl,
+    randomInteger
 };

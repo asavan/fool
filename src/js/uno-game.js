@@ -4,6 +4,7 @@ import {delay} from "./utils/timer.js";
 
 import coreUnoFunc from "./uno/engine.js";
 import colorChooser from "./views/choose_color.js";
+import onGameEnd from "./views/end_game.js";
 import layout from "./views/layout.js";
 import setupBots from "./bot/setup_bot.js";
 
@@ -113,7 +114,7 @@ export default function unoGame({window, document, settings}, {playersExternal, 
 
     engine.on("discard", async (p) => {
         const draw = layout.drawDiscard(document, engine, myIndex, settings);
-        await Promise.allSettled([draw, handlers["discard"](p)]);
+        await Promise.allSettled([draw, report("discard", p)]);
     });
 
     engine.on("discardExternal", (p) => {
@@ -122,37 +123,17 @@ export default function unoGame({window, document, settings}, {playersExternal, 
     });
 
     engine.on("shuffle", async (deck) => {
-        // TODO play shuffle animation
-        drawScreen("shuffle");
         logger.log("new deck", deck.length, ...deck);
-        await handlers["shuffle"](deck);
-        await delay(settings.shufflePause);
+        const draw = layout.drawShuffle({document, settings, logger: loggerLayout, length: deck.length});
+        const promises = [draw, report("shuffle", deck)];
+        await Promise.all(promises);
     });
 
-    engine.on("shuffleFake", async (deck) => {
-        // TODO play shuffle animation
-        drawScreen("shuffleFake");
+    engine.on("shuffleFake", (deck) => {
         logger.log("new deck fake", deck.length, deck);
-        await delay(settings.shufflePause);
+        return layout.drawShuffle({document, settings, logger: loggerLayout, length: deck.length});
     });
 
-    function onGameEnd(message1, message2) {
-        const overlay = document.querySelector(".overlay");
-        const close = document.querySelector(".close");
-        const btnInstall = document.querySelector(".install");
-
-        close.addEventListener("click", function (e) {
-            e.preventDefault();
-            overlay.classList.remove("show");
-        }, false);
-
-        const h2 = overlay.querySelector("h2");
-        h2.textContent = message1;
-        const content = overlay.querySelector(".content");
-        content.textContent = message2;
-        overlay.classList.add("show");
-        btnInstall.classList.remove("hidden2");
-    }
 
     engine.on("gameover", async (data) => {
         onGameOver(data);
@@ -161,13 +142,14 @@ export default function unoGame({window, document, settings}, {playersExternal, 
 
     engine.on("clearPlayer", async (playerIndex) => {
         const promises = [handlers["clearPlayer"](playerIndex)];
-        promises.push(layout.cleanHand({
-            playerIndex,
-            myIndex,
-            document,
-            settings,
-            animTime: settings.drawMy,
-            logger: loggerLayout}));
+        drawScreen("clearPlayer");
+        // promises.push(layout.cleanHand({
+        //     playerIndex,
+        //     myIndex,
+        //     document,
+        //     settings,
+        //     animTime: settings.drawMy,
+        //     logger: loggerLayout}));
         await Promise.all(promises);
         // drawScreen("clearPlayer");
     });
@@ -191,6 +173,7 @@ export default function unoGame({window, document, settings}, {playersExternal, 
     });
 
     async function start() {
+        drawScreen("start");
         await delay(settings.beforeChooseDealer);
         await engine.chooseDealer();
         await delay(settings.betweenRounds);
@@ -203,7 +186,7 @@ export default function unoGame({window, document, settings}, {playersExternal, 
         const firstLine = name + " wins";
         const secondLine = "with score " + data.score;
         logger.log(firstLine, secondLine);
-        onGameEnd(firstLine, secondLine);
+        onGameEnd(document, firstLine, secondLine);
         return true;
     }
 

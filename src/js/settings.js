@@ -38,5 +38,12 @@ export default {
     shufflePause: 300,
     changeCurrentPause: 50,
     moveAnim: 250,
+    moveOtherAnim: 190,
+    shuffleOutDelay: 150,
+    shuffleInDelay: 150,
+    shuffleWaitDelay: 200,
+    shuffleSmallDelay: 10,
+    shuffleTimes: 2,
+    shuffleMaxCardsShow: 20,
     maxNameLen: 15
 };

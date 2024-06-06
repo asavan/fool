@@ -542,3 +542,11 @@ footer {
 .flip-class-cont {
   position: absolute;
 }
+
+.slide {
+  transform: translate(calc((1px) * var(--dx)), calc((1px) * var(--dy)));
+}
+
+.long-animation {
+  transition: transform 400ms;
+}

@@ -26,6 +26,7 @@ export default function bestCardBot({engine, queue, logger, botIndexes, settings
             return;
         }
         const unoActions = actionsFuncUno(engine, logger);
+        const cardOnTop = engine.secretlySeeTopCard();
         const calcAction = (trycount) => {
             const pile = pl.pile();
             const bestCard = simpleBot.findBestGoodCard(pile, engine.getCardOnBoard(), engine.getCurrentColor());
@@ -33,7 +34,7 @@ export default function bestCardBot({engine, queue, logger, botIndexes, settings
             let data;
             let moveCount = 0;
             if (bestCard === undefined) {
-                data = { playerIndex, card: engine.secretlySeeTopCard() };
+                data = { playerIndex, card: cardOnTop };
                 if (trycount > 0) {
                     callback = unoActions["pass"];
                 } else {

@@ -20,8 +20,15 @@ function fastMove() {
     localSettings.drawMy = 10;
     localSettings.drawClosed = 1;
     localSettings.moveAnim = 10;
+    localSettings.moveOtherAnim = 10;
     localSettings.movePause = 10;
     localSettings.shufflePause = 10;
+
+    localSettings.shuffleOutDelay = 15;
+    localSettings.shuffleInDelay = 15;
+    localSettings.shuffleWaitDelay = 20;
+    localSettings.shuffleSmallDelay = 1;
+
     return localSettings;
 }
 
