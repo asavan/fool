@@ -8,6 +8,7 @@ function stringToBoolean(string){
 
 export function parseSettings(queryString, settings) {
     const urlParams = new URLSearchParams(queryString);
+    const changed = [];
     for (const [key, value] of urlParams) {
         if (typeof settings[key] === "number") {
             settings[key] = parseInt(value, 10);
@@ -16,5 +17,7 @@ export function parseSettings(queryString, settings) {
         } else {
             settings[key] = value;
         }
+        changed.push(key);
     }
+    return changed;
 }

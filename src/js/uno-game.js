@@ -15,7 +15,7 @@ export default function unoGame({window, document, settings}, {playersExternal, 
     const logger = loggerFunc(7, null, settings);
     const traceLogger = loggerFunc(1, null, settings);
     const debugLogger = loggerFunc(4, null, settings);
-    const loggerLayout = loggerFunc(20, null, settings);
+    const loggerLayout = loggerFunc(3, null, settings);
     const loggerBot = loggerFunc(3, null, settings);
 
     layout.setLogger(loggerLayout);

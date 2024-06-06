@@ -3,9 +3,22 @@ import gameFunction from "./game.js";
 import {parseSettings} from "./utils/parse-settings.js";
 import {assert} from "./utils/assert.js";
 
+function adjustMode(changed, settings, location) {
+    const keepModes = ["mode", "wh"];
+    for (const keepMode of keepModes) {
+        if (changed.includes[keepMode]) {
+            return;
+        }
+    }
+    if (location.protocol === "https:") {
+        settings.mode = "ai";
+    }
+}
+
 export default async function starter(window, document) {
     const settings = {...settingsOriginal};
-    parseSettings(window.location.search, settings);
+    const changed = parseSettings(window.location.search, settings);
+    adjustMode(changed, settings, window.location);
 
     let mode;
     if (settings.mode === "net") {
