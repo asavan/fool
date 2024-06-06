@@ -550,3 +550,13 @@ footer {
 .long-animation {
   transition: transform 400ms;
 }
+
+.highlight-good {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.highlight-bad {
+  opacity: 0.5;
+  transform: scale(0.9);
+}

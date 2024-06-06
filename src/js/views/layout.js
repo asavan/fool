@@ -12,6 +12,8 @@ import shuffle from "./shuffle.js";
 
 import ClearHands from "./clear_hands.js";
 
+import highlight from "./highlight.js";
+
 let logger = console;
 
 function setLogger(log) {
@@ -24,7 +26,7 @@ function showCards(engine, settings) {
 }
 
 
-function drawMyHand({document, engine, myIndex, settings, playersExternal}, box) {
+function drawMyHand({document, engine, myIndex, settings, playersExternal, logger}, box) {
     const myPlayer = engine.getPlayerByIndex(myIndex);
     const elem = document.createElement("div");
     elem.classList.add("my-hand", "js-player");
@@ -58,19 +60,21 @@ function drawMyHand({document, engine, myIndex, settings, playersExternal}, box)
         elem.classList.add("dealer");
     }
 
-    drawHand(document, elem, myPlayer.pile(), settings);
+    const hand = drawHand(document, elem, myPlayer.pile(), settings);
     elem.addEventListener("click", async (e) => {
         e.preventDefault();
         const cardEl = e.target.parentElement;
         if (cardEl && cardEl.classList.contains("card")) {
             const card = parseInt(cardEl.dataset.card);
-            await engine.moveToDiscard(myIndex, card);
+            const res = await engine.moveToDiscard(myIndex, card);
+            if (!res && settings.highlight === "aftermove") {
+                highlight({document, engine, hand, myIndex, logger, settings});
+            }
         }
     });
 
     box.appendChild(elem);
 }
-
 
 
 
@@ -154,7 +158,7 @@ function drawLayout({document, engine, myIndex, settings, playersExternal}) {
         places.appendChild(elem);
     }
     drawCenter(document, engine.getCardOnBoard(), engine, settings, myIndex);
-    drawMyHand({document, engine, myIndex, settings, playersExternal}, box);
+    drawMyHand({document, engine, myIndex, settings, playersExternal, logger}, box);
 }
 
 function drawPlayers(data, marker) {

@@ -34,6 +34,7 @@ function drawDeck({document, parent, card, engine, clickAll, myIndex, settings})
         hand.appendChild(cardEl);
         if (settings.passAnchor === "card") {
             cardEl.classList.add("clickable");
+            cardEl.classList.add("js-pass");
             cardEl.addEventListener("click", (e) => {
                 e.preventDefault();
                 let playerIndex = myIndex;
@@ -52,6 +53,10 @@ function drawDeck({document, parent, card, engine, clickAll, myIndex, settings})
         hand.appendChild(drawBlank(document));
     } else {
         const backClone = drawBack(document);
+        backClone.classList.add("js-draw");
+        if ((!settings.passAnchor || settings.passAnchor === "deck")) {
+            backClone.classList.add("js-pass");
+        }
         backClone.addEventListener("click", async (e) => {
             e.preventDefault();
             let playerIndex = myIndex;
@@ -105,6 +110,7 @@ export function drawHand(document, parent, pile, settings) {
         hand.appendChild(drawCard(p, cardItem));
     }
     parent.appendChild(hand);
+    return hand;
 }
 
 export function drawCenterCircle(box, document, engine) {

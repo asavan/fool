@@ -24,6 +24,8 @@ export default {
     sortByColor: "",
     direction: ["center"],
     seed: "",
+    highlight: "aftermove",
+    highlightDelay: 1000,
     movePause: 150,
     botMovePause: 700,
     botSecondMovePause: 300,

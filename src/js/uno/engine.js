@@ -424,7 +424,7 @@ export default function initCore({settings, rngFunc, applyEffects},
 
         // player has card
         if (!getCurrentPlayerObj().hasCard(card)) {
-            logger.log("player not has card");
+            logger.error("player not has card");
             return false;
         }
 
@@ -474,7 +474,7 @@ export default function initCore({settings, rngFunc, applyEffects},
             return core.cardColor(card);
         }
 
-        logger.error("Bad card", core.cardType(card), core.cardType(cardOnBoard), currentColor);
+        logger.log("Bad card", core.cardType(card), core.cardType(cardOnBoard), currentColor);
         return false;
     }
 
@@ -681,6 +681,18 @@ export default function initCore({settings, rngFunc, applyEffects},
         return gameState === core.GameStage.CHOOSE_DEALER;
     };
 
+    const isMyMove = (playerIndex) => {
+        return currentPlayer === playerIndex && gameState === core.GameStage.ROUND;
+    };
+
+    const getCurrentSuitable = () => {
+        const pl = getCurrentPlayerObj();
+        const hasColor = pl.hasColor(currentColor);
+        return pl.pile().filter(c => core.suitable(c, cardOnBoard, currentColor, hasColor));
+    };
+
+    const canDraw = () => cardTaken > 0;
+
     const toJson = () => {
         return {
             playersRaw: players.map(p => p.toJson()),
@@ -699,6 +711,9 @@ export default function initCore({settings, rngFunc, applyEffects},
     };
 
     return {
+        isMyMove,
+        canDraw,
+        getCurrentSuitable,
         chooseDealer,
         deal,
         getPlayerIterator,
