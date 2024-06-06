@@ -71,7 +71,12 @@ export default async function server(window, document, settings, gameFunction) {
         connection.registerHandler(actions, queue);
         setupGameToNetwork(game, connection, logger);
 
-        game.on("username", actions["username"]);
+        game.on("username", async (data) => {
+            await actions["username"](data);
+            for (let i = 0; i < settings.botCount; ++i) {
+                game.addBot();
+            }
+        });
 
         game.on("engineCreated", (engine) => {
             removeElem(qrCodeEl);

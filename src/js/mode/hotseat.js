@@ -9,7 +9,7 @@ export default function hotseat(window, document, settings, gameFunction) {
         settings.clickAll = true;
         const game = gameFunction({window, document, settings, myId});
         game.join("server", "server");
-        for (let i = 1; i < 4; ++i) {
+        for (let i = 1; i < settings.botCount + 1; ++i) {
             const name = "client" + i;
             game.join(name, name);
         }

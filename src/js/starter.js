@@ -13,6 +13,9 @@ function adjustMode(changed, settings, location) {
     if (location.protocol === "https:") {
         settings.mode = "ai";
     }
+    if (!changed.includes("botCount") && settings.mode === "server") {
+        settings.botCount = 0;
+    }
 }
 
 export default async function starter(window, document) {
