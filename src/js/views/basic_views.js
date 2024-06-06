@@ -25,17 +25,30 @@ export function drawCard(p, cardItem) {
 }
 
 
-function drawDeck(document, parent, card, engine, clickAll, myIndex) {
+function drawDeck({document, parent, card, engine, clickAll, myIndex, settings}) {
     const hand = document.createElement("ul");
     const cardItem = document.querySelector("#card");
     hand.classList.add("hand");
     if (card != null) {
-        hand.appendChild(drawCard(card, cardItem));
+        const cardEl = drawCard(card, cardItem);
+        hand.appendChild(cardEl);
+        if (settings.passAnchor === "card") {
+            cardEl.classList.add("clickable");
+            cardEl.addEventListener("click", (e) => {
+                e.preventDefault();
+                let playerIndex = myIndex;
+                if (clickAll) {
+                    playerIndex = engine.getCurrentPlayer();
+                }
+                return engine.pass(playerIndex);
+            });
+        }
     } else {
         hand.appendChild(drawBlank(document));
     }
 
     if (engine.deckSize() === 0) {
+        // TODO reconsider
         hand.appendChild(drawBlank(document));
     } else {
         const backClone = drawBack(document);
@@ -46,7 +59,7 @@ function drawDeck(document, parent, card, engine, clickAll, myIndex) {
                 playerIndex = engine.getCurrentPlayer();
             }
             const res = await engine.onDrawPlayer(playerIndex);
-            if (!res) {
+            if (!res && (!settings.passAnchor || settings.passAnchor === "deck")) {
                 await engine.pass(playerIndex);
             }
         });
@@ -108,7 +121,7 @@ export function drawCenter(document, p, engine, settings, myIndex) {
     } else {
         discardPile.replaceChildren();
     }
-    drawDeck(document, discardPile, p, engine, settings.clickAll, myIndex);
+    drawDeck({document, parent: discardPile, card: p, engine, clickAll: settings.clickAll, myIndex, settings});
 }
 
 
