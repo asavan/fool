@@ -74,24 +74,29 @@ function drawDeck({document, parent, card, engine, clickAll, myIndex, settings})
     parent.appendChild(hand);
 }
 
-
-export function addDirectionElem(size, direction, parent, document, className, className2) {
+function addDirectionElem(size, direction, parent, document, className) {
     if (size === 2 || direction === 0) {
         return;
     }
     const old = parent.querySelector("." + className);
     if (old) {
-        old.remove();
+        const directionElem1 = old.querySelector(".direction");
+        if (!directionElem1) {
+            // TODO log
+            return;
+        }
+        if (direction === 1) {
+            directionElem1.classList.add("mirror");
+        } else {
+            directionElem1.classList.remove("mirror");
+        }
+        return;
     }
     const directionElem = document.createElement("span");
     directionElem.classList.add(className);
 
     const directionElem1 = document.createElement("div");
     directionElem1.classList.add("direction");
-    if (className2) {
-        directionElem1.classList.add(className2);
-    }
-
     if (direction === 1) {
         directionElem1.classList.add("mirror");
     }

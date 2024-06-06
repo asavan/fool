@@ -2,7 +2,7 @@ import {delay} from "../utils/timer.js";
 import { assert } from "../utils/assert.js";
 
 import {drawBack, drawCard, repaintCard,
-    addDirectionElem, drawHand,
+    drawHand,
     drawCenterCircle, drawCenter,
     mapColor} from "./basic_views.js";
 
@@ -45,12 +45,7 @@ function drawMyHand({document, engine, myIndex, settings, playersExternal, logge
         statusRow.appendChild(scoreElem);
     }
 
-    if (settings.direction && settings.direction.includes("hand")) {
-        addDirectionElem(engine.size(), engine.getDirection(), statusRow, document, "sprite-container");
-    }
     elem.appendChild(statusRow);
-
-
     elem.dataset.id = myIndex;
 
     if (engine.getCurrentPlayer() === myIndex) {
