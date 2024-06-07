@@ -49,10 +49,12 @@ async function clearHandOther({playerIndex, document, animTime, logger}) {
 }
 
 async function clearOpenHand(data) {
+    const {settings} = data;
     const myHand = document.querySelector(`[data-id="${data.playerIndex}"] .hand`);
     for (const cardElem of myHand.children) {
         await cleanHandMeOne(data, cardElem);
     }
+    await delay(settings.drawShow);
     myHand.replaceChildren();
 }
 
@@ -104,7 +106,6 @@ async function cleanHandMeOne({document, logger, settings, showAll}, cardElem) {
         await delay(animTime);
     }
     flipClone.remove();
-    await delay(settings.drawShow);
 }
 
 function cleanHand(data) {

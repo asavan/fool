@@ -123,7 +123,7 @@ export default function unoGame({window, document, settings}, {playersExternal, 
     });
 
     engine.on("shuffle", async (deck) => {
-        logger.log("new deck", deck.length, ...deck);
+        debugLogger.log("new deck", deck.length, ...deck);
         const draw = layout.drawShuffle({document, settings, logger: loggerLayout, length: deck.length});
         const promises = [draw, report("shuffle", deck)];
         await Promise.all(promises);
@@ -143,7 +143,6 @@ export default function unoGame({window, document, settings}, {playersExternal, 
     engine.on("clearPlayer", async (playerIndex) => {
         const promises = [handlers["clearPlayer"](playerIndex)];
         // drawScreen("clearPlayer");
-        logger.log("clearPlayer");
         promises.push(layout.cleanHand({
             playerIndex,
             myIndex,

@@ -5,6 +5,7 @@ import core from "./basic.js";
 import handlersFunc from "../utils/handlers.js";
 
 import chooseDealerInner2 from "./dealer.js";
+import { delay } from "../utils/timer.js";
 
 function assertHelper(logger) {
     /* #__PURE__ */
@@ -610,7 +611,8 @@ export default function initCore({settings, rngFunc, applyEffects},
         // TODO update clients
         gameState = core.GameStage.CHOOSE_DEALER;
         deck = await deckFunc.newShuffledDeck(onShuffle, rngFunc);
-        dealer = await chooseDealerInner2({players, logger, dealToPlayer, dealer, deck, direction});
+        dealer = await chooseDealerInner2({players, logger: traceLogger, dealToPlayer, dealer, deck, direction});
+        await delay(settings.betweenRounds);
         await cleanAllHands();
 
         currentPlayer = dealer;
@@ -621,6 +623,7 @@ export default function initCore({settings, rngFunc, applyEffects},
     async function deal() {
         // TODO update clients
         await cleanAllHands();
+        traceLogger.log("hands clean");
         gameState = core.GameStage.DEALING;
         deck = await deckFunc.newShuffledDeck(onShuffle, rngFunc);
         traceLogger.log("after cleanAllHands");
