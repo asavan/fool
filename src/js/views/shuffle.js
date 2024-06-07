@@ -1,8 +1,12 @@
-import {drawBack} from "./basic_views.js";
+import {drawBack, drawCenter} from "./basic_views.js";
 import {delay} from "../utils/timer.js";
 import randomFunc from "../utils/random.js";
 
-async function shuffle({document, settings, logger, length}) {
+import { drawAntiDiscard } from "./discard.js";
+
+
+async function shuffle(data) {
+    const {document, settings, logger, length} = {...data};
     const centerPile = document.querySelector(".center-pile");
     if (!centerPile) {
         logger.log("No centerPile");
@@ -14,6 +18,12 @@ async function shuffle({document, settings, logger, length}) {
         logger.log("No back card");
         return;
     }
+
+    const cardEl = list.querySelector(".card");
+    if (cardEl && !cardEl.classList.contains("transparent")) {
+        await drawAntiDiscard(Object.assign(data, {cardEl, list}));
+    }
+
     const backCont = backOld.parentElement;
 
     const movingCards = [];
@@ -45,6 +55,7 @@ async function shuffle({document, settings, logger, length}) {
     for (const elem of movingCards) {
         elem.remove();
     }
+    drawCenter(data);
 }
 
 export default shuffle;

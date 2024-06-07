@@ -124,14 +124,16 @@ export default function unoGame({window, document, settings}, {playersExternal, 
 
     engine.on("shuffle", async (deck) => {
         debugLogger.log("new deck", deck.length, ...deck);
-        const draw = layout.drawShuffle({document, settings, logger: loggerLayout, length: deck.length});
+        const draw = layout.drawShuffle({document, settings, engine, myIndex,
+            logger: loggerLayout, length: deck.length});
         const promises = [draw, report("shuffle", deck)];
         await Promise.all(promises);
     });
 
     engine.on("shuffleFake", (deck) => {
         logger.log("new deck fake", deck.length, deck);
-        return layout.drawShuffle({document, settings, logger: loggerLayout, length: deck.length});
+        return layout.drawShuffle({document, settings, engine, myIndex,
+            logger: loggerLayout, length: deck.length});
     });
 
 

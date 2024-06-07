@@ -23,14 +23,7 @@ export async function drawDiscard({document, engine, myIndex, settings}) {
     drawCenter({document, engine, settings, myIndex});
 }
 
-export async function drawAntiDiscard({document, engine, myIndex, settings}) {
-    const centerPile = document.querySelector(".center-pile");
-    const list = centerPile.querySelector(".hand");
-
-    const cardEl = list.querySelector(".card");
-    if (!cardEl || cardEl.classList.contains("transparent")) {
-        return;
-    }
+export async function drawAntiDiscard({document, settings, cardEl, list}) {
     const card = parseInt(cardEl.dataset.card);
     const flipItem = document.querySelector("#flip-card");
     const flipClone = flipItem.content.cloneNode(true).firstElementChild;
@@ -48,5 +41,6 @@ export async function drawAntiDiscard({document, engine, myIndex, settings}) {
     await delay(settings.discardAnimBeforeFlip);
     flipList.classList.add("is-flipped");
     await delay(settings.discardAnimAfterFlip);
-    drawCenter({document, engine, settings, myIndex});
+    // TODO mb not need
+    // drawCenter({document, engine, settings, myIndex});
 }

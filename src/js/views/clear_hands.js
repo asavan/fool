@@ -1,7 +1,6 @@
 "use strict";
 
 import {drawBack, drawCard} from "./basic_views.js";
-import { drawAntiDiscard } from "./discard.js";
 import {delay} from "../utils/timer.js";
 
 async function clearOther({document, fromEl, animTime, newCount, logger}) {
@@ -121,7 +120,6 @@ async function cleanHand(data) {
     }
     logger.log("before clearHandOther", data);
     await clearHandOther(data);
-    await drawAntiDiscard(data);
 }
 
 export default {
