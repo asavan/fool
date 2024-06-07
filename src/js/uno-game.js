@@ -198,7 +198,7 @@ export default function unoGame({window, document, settings}, {playersExternal, 
     setupBots({players: playersExternal, engine, queue, logger: loggerBot, settings, rngEngine: myrng});
 
     handlers["engineCreated"](engine);
-    // drawScreen("firstDraw");
+    drawScreen("firstDraw");
     traceLogger.log("engineCreated");
     delay(100).then(() => {
         const grid = document.querySelector(".places");

@@ -4,6 +4,10 @@ import randomFunc from "../utils/random.js";
 
 async function shuffle({document, settings, logger, length}) {
     const centerPile = document.querySelector(".center-pile");
+    if (!centerPile) {
+        logger.log("No centerPile");
+        return;
+    }
     const list = centerPile.querySelector(".hand");
     const backOld = list.querySelector(".sprite-back");
     if (!backOld) {
