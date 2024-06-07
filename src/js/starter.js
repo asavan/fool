@@ -1,27 +1,13 @@
 import settingsOriginal from "./settings.js";
 import gameFunction from "./game.js";
-import {parseSettings} from "./utils/parse-settings.js";
+import {parseSettings, adjustMode} from "./utils/parse-settings.js";
 import {assert} from "./utils/assert.js";
 
-function adjustMode(changed, settings, location) {
-    const keepModes = ["mode", "wh"];
-    for (const keepMode of keepModes) {
-        if (changed.includes[keepMode]) {
-            return;
-        }
-    }
-    if (location.protocol === "https:") {
-        settings.mode = "ai";
-    }
-    if (!changed.includes("botCount") && settings.mode === "server") {
-        settings.botCount = 0;
-    }
-}
 
 export default async function starter(window, document) {
     const settings = {...settingsOriginal};
     const changed = parseSettings(window.location.search, settings);
-    adjustMode(changed, settings, window.location);
+    adjustMode(changed, settings, window.location.protocol);
 
     let mode;
     if (settings.mode === "net") {
