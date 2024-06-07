@@ -13,7 +13,8 @@ import simpleBot from "../../src/js/bot/simple.bot.js";
 test("bad bot deal", async () => {
     const count = 6;
     const engineRaw = emptyEngine(settings, count);
-    const engine = coreUnoFunc({settings, rngFunc: Math.random, applyEffects: true},
+    const stub = () => {};
+    const engine = coreUnoFunc({settings, rngFunc: Math.random, applyEffects: true, delay: stub},
         {logger: console, traceLogger: console, debugLogger: console}, engineRaw);
     const deck = [
         108, 59, 31, 29, 48, 35, 6, 99, 5, 86, 95, 81, 94, 54, 110, 41, 42, 43, 50,

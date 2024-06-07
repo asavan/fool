@@ -3,9 +3,7 @@ import newPlayer from "./player.js";
 import core from "./basic.js";
 
 import handlersFunc from "../utils/handlers.js";
-
-import chooseDealerInner2 from "./dealer.js";
-import { delay } from "../utils/timer.js";
+import chooseDealerInner from "./dealer.js";
 
 function assertHelper(logger) {
     /* #__PURE__ */
@@ -16,7 +14,7 @@ function assertHelper(logger) {
     };
 }
 
-export default function initCore({settings, rngFunc, applyEffects},
+export default function initCore({settings, rngFunc, applyEffects, delay},
     {logger, traceLogger, debugLogger},
     {
         playersRaw,
@@ -293,7 +291,7 @@ export default function initCore({settings, rngFunc, applyEffects},
             pl.cleanHand();
             promises.push(report("clearPlayer", pl.getIndex()));
         }
-        await Promise.allSettled(promises);
+        await Promise.all(promises);
     }
 
     function cleanHandExternal(playerIndex) {
@@ -611,7 +609,7 @@ export default function initCore({settings, rngFunc, applyEffects},
         // TODO update clients
         gameState = core.GameStage.CHOOSE_DEALER;
         deck = await deckFunc.newShuffledDeck(onShuffle, rngFunc);
-        dealer = await chooseDealerInner2({players, logger: traceLogger, dealToPlayer, dealer, deck, direction});
+        dealer = await chooseDealerInner({players, logger: traceLogger, dealToPlayer, dealer, deck, direction});
         await delay(settings.betweenRounds);
         await cleanAllHands();
 

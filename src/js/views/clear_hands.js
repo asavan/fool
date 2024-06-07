@@ -40,6 +40,10 @@ async function clearOther({document, fromEl, animTime, newCount, logger}) {
 
 async function clearHandOther({playerIndex, document, animTime, logger}) {
     const elemCardCount = document.querySelector(`[data-id="${playerIndex}"] .card-count`);
+    if (!elemCardCount) {
+        logger.log("No element count", playerIndex);
+        return;
+    }
     let cardsCount = parseInt(elemCardCount.textContent);
     logger.log("clearHandOther", playerIndex, cardsCount);
     for (cardsCount; cardsCount > 0; --cardsCount) {
@@ -49,7 +53,7 @@ async function clearHandOther({playerIndex, document, animTime, logger}) {
 }
 
 async function clearOpenHand(data) {
-    const {settings} = data;
+    const {settings, document} = data;
     const myHand = document.querySelector(`[data-id="${data.playerIndex}"] .hand`);
     for (const cardElem of myHand.children) {
         await cleanHandMeOne(data, cardElem);

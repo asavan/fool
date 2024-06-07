@@ -26,7 +26,7 @@ export default function unoGame({window, document, settings}, {playersExternal, 
     };
     const myIndex = playersExternal.findIndex(p => p.externalId === myId);
     assert(myIndex >= 0, "Not my game");
-    const engine = coreUnoFunc({settings, rngFunc: myrng, applyEffects: settings.applyEffects},
+    const engine = coreUnoFunc({settings, rngFunc: myrng, applyEffects: settings.applyEffects, delay},
         {logger, traceLogger, debugLogger},
         engineRaw);
 
@@ -60,7 +60,7 @@ export default function unoGame({window, document, settings}, {playersExternal, 
         const pause = delay(onDrawTiming(playerIndex, engine.showAllCards()));
         const network = handlers["draw"]({playerIndex, card});
         const promises = [pause, network];
-        return Promise.allSettled(promises);
+        return Promise.all(promises);
     });
 
     engine.on("drawExternal", ({playerIndex, card}) => {
@@ -82,14 +82,14 @@ export default function unoGame({window, document, settings}, {playersExternal, 
         if (settings.mode !== "net") {
             promises.push(report("changeCurrent", data));
         }
-        return Promise.allSettled(promises);
+        return Promise.all(promises);
     });
 
     engine.on("changeCurrentExternal", () => {
         layout.drawCurrent(document, engine, myIndex, settings);
         const pause = delay(settings.changeCurrentPause);
         const promises = [pause];
-        return Promise.allSettled(promises);
+        return Promise.all(promises);
     });
 
     engine.on("pass", (data) => {
@@ -109,12 +109,12 @@ export default function unoGame({window, document, settings}, {playersExternal, 
         );
         const pause = delay(settings.movePause);
         const promises = [pause, report("move", data)];
-        return Promise.allSettled(promises);
+        return Promise.all(promises);
     });
 
     engine.on("discard", async (p) => {
         const draw = layout.drawDiscard(document, engine, myIndex, settings);
-        await Promise.allSettled([draw, report("discard", p)]);
+        await Promise.all([draw, report("discard", p)]);
     });
 
     engine.on("discardExternal", (p) => {
