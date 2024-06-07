@@ -20,6 +20,7 @@ export default {
     applyEffects: true,
     lastCardNoColor: true,
     legacyView: false,
+    chooseDealer: true,
     colorOrder: ["red", "yellow", "green", "blue", "black"],
     sortByColor: "",
     direction: ["center"],

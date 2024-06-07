@@ -41,26 +41,31 @@ async function clearOther({document, fromEl, animTime, newCount, logger}) {
 async function clearHandOther({playerIndex, document, animTime, logger}) {
     const elemCardCount = document.querySelector(`[data-id="${playerIndex}"] .card-count`);
     let cardsCount = parseInt(elemCardCount.textContent);
+    logger.log("clearHandOther", playerIndex, cardsCount);
     for (cardsCount; cardsCount > 0; --cardsCount) {
         logger.log("clear one", cardsCount);
         await clearOther({document, fromEl: elemCardCount, animTime, newCount: (cardsCount-1), logger});
     }
 }
 
-async function clearMyHand(data) {
-    const myHand = document.querySelector(".my-hand .hand");
+async function clearOpenHand(data) {
+    const myHand = document.querySelector(`[data-id="${data.playerIndex}"] .hand`);
     for (const cardElem of myHand.children) {
         await cleanHandMeOne(data, cardElem);
     }
     myHand.replaceChildren();
 }
 
-async function cleanHandMeOne({document, logger, settings}, cardElem) {
+async function cleanHandMeOne({document, logger, settings, showAll}, cardElem) {
     if (!cardElem) {
         logger.log("No elem cleanHandMeOne");
         return;
     }
-    const animTime = settings.drawMy;
+    let factor = 1;
+    if (showAll) {
+        factor = 4;
+    }
+    const animTime = settings.drawMy * factor;
     const centerPile = document.querySelector(".center-pile");
     const list = centerPile.querySelector(".hand");
 
@@ -95,15 +100,20 @@ async function cleanHandMeOne({document, logger, settings}, cardElem) {
     };
     if (typeof flipList.animate === "function") {
         flipList.animate(newspaperSpinning, newspaperTiming);
+        logger.log("animate cleanHandMeOne");
         await delay(animTime);
     }
     flipClone.remove();
+    await delay(settings.drawShow);
 }
 
 function cleanHand(data) {
-    if (data.playerIndex === data.myIndex) {
-        return clearMyHand(data);
+    const {logger, playerIndex, showAll, myIndex} = data;
+    if (playerIndex === myIndex || showAll) {
+        logger.log("clearOpenHand", data);
+        return clearOpenHand(data);
     }
+    logger.log("before clearHandOther", data);
     return clearHandOther(data);
 }
 

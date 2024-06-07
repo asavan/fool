@@ -15,7 +15,7 @@ export default function unoGame({window, document, settings}, {playersExternal, 
     const logger = loggerFunc(7, null, settings);
     const traceLogger = loggerFunc(1, null, settings);
     const debugLogger = loggerFunc(4, null, settings);
-    const loggerLayout = loggerFunc(3, null, settings);
+    const loggerLayout = loggerFunc(2, null, settings);
     const loggerBot = loggerFunc(3, null, settings);
 
     layout.setLogger(loggerLayout);
@@ -142,16 +142,17 @@ export default function unoGame({window, document, settings}, {playersExternal, 
 
     engine.on("clearPlayer", async (playerIndex) => {
         const promises = [handlers["clearPlayer"](playerIndex)];
-        drawScreen("clearPlayer");
-        // promises.push(layout.cleanHand({
-        //     playerIndex,
-        //     myIndex,
-        //     document,
-        //     settings,
-        //     animTime: settings.drawMy,
-        //     logger: loggerLayout}));
-        await Promise.all(promises);
         // drawScreen("clearPlayer");
+        logger.log("clearPlayer");
+        promises.push(layout.cleanHand({
+            playerIndex,
+            myIndex,
+            document,
+            settings,
+            engine,
+            animTime: settings.drawMy,
+            logger: loggerLayout}));
+        await Promise.all(promises);
     });
 
     engine.on("clearPlayerExternal", () => {
@@ -174,8 +175,10 @@ export default function unoGame({window, document, settings}, {playersExternal, 
 
     async function start() {
         drawScreen("start");
-        await delay(settings.beforeChooseDealer);
-        await engine.chooseDealer();
+        if (settings.chooseDealer) {
+            await delay(settings.beforeChooseDealer);
+            await engine.chooseDealer();
+        }
         await delay(settings.betweenRounds);
         await engine.deal();
     }
@@ -196,7 +199,7 @@ export default function unoGame({window, document, settings}, {playersExternal, 
     setupBots({players: playersExternal, engine, queue, logger: loggerBot, settings, rngEngine: myrng});
 
     handlers["engineCreated"](engine);
-    drawScreen("firstDraw");
+    // drawScreen("firstDraw");
     traceLogger.log("engineCreated");
     delay(100).then(() => {
         const grid = document.querySelector(".places");

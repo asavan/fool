@@ -159,6 +159,12 @@ function isDrawCard(card) {
     return (cardType(card) === "Draw4") || (cardType(card) === "Draw2");
 }
 
+function nextPlayer(diff, size, direction, cur) {
+    // localAssert(size > 0, "Bad usage");
+    // localAssert(direction === 1 || direction === -1, "Bad usage direction");
+    return (cur + (diff + 1) * direction + size) % size;
+}
+
 export default {
     GOOD_COLORS,
     BLACK_COLOR,
@@ -172,5 +178,6 @@ export default {
     suitable,
     sameColorOrTypeNonBlack,
     isDrawCard,
+    nextPlayer,
     matchColor
 };

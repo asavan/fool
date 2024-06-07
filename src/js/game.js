@@ -20,6 +20,7 @@ function makeCommonSeed(players) {
 export default function game({window, document, settings, myId}) {
 
     const logger = loggerFunc(8, null, settings);
+    const traceLogger = loggerFunc(2, null, settings);
 
     assert(myId, "No id");
 
@@ -71,7 +72,7 @@ export default function game({window, document, settings, myId}) {
     }
 
     function addBot() {
-        logger.log("addBot");
+        traceLogger.log("addBot");
         ++botCount;
         const name = "bot " + botCount;
         const externalId = "bot" + botCount;
@@ -124,7 +125,7 @@ export default function game({window, document, settings, myId}) {
     };
 
     const onNameChange = (name) => {
-        logger.log("change name");
+        traceLogger.log("change name");
         return handlers["username"]({name, externalId: myId});
     };
 
@@ -141,7 +142,7 @@ export default function game({window, document, settings, myId}) {
 
     function filterPlayers() {
         players = players.filter(p => !p.banned && p.name);
-        logger.log("after filter", players);
+        traceLogger.log("after filter", players);
     }
 
     function createUnoGame(engineRaw) {
@@ -162,7 +163,7 @@ export default function game({window, document, settings, myId}) {
         }
         filterPlayers();
         unoGame = createUnoGame(emptyEngine(settings, players.length));
-        logger.log("Game init");
+        traceLogger.log("Game init");
         await handlers["start"](toJson());
         await unoGame.start();
     }

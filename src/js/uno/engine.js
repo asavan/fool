@@ -4,6 +4,8 @@ import core from "./basic.js";
 
 import handlersFunc from "../utils/handlers.js";
 
+import chooseDealerInner2 from "./dealer.js";
+
 function assertHelper(logger) {
     /* #__PURE__ */
     return (b, message) => {
@@ -81,15 +83,8 @@ export default function initCore({settings, rngFunc, applyEffects},
         return direction;
     }
 
-
-    function nextPlayer(diff, size, direction, cur) {
-        localAssert(size > 0, "Bad usage");
-        localAssert(direction === 1 || direction === -1, "Bad usage direction");
-        return (cur + (diff + 1) * direction + size) % size;
-    }
-
     function calcNextFromCurrent(cur, size, direction) {
-        return nextPlayer(0, size, direction, cur);
+        return core.nextPlayer(0, size, direction, cur);
     }
 
     function getCardOnBoard() {
@@ -289,47 +284,7 @@ export default function initCore({settings, rngFunc, applyEffects},
         direction *= -1;
     }
 
-    async function chooseDealerInner(rngFunc) {
-        // TODO update clients
-        gameState = core.GameStage.CHOOSE_DEALER;
-        deck = await deckFunc.newShuffledDeck(onShuffle, rngFunc);
-        let candidates = [...players];
-
-        while (candidates.length > 1) {
-            const n = candidates.length;
-            const scores = new Array(n);
-            let max = 0;
-            for (let i = 0; i < n; i++) {
-                const dealIndex = nextPlayer(i, n, direction, dealer);
-                const currentPlayer = candidates[dealIndex].getIndex();
-                const card = await dealToPlayer(deck, currentPlayer);
-                localAssert(card !== undefined);
-                const score = core.cardScore(card);
-                traceLogger.log(">> Player " + i + " draws "
-                                + core.cardToString(card) + " and gets " + score + " points");
-                scores[dealIndex] = score;
-                max = Math.max(max, score);
-            }
-            const newCand = [];
-            for (let i = 0; i < n; i++) {
-                if (scores[i] === max) {
-                    newCand.push(candidates[i]);
-                }
-            }
-            candidates = newCand;
-        }
-        if (candidates.length >= 1) {
-            dealer = candidates[0].getIndex();
-        } else {
-            logger.error("No cand", candidates);
-        }
-        currentPlayer = dealer;
-        gameState = core.GameStage.DEALING;
-        await report("changeCurrent", state());
-        traceLogger.log("dealer was chosen", state());
-    }
-
-    async function cleanAllHands(rngFunc) {
+    async function cleanAllHands() {
         cardOnBoard = undefined;
         discardPile = [];
         const promises = [];
@@ -338,7 +293,6 @@ export default function initCore({settings, rngFunc, applyEffects},
             promises.push(report("clearPlayer", pl.getIndex()));
         }
         await Promise.allSettled(promises);
-        deck = await deckFunc.newShuffledDeck(onShuffle, rngFunc);
     }
 
     function cleanHandExternal(playerIndex) {
@@ -392,7 +346,7 @@ export default function initCore({settings, rngFunc, applyEffects},
         for (let round = 0; round < initialDealt; ++round) {
             const n = players.length;
             for (let i = 0; i < n; i++) {
-                const dealIndex = nextPlayer(i, n, direction, dealer);
+                const dealIndex = core.nextPlayer(i, n, direction, dealer);
                 const currentPlayer = players[dealIndex].getIndex();
                 await dealToPlayer(deck, currentPlayer);
             }
@@ -444,7 +398,7 @@ export default function initCore({settings, rngFunc, applyEffects},
             }
             const newColor = await chooseColor(playerInd);
             if (!core.GOOD_COLORS.includes(newColor)) {
-                logger.error("Wrong color", newColor);
+                logger.log("Wrong color", newColor);
                 return false;
             }
             return newColor;
@@ -460,7 +414,7 @@ export default function initCore({settings, rngFunc, applyEffects},
             const newColor = await chooseColor(playerInd);
 
             if (!core.GOOD_COLORS.includes(newColor)) {
-                logger.error("Wrong color", newColor);
+                logger.log("Wrong color", newColor);
                 return false;
             }
             return newColor;
@@ -652,14 +606,23 @@ export default function initCore({settings, rngFunc, applyEffects},
         return deck.size();
     }
 
-    function chooseDealer() {
-        return chooseDealerInner(rngFunc);
+    async function chooseDealer() {
+        // TODO update clients
+        gameState = core.GameStage.CHOOSE_DEALER;
+        deck = await deckFunc.newShuffledDeck(onShuffle, rngFunc);
+        dealer = await chooseDealerInner2({players, logger, dealToPlayer, dealer, deck, direction});
+        await cleanAllHands();
+
+        currentPlayer = dealer;
+        gameState = core.GameStage.DEALING;
+        await report("changeCurrent", state());
+        traceLogger.log("dealer was chosen", state());
     }
     async function deal() {
         // TODO update clients
+        await cleanAllHands();
         gameState = core.GameStage.DEALING;
-
-        await cleanAllHands(rngFunc);
+        deck = await deckFunc.newShuffledDeck(onShuffle, rngFunc);
         traceLogger.log("after cleanAllHands");
         await dealN(settings.cardsDeal);
         traceLogger.log("after dealN");

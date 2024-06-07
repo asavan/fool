@@ -402,8 +402,15 @@ function drawPlayersDeal(window, {document, engine, myIndex, settings, playersEx
     if (playerIndex !== myIndex) {
         const player = document.querySelector(`[data-id="${playerIndex}"]`);
         // TODO change to one selector
-        const elemCardCount = player.querySelector(".card-count");
+        let elemCardCount = player.querySelector(".card-count");
         const pl = engine.getPlayerByIndex(playerIndex);
+        if (!elemCardCount) {
+            elemCardCount = document.createElement("div");
+            elemCardCount.textContent = pl.pile().length;
+            elemCardCount.classList.add("card-count");
+            player.appendChild(elemCardCount);
+        }
+
         return drawDealOther(window, document, card, settings.moveAnim, elemCardCount, pl.pile().length);
     }
 
@@ -424,9 +431,14 @@ function drawPlayersMove(window, {document, engine, myIndex, settings, playersEx
     return drawMoveByCard(window, document, card, settings.moveAnim);
 }
 
+function cleanHand(data) {
+    const showAll = showCards(data.engine, data.settings);
+    return ClearHands.cleanHand(Object.assign(data, {showAll}));
+}
+
 export default {
     clearHandOther: ClearHands.clearHandOther,
-    cleanHand: ClearHands.cleanHand,
+    cleanHand,
     drawPlayers,
     drawDiscard,
     drawCurrent,
