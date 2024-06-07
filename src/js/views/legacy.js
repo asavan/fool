@@ -58,7 +58,7 @@ export default function drawPlayersInner({document, engine, myIndex, settings, p
         places.appendChild(elem);
         ++i;
     }
-    drawCenter(document, engine.getCardOnBoard(), engine, settings, myIndex);
+    drawCenter({document, engine, settings, myIndex});
     places.addEventListener("click", async (e) => {
         e.preventDefault();
         const cardEl = e.target.parentElement;

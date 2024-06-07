@@ -6,6 +6,8 @@ import {drawBack, drawCard, repaintCard,
     drawCenterCircle, drawCenter,
     mapColor} from "./basic_views.js";
 
+import { drawDiscard } from "./discard.js";
+
 import drawPlayersInner from "./legacy.js";
 
 import shuffle from "./shuffle.js";
@@ -152,7 +154,7 @@ function drawLayout({document, engine, myIndex, settings, playersExternal}) {
 
         places.appendChild(elem);
     }
-    drawCenter(document, engine.getCardOnBoard(), engine, settings, myIndex);
+    drawCenter({document, engine, settings, myIndex});
     drawMyHand({document, engine, myIndex, settings, playersExternal, logger}, box);
 }
 
@@ -168,27 +170,6 @@ function drawPlayers(data, marker) {
     }
 
     drawLayout(data);
-}
-
-async function drawDiscard(document, engine, myIndex, settings) {
-    const centerPile = document.querySelector(".center-pile");
-    const list = centerPile.querySelector(".hand");
-
-    const flipItem = document.querySelector("#flip-card");
-    const flipClone = flipItem.content.cloneNode(true).firstElementChild;
-    const flipList = flipClone.querySelector(".card-flip");
-    const cardItem = document.querySelector("#card");
-    const newCard = drawCard(engine.getCardOnBoard(), cardItem);
-    newCard.classList.add("card-face");
-    const backClone = drawBack(document);
-    backClone.classList.add("card-face", "card-face-back");
-    flipList.appendChild(newCard);
-    flipList.appendChild(backClone);
-    list.appendChild(flipClone);
-    await delay(settings.discardAnimBeforeFlip);
-    flipList.classList.remove("is-flipped");
-    await delay(settings.discardAnimAfterFlip);
-    drawCenter(document, engine.getCardOnBoard(), engine, settings, myIndex);
 }
 
 function drawCurrent(document, engine) {

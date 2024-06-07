@@ -113,13 +113,13 @@ export default function unoGame({window, document, settings}, {playersExternal, 
     });
 
     engine.on("discard", async (p) => {
-        const draw = layout.drawDiscard(document, engine, myIndex, settings);
+        const draw = layout.drawDiscard({document, engine, myIndex, settings});
         await Promise.all([draw, report("discard", p)]);
     });
 
     engine.on("discardExternal", (p) => {
         assert(p === engine.getCardOnBoard());
-        return layout.drawDiscard(document, engine, myIndex, settings);
+        return layout.drawDiscard({document, engine, myIndex, settings});
     });
 
     engine.on("shuffle", async (deck) => {

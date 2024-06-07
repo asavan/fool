@@ -1,6 +1,7 @@
 "use strict";
 
 import {drawBack, drawCard} from "./basic_views.js";
+import { drawAntiDiscard } from "./discard.js";
 import {delay} from "../utils/timer.js";
 
 async function clearOther({document, fromEl, animTime, newCount, logger}) {
@@ -112,14 +113,15 @@ async function cleanHandMeOne({document, logger, settings, showAll}, cardElem) {
     flipClone.remove();
 }
 
-function cleanHand(data) {
+async function cleanHand(data) {
     const {logger, playerIndex, showAll, myIndex} = data;
     if (playerIndex === myIndex || showAll) {
         logger.log("clearOpenHand", data);
-        return clearOpenHand(data);
+        await clearOpenHand(data);
     }
     logger.log("before clearHandOther", data);
-    return clearHandOther(data);
+    await clearHandOther(data);
+    await drawAntiDiscard(data);
 }
 
 export default {

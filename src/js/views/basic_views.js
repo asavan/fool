@@ -122,7 +122,7 @@ export function drawCenterCircle(box, document, engine) {
     addDirectionElem(engine.size(), engine.getDirection(), box, document, "big-circle");
 }
 
-export function drawCenter(document, p, engine, settings, myIndex) {
+export function drawCenter({document, engine, settings, myIndex}) {
     const box = document.querySelector(".places");
     let discardPile = box.querySelector(".center-pile");
     if (!discardPile) {
@@ -132,7 +132,8 @@ export function drawCenter(document, p, engine, settings, myIndex) {
     } else {
         discardPile.replaceChildren();
     }
-    drawDeck({document, parent: discardPile, card: p, engine, clickAll: settings.clickAll, myIndex, settings});
+    const card = engine.getCardOnBoard();
+    drawDeck({document, parent: discardPile, card, engine, clickAll: settings.clickAll, myIndex, settings});
 }
 
 
