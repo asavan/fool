@@ -90,11 +90,6 @@ export default function initCore({settings, rngFunc, applyEffects, delay},
         return cardOnBoard;
     }
 
-    function addPlayer() {
-        players.push(newPlayer(players.length));
-        return true;
-    }
-
     function reshuffleDiscard() {
         const onTop = discardPile.pop();
         deck.setDeck(discardPile);
@@ -682,7 +677,6 @@ export default function initCore({settings, rngFunc, applyEffects, delay},
         deal,
         getPlayerIterator,
         getPlayerByIndex,
-        addPlayer,
         size,
         on,
         getDealer,
