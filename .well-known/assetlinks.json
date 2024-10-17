@@ -16,7 +16,8 @@
   "relation": ["delegate_permission/common.handle_all_urls"],
   "target": {"namespace": "android_app", "package_name": "ru.asavan.suno",
     "sha256_cert_fingerprints": [
-      "EA:A4:A8:A4:DF:4B:6B:E4:D8:0B:3C:AF:E8:80:9B:93:E1:A8:6C:EE:22:35:C9:FD:8D:09:46:B2:28:3F:1A:73"
+      "EA:A4:A8:A4:DF:4B:6B:E4:D8:0B:3C:AF:E8:80:9B:93:E1:A8:6C:EE:22:35:C9:FD:8D:09:46:B2:28:3F:1A:73",
+      "42:58:AF:E3:C6:F8:F3:01:E7:33:84:A5:F7:4A:35:C9:34:14:3C:2B:67:B6:5A:5C:6E:A4:4E:BC:5C:73:B4:4D"
     ]
   }
 }

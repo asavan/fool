@@ -10,14 +10,14 @@ java {
 
 android {
     namespace = "ru.asavan.suno"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "ru.asavan.suno"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 25
-        versionName = "1.4.12"
+        versionName = "1.4.15"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -36,6 +36,6 @@ dependencies {
     implementation("com.google.androidbrowserhelper:androidbrowserhelper:2.5.0")
 
     testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 }
