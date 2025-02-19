@@ -32,9 +32,7 @@ const connectionFunc = function (id, logger) {
     // and https://w3c.github.io/webrtc-pc/#perfect-negotiation-example
     async function connect(socketUrl) {
         const signaling = createSignalingChannel(id, socketUrl, logger);
-        signaling.on("close", (data) => {
-            return handlers.call("socket_close", data);
-        });
+        signaling.on("close", (data) => handlers.call("socket_close", data));
 
         signaling.on("open", () => {
             handlers.call("socket_open", {});
@@ -80,7 +78,7 @@ const connectionFunc = function (id, logger) {
         await peerConnection.setLocalDescription(offer);
 
 
-        signaling.on("message", async function(json) {
+        signaling.on("message", async (json) => {
             if (json.from === user) {
                 console.error("same user");
                 return;

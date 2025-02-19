@@ -8,7 +8,9 @@ import chooseDealerInner from "./dealer.js";
 function assertHelper(logger) {
     /* #__PURE__ */
     return (b, message) => {
-        if (b) return;
+        if (b) {
+            return;
+        }
         logger.error(message);
         throw message;
     };
@@ -72,7 +74,9 @@ export default function initCore({settings, rngFunc, applyEffects, delay},
     let deck = deckFunc.newExternalDeck(deckRaw, onShuffle, rngFunc);
 
     let chooseColor = getCurrentColor;
-    const setColorChooser = (f) => {chooseColor = f;};
+    const setColorChooser = (f) => {
+        chooseColor = f;
+    };
 
     function getCurrentColor() {
         return currentColor;
@@ -248,7 +252,7 @@ export default function initCore({settings, rngFunc, applyEffects, delay},
                 let i = 0;
                 return {
                     next() {
-                        if (i >= players.length){
+                        if (i >= players.length) {
                             return { done: true, value: i };
                         }
                         return { done: false, value: players[i++] };
@@ -635,14 +639,12 @@ export default function initCore({settings, rngFunc, applyEffects, delay},
         return report("shuffleFake", d);
     }
 
-    const showAllCards = () => {
+    const showAllCards = () =>
         // maybe show cards on round end and on game end
-        return gameState === core.GameStage.CHOOSE_DEALER;
-    };
+        gameState === core.GameStage.CHOOSE_DEALER
+    ;
 
-    const isMyMove = (playerIndex) => {
-        return currentPlayer === playerIndex && gameState === core.GameStage.ROUND;
-    };
+    const isMyMove = (playerIndex) => currentPlayer === playerIndex && gameState === core.GameStage.ROUND;
 
     const getCurrentSuitable = () => {
         const pl = getCurrentPlayerObj();
@@ -652,22 +654,20 @@ export default function initCore({settings, rngFunc, applyEffects, delay},
 
     const canDraw = () => cardTaken > 0;
 
-    const toJson = () => {
-        return {
-            playersRaw: players.map(p => p.toJson()),
-            deckRaw: deck.toJson(),
-            dealer,
-            direction,
-            discardPile,
-            currentPlayer,
-            gameState,
-            cardTaken,
-            cardDiscarded,
-            maxScore,
-            cardOnBoard,
-            currentColor
-        };
-    };
+    const toJson = () => ({
+        playersRaw: players.map(p => p.toJson()),
+        deckRaw: deck.toJson(),
+        dealer,
+        direction,
+        discardPile,
+        currentPlayer,
+        gameState,
+        cardTaken,
+        cardDiscarded,
+        maxScore,
+        cardOnBoard,
+        currentColor
+    });
 
     return {
         isMyMove,

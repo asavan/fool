@@ -48,7 +48,7 @@ export default function connectionFunc(id, logger, isServer) {
                 reject(id);
             });
 
-            signaling.on("message", function(json) {
+            signaling.on("message", (json) => {
                 if (json.from === id) {
                     logger.error("same user");
                     return;
@@ -83,9 +83,7 @@ export default function connectionFunc(id, logger, isServer) {
                 logger.log("Unknown action " + json.action);
             });
 
-            signaling.on("close", (data) => {
-                return handlers.call("socket_close", data);
-            });
+            signaling.on("close", (data) => handlers.call("socket_close", data));
 
             signaling.on("open", () => {
                 handlers.call("socket_open", {});

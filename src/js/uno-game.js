@@ -156,9 +156,7 @@ export default function unoGame({window, document, settings}, {playersExternal, 
         await Promise.all(promises);
     });
 
-    engine.on("clearPlayerExternal", () => {
-        return drawScreen("clearPlayerExternal");
-    });
+    engine.on("clearPlayerExternal", () => drawScreen("clearPlayerExternal"));
 
     colorChooser(window, document, engine, gameState);
 

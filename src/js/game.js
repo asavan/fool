@@ -65,7 +65,9 @@ export default function game({window, document, settings, myId}) {
 
     const isInPlay = () => unoGame != null;
 
-    const setQueue = (q) => {queue = q;};
+    const setQueue = (q) => {
+        queue = q;
+    };
 
     function on(name, f) {
         handlers[name] = f;
@@ -129,9 +131,7 @@ export default function game({window, document, settings, myId}) {
         return handlers["username"]({name, externalId: myId});
     };
 
-    const onConnect = () => {
-        return enterName(window, document, settings, onNameChange);
-    };
+    const onConnect = () => enterName(window, document, settings, onNameChange);
 
     function swap(id1, id2) {
         const temp = players[id1];
@@ -149,9 +149,7 @@ export default function game({window, document, settings, myId}) {
         return unoGameFunc({window, document, settings}, {playersExternal: players, myId, queue}, engineRaw, handlers);
     }
 
-    const toJson = () => {
-        return {players, seed: settings.seed, engine: unoGame.getEngine().toJson()};
-    };
+    const toJson = () => ({players, seed: settings.seed, engine: unoGame.getEngine().toJson()});
 
     async function afterAllJoined() {
         assert(players.length > 0, "No players");
