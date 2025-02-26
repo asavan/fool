@@ -9,7 +9,7 @@ import java.util.Map;
 
 
 public class AndroidWebServerActivity extends Activity {
-    private static final int STATIC_CONTENT_PORT = 8080;
+    private static final int STATIC_CONTENT_PORT = 8088;
     private static final int WEB_SOCKET_PORT = 8088;
     private static final String WEB_GAME_URL = "https://asavan.github.io/fool/";
     public static final String WEB_VIEW_URL = "file:///android_asset/www/index.html";
@@ -22,7 +22,7 @@ public class AndroidWebServerActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        btnUtils = new BtnUtils(this, STATIC_CONTENT_PORT, WEB_SOCKET_PORT, secure);
+        btnUtils = new BtnUtils(this, WEB_SOCKET_PORT, secure);
         try {
             addButtons(IpUtils.getIPAddressSafe());
             Map<String, String> mainParams = new LinkedHashMap<>();
