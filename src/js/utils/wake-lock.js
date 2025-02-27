@@ -1,5 +1,5 @@
 // Create a reference for the Wake Lock.
-export default function lokker(logger) {
+export default function lokker(logger, document) {
     let wakeLock = null;
 
     // create an async function to request a wake lock

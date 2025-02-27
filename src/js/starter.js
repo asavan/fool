@@ -11,7 +11,7 @@ export default async function starter(window, document) {
     const changed = parseSettings(window.location.search, settings);
     adjustMode(changed, settings, window.location.protocol);
 
-    wakeLock(loggerFunc(1, null, settings)).init();
+    wakeLock(loggerFunc(1, null, settings), document).init();
 
     let mode;
     if (settings.mode === "net") {
