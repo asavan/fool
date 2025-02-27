@@ -16,8 +16,8 @@ android {
         applicationId = "ru.asavan.suno"
         minSdk = 24
         targetSdk = 35
-        versionCode = 28
-        versionName = "1.5.0"
+        versionCode = 31
+        versionName = "1.6.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -32,7 +32,7 @@ android {
 
 dependencies {
     implementation("org.nanohttpd:nanohttpd:2.3.1")
-    implementation("org.nanohttpd:nanohttpd-websocket:2.3.1")
+    implementation("org.java-websocket:Java-WebSocket:1.6.0")
     implementation("com.google.androidbrowserhelper:androidbrowserhelper:2.5.0")
 
     testImplementation("junit:junit:4.13.2")

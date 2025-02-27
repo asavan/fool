@@ -2,12 +2,16 @@ import settingsOriginal from "./settings.js";
 import gameFunction from "./game.js";
 import {parseSettings, adjustMode} from "./utils/parse-settings.js";
 import {assert} from "./utils/assert.js";
+import wakeLock from "./utils/wake-lock.js";
+import loggerFunc from "./views/logger.js";
 
 
 export default async function starter(window, document) {
     const settings = {...settingsOriginal};
     const changed = parseSettings(window.location.search, settings);
     adjustMode(changed, settings, window.location.protocol);
+
+    wakeLock(loggerFunc(1, null, settings)).init();
 
     let mode;
     if (settings.mode === "net") {

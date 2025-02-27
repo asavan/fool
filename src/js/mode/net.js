@@ -5,6 +5,7 @@ import actionsToSend from "../actions/actions_uno_server.js";
 import loggerFunc from "../views/logger.js";
 import PromiseQueue from "../utils/async-queue.js";
 import { assert } from "../utils/assert.js";
+import {safe_query} from "../views/safe_query.js";
 
 function onConnectionAnimation(document, connection, logger) {
     connection.on("socket_open", () => {
@@ -44,7 +45,8 @@ export default async function netMode(window, document, settings, gameFunction) 
         // enterName(window, document, settings);
         const myId = getMyId(window, settings, Math.random);
         assert(myId, "No net id");
-        const logger = loggerFunc(2, null, settings);
+        const logger = loggerFunc(2,
+            safe_query(document, settings.clNAnchor), settings);
         const connection = connectionFunc(myId, logger, false);
         const socketUrl = getWebSocketUrl(settings, window.location);
         if (!socketUrl) {

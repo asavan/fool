@@ -15,12 +15,15 @@ import java.util.Map;
 import androidx.browser.trusted.TrustedWebActivityIntentBuilder;
 
 public class BtnUtils {
+    private final int staticContentPort;
     private final int webSocketPort;
     private final boolean secure;
     private final Activity activity;
-    private WebSocketBroadcastServer webSocketServer = null;
+    private AndroidStaticAssetsServer server = null;
+    private ChatServer webSocketServer = null;
 
-    public BtnUtils(Activity activity, int webSocketPort, boolean secure) {
+    public BtnUtils(Activity activity, int staticContentPort, int webSocketPort, boolean secure) {
+        this.staticContentPort = staticContentPort;
         this.webSocketPort = webSocketPort;
         this.activity = activity;
         this.secure = secure;
@@ -77,21 +80,31 @@ public class BtnUtils {
     }
 
     private void startServerAndSocket() {
-        if (webSocketServer != null) {
+        if (server != null) {
             return;
         }
         try {
             Context applicationContext = activity.getApplicationContext();
-            webSocketServer = new WebSocketBroadcastServer(applicationContext, webSocketPort, secure);
-            webSocketServer.start(0, false);
+            server = new AndroidStaticAssetsServer(applicationContext, staticContentPort, secure);
+            if (webSocketServer == null) {
+                webSocketServer = new ChatServer(webSocketPort);
+                webSocketServer.start();
+            }
         } catch (Exception e) {
             Log.e("BTN_UTILS", "main", e);
         }
     }
 
     protected void onDestroy() {
+        if (server != null) {
+            server.stop();
+        }
         if (webSocketServer != null) {
-            webSocketServer.stop();
+            try {
+                webSocketServer.stop(1000);
+            } catch (InterruptedException e) {
+                Log.e("BTN_UTILS", "onStop", e);
+            }
         }
     }
 }

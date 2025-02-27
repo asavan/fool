@@ -5,6 +5,8 @@ export default {
     connection: "websocket",
     wsPort : 8088,
     loggerAnchor: ".log",
+    clNAnchor: "",
+    sNAnchor: "",
     passAnchor: "",
     logLevel: 7,
     cardsDeal: 7,

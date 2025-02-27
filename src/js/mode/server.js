@@ -6,6 +6,7 @@ import connectionChooser from "../connection/connection_chooser.js";
 import PromiseQueue from "../utils/async-queue.js";
 import { makeQr, removeElem } from "../views/qr_helper.js";
 import {assert} from "../utils/assert.js";
+import {safe_query} from "../views/safe_query.js";
 
 function setupGameToNetwork(game, connection, logger) {
     const keys = Object.keys(actionsToSend({}, null));
@@ -31,8 +32,8 @@ export default async function server(window, document, settings, gameFunction) {
 
     const connectionFunc = await connectionChooser(settings);
     return new Promise((resolve, reject) => {
-        // const el = document.querySelector(settings.loggerAnchor);
-        const logger = loggerFunc(2, null, settings);
+        const el = safe_query(document, settings.sNAnchor);
+        const logger = loggerFunc(2, el, settings);
         const connection = connectionFunc(myId, logger, true);
         const socketUrl = getWebSocketUrl(settings, window.location);
         if (!socketUrl) {
