@@ -2,7 +2,7 @@
 export default function lokker(logger) {
     let wakeLock = null;
 
-// create an async function to request a wake lock
+    // create an async function to request a wake lock
     async function lock() {
         try {
             if (!navigator || !navigator.wakeLock) {
