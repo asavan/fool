@@ -17,7 +17,6 @@ import shuffle from "./shuffle.js";
 import ClearHands from "./clear_hands.js";
 
 import highlight from "./highlight.js";
-import settings from "../settings.js";
 
 let logger = console;
 
@@ -171,10 +170,11 @@ function drawPlayers(data, marker) {
     }
     if (data.settings.legacyView) {
         drawPlayersInner(data, marker, logger);
-        return;
+        return Promise.resolve();
     }
 
     drawLayout(data);
+    return Promise.resolve();
 }
 
 async function drawCurrent(document, engine, myIndex, settings) {
@@ -186,10 +186,9 @@ async function drawCurrent(document, engine, myIndex, settings) {
     }
     let activeCurrent = null;
     for (const player of players) {
-        player.classList.remove("current-player", "dealer");
+        player.classList.remove("dealer");
         const playerId = parseInt(player.dataset.id);
         if (engine.getCurrentPlayer() === playerId) {
-            // player.classList.add("current-player");
             activeCurrent = player;
         }
         if (engine.getDealer() === playerId) {
@@ -197,7 +196,6 @@ async function drawCurrent(document, engine, myIndex, settings) {
         }
     }
     let movingCurrent = null;
-    let smallElem = null;
     const animTime = settings.changeCurrentPause;
     const mainContainer = document.querySelector(".circle-wrapper");
     if (activeCurrent && boundingRectPrev) {
@@ -206,21 +204,13 @@ async function drawCurrent(document, engine, myIndex, settings) {
         const boundingRect = activeCurrent.getBoundingClientRect();
         activeCurrent.classList.add("rounded");
         movingCurrent = document.createElement("div");
-        smallElem = document.createElement("div");
         movingCurrent.classList.add("moving-current", "rounded");
-        smallElem.classList.add("moving-current", "rounded");
         movingCurrent.style.top = boundingRect.top + "px";
         movingCurrent.style.left = (boundingRect.left- mcbr.left) + "px";
         movingCurrent.style.width = boundingRectPrev.width + "px";
         movingCurrent.style.height = boundingRectPrev.height + "px";
 
-        smallElem.style.top = boundingRectPrev.top + "px";
-        smallElem.style.left = (boundingRectPrev.left- mcbr.left) + "px";
-        smallElem.style.width = boundingRectPrev.width + "px";
-        smallElem.style.height = boundingRectPrev.height + "px";
-
         movingContainer.appendChild(movingCurrent);
-        movingContainer.appendChild(smallElem);
         const dx = -boundingRect.x + boundingRectPrev.x;
         const dy = -boundingRect.y + boundingRectPrev.y;
         mainContainer?.classList.add("blur-container");
@@ -230,11 +220,6 @@ async function drawCurrent(document, engine, myIndex, settings) {
             {transform: "translate(0, 0)", width: boundingRect.width + "px", height: boundingRect.height + "px"},
         ];
 
-        const scaleAnim = [
-            {transform: "scale(1) translate(0, 0)"},
-            {transform: `scale(0.3) translate(${-2*dx}px, ${-2*dy}px)`},
-        ];
-
         const timingFunc = {
             duration: animTime,
             easing: "ease-out",
@@ -242,7 +227,6 @@ async function drawCurrent(document, engine, myIndex, settings) {
         };
         if (typeof movingCurrent.animate === "function") {
             movingCurrent.animate(moveAnim, timingFunc);
-            smallElem.animate(scaleAnim, timingFunc);
         }
     }
     if (engine.getCurrentColor()) {
@@ -251,9 +235,10 @@ async function drawCurrent(document, engine, myIndex, settings) {
         drawCenterCircle(box, document, engine);
     }
     await delay(animTime/2);
+    for (const player of players) {
+        player.classList.remove("current-player");
+    }
     activeCurrent.classList.add("current-player");
-    smallElem?.remove();
-    smallElem = null;
     await delay(animTime/2);
     activeCurrent.classList.remove("rounded");
     mainContainer?.classList.remove("blur-container");

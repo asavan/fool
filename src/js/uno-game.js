@@ -76,9 +76,8 @@ export default function unoGame({window, document, settings}, {playersExternal, 
     });
 
     engine.on("changeCurrent", (data) => {
-        layout.drawCurrent(document, engine, myIndex, settings);
-        const pause = delay(settings.changeCurrentPause);
-        const promises = [pause];
+        const draw = layout.drawCurrent(document, engine, myIndex, settings);
+        const promises = [draw];
         if (settings.mode !== "net") {
             promises.push(report("changeCurrent", data));
         }
@@ -86,9 +85,8 @@ export default function unoGame({window, document, settings}, {playersExternal, 
     });
 
     engine.on("changeCurrentExternal", () => {
-        layout.drawCurrent(document, engine, myIndex, settings);
-        const pause = delay(settings.changeCurrentPause);
-        const promises = [pause];
+        const draw = layout.drawCurrent(document, engine, myIndex, settings);
+        const promises = [draw];
         return Promise.all(promises);
     });
 
@@ -101,14 +99,14 @@ export default function unoGame({window, document, settings}, {playersExternal, 
 
     engine.on("move", (data) => {
         debugLogger.log("move", data);
-        layout.drawPlayersMove(window,
+        const draw = layout.drawPlayersMove(window,
             {document, engine, myIndex, settings, playersExternal},
             "drawMove",
             data.card,
             data.playerIndex
         );
         const pause = delay(settings.movePause);
-        const promises = [pause, report("move", data)];
+        const promises = [draw, pause, report("move", data)];
         return Promise.all(promises);
     });
 
