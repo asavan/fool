@@ -198,9 +198,9 @@ async function drawCurrent(document, engine, myIndex, settings) {
     let movingCurrent = null;
     const animTime = settings.changeCurrentPause;
     const mainContainer = document.querySelector(".circle-wrapper");
-    if (activeCurrent && boundingRectPrev) {
+    const movingContainer = document.querySelector(".moving-container");
+    if (activeCurrent && boundingRectPrev && movingContainer) {
         const mcbr = mainContainer.getBoundingClientRect();
-        const movingContainer = document.querySelector(".moving-container");
         const boundingRect = activeCurrent.getBoundingClientRect();
         activeCurrent.classList.add("rounded");
         movingCurrent = document.createElement("div");
@@ -238,14 +238,12 @@ async function drawCurrent(document, engine, myIndex, settings) {
     for (const player of players) {
         player.classList.remove("current-player");
     }
-    activeCurrent.classList.add("current-player");
+    activeCurrent?.classList.add("current-player");
     await delay(animTime/2);
-    activeCurrent.classList.remove("rounded");
+    activeCurrent?.classList.remove("rounded");
     mainContainer?.classList.remove("blur-container");
-    if (movingCurrent) {
-        movingCurrent.remove();
-        movingCurrent = null;
-    }
+    movingCurrent?.remove();
+    movingCurrent = null;
 }
 
 async function drawDeal(window, document, card, animTime) {
