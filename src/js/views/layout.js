@@ -1,12 +1,14 @@
 import {delay} from "../utils/timer.js";
-import { assert } from "../utils/assert.js";
+import {assert} from "../utils/assert.js";
 
-import {drawBack, drawCard, repaintCard,
+import {
+    drawBack, drawCard, repaintCard,
     drawHand,
     drawCenterCircle, drawCenter,
-    mapColor} from "./basic_views.js";
+    mapColor
+} from "./basic_views.js";
 
-import { drawDiscard } from "./discard.js";
+import {drawDiscard} from "./discard.js";
 
 import drawPlayersInner from "./legacy.js";
 
@@ -15,6 +17,7 @@ import shuffle from "./shuffle.js";
 import ClearHands from "./clear_hands.js";
 
 import highlight from "./highlight.js";
+import settings from "../settings.js";
 
 let logger = console;
 
@@ -74,8 +77,6 @@ function drawMyHand({document, engine, myIndex, settings, playersExternal, logge
 }
 
 
-
-
 function drawLayout({document, engine, myIndex, settings, playersExternal}) {
     const root = document.documentElement;
     root.style.setProperty("--current-color", mapColor(engine.getCurrentColor()));
@@ -87,6 +88,10 @@ function drawLayout({document, engine, myIndex, settings, playersExternal}) {
     const places = document.createElement("ul");
     places.classList.add("circle-wrapper");
     box.appendChild(places);
+    // DANGER
+    const movingContainer = document.createElement("li");
+    movingContainer.classList.add("moving-container");
+    places.appendChild(movingContainer);
     const increaseDeg = 360 / engine.size();
     assert(engine.size() === playersExternal.length,
         "engine not equal to presenter " + JSON.stringify({e: engine.size(), p: playersExternal.length}));
@@ -99,7 +104,7 @@ function drawLayout({document, engine, myIndex, settings, playersExternal}) {
             ++i;
             continue;
         }
-        const angleDeg = 90 + increaseDeg*(i-myIndex);
+        const angleDeg = 90 + increaseDeg * (i - myIndex);
 
         const elem = document.createElement("li");
         elem.classList.add("js-player");
@@ -172,22 +177,89 @@ function drawPlayers(data, marker) {
     drawLayout(data);
 }
 
-function drawCurrent(document, engine) {
+async function drawCurrent(document, engine, myIndex, settings) {
     const players = document.querySelectorAll(".js-player");
+    const prevCurrent = document.querySelector(".js-player.current-player");
+    let boundingRectPrev = null;
+    if (prevCurrent) {
+        boundingRectPrev = prevCurrent.getBoundingClientRect();
+    }
+    let activeCurrent = null;
     for (const player of players) {
         player.classList.remove("current-player", "dealer");
         const playerId = parseInt(player.dataset.id);
         if (engine.getCurrentPlayer() === playerId) {
-            player.classList.add("current-player");
+            // player.classList.add("current-player");
+            activeCurrent = player;
         }
         if (engine.getDealer() === playerId) {
             player.classList.add("dealer");
+        }
+    }
+    let movingCurrent = null;
+    let smallElem = null;
+    const animTime = settings.changeCurrentPause;
+    const mainContainer = document.querySelector(".circle-wrapper");
+    if (activeCurrent && boundingRectPrev) {
+        const mcbr = mainContainer.getBoundingClientRect();
+        const movingContainer = document.querySelector(".moving-container");
+        const boundingRect = activeCurrent.getBoundingClientRect();
+        activeCurrent.classList.add("rounded");
+        movingCurrent = document.createElement("div");
+        smallElem = document.createElement("div");
+        movingCurrent.classList.add("moving-current", "rounded");
+        smallElem.classList.add("moving-current", "rounded");
+        movingCurrent.style.top = boundingRect.top + "px";
+        movingCurrent.style.left = (boundingRect.left- mcbr.left) + "px";
+        movingCurrent.style.width = boundingRectPrev.width + "px";
+        movingCurrent.style.height = boundingRectPrev.height + "px";
+
+        smallElem.style.top = boundingRectPrev.top + "px";
+        smallElem.style.left = (boundingRectPrev.left- mcbr.left) + "px";
+        smallElem.style.width = boundingRectPrev.width + "px";
+        smallElem.style.height = boundingRectPrev.height + "px";
+
+        movingContainer.appendChild(movingCurrent);
+        movingContainer.appendChild(smallElem);
+        const dx = -boundingRect.x + boundingRectPrev.x;
+        const dy = -boundingRect.y + boundingRectPrev.y;
+        mainContainer?.classList.add("blur-container");
+
+        const moveAnim = [
+            {transform: `translate(${dx}px, ${dy}px)`},
+            {transform: "translate(0, 0)", width: boundingRect.width + "px", height: boundingRect.height + "px"},
+        ];
+
+        const scaleAnim = [
+            {transform: "scale(1) translate(0, 0)"},
+            {transform: `scale(0.3) translate(${-2*dx}px, ${-2*dy}px)`},
+        ];
+
+        const timingFunc = {
+            duration: animTime,
+            easing: "ease-out",
+            fill: "forwards"
+        };
+        if (typeof movingCurrent.animate === "function") {
+            movingCurrent.animate(moveAnim, timingFunc);
+            smallElem.animate(scaleAnim, timingFunc);
         }
     }
     if (engine.getCurrentColor()) {
         document.documentElement.style.setProperty("--current-color", mapColor(engine.getCurrentColor()));
         const box = document.querySelector(".places");
         drawCenterCircle(box, document, engine);
+    }
+    await delay(animTime/2);
+    activeCurrent.classList.add("current-player");
+    smallElem?.remove();
+    smallElem = null;
+    await delay(animTime/2);
+    activeCurrent.classList.remove("rounded");
+    mainContainer?.classList.remove("blur-container");
+    if (movingCurrent) {
+        movingCurrent.remove();
+        movingCurrent = null;
     }
 }
 
@@ -216,8 +288,8 @@ async function drawDeal(window, document, card, animTime) {
     const dy = newCard1.getBoundingClientRect().y - flipList.getBoundingClientRect().y;
 
     const newspaperSpinning = [
-        { transform: "rotateY(180deg)" },
-        { transform: `rotateY(0) translate(calc(${dx}px + 100%), ${dy}px)` },
+        {transform: "rotateY(180deg)"},
+        {transform: `rotateY(0) translate(calc(${dx}px + 100%), ${dy}px)`},
     ];
 
     const newspaperTiming = {
@@ -254,12 +326,12 @@ async function drawDealOther(window, document, card, animTime, target, newCount)
     list.appendChild(flipClone);
 
     const tRect = target.getBoundingClientRect();
-    const dx = -tRect.x + flipList.getBoundingClientRect().x - tRect.width/2;
-    const dy = tRect.y - flipList.getBoundingClientRect().y + tRect.height/2;
+    const dx = -tRect.x + flipList.getBoundingClientRect().x - tRect.width / 2;
+    const dy = tRect.y - flipList.getBoundingClientRect().y + tRect.height / 2;
 
     const newspaperSpinning = [
-        { transform: "rotateY(180deg)" },
-        { transform: `rotateY(180deg) translate(calc(${dx}px), ${dy}px) scale(0)`},
+        {transform: "rotateY(180deg)"},
+        {transform: `rotateY(180deg) translate(calc(${dx}px), ${dy}px) scale(0)`},
     ];
 
     const newspaperTiming = {
@@ -269,10 +341,10 @@ async function drawDealOther(window, document, card, animTime, target, newCount)
     };
     if (typeof flipList.animate === "function") {
         flipList.animate(newspaperSpinning, newspaperTiming);
-        await delay(animTime/2);
+        await delay(animTime / 2);
     }
     target.textContent = newCount;
-    await delay(animTime/2);
+    await delay(animTime / 2);
     flipClone.remove();
 }
 
@@ -301,13 +373,13 @@ async function drawMove(window, document, newCard1, animTime) {
     newCard1.classList.add("transparent");
 
     const slide = [
-        { transform: `translate(calc(${dx}px + 100%), ${dy}px)` },
-        { transform: "translate(0, 0)" }
+        {transform: `translate(calc(${dx}px + 100%), ${dy}px)`},
+        {transform: "translate(0, 0)"}
     ];
 
     const shrink = [
         {},
-        { width: "0%" }
+        {width: "0%"}
     ];
 
     const timing = {
@@ -347,8 +419,8 @@ async function drawMoveOther(window, document, fromEl, animTime, card, newCount)
     const dy = fromEl.getBoundingClientRect().y - flipList.getBoundingClientRect().y;
 
     const slide = [
-        { transform: `translate(calc(${dx}px + 100%), ${dy}px) scale(0)` },
-        { transform: "translate(0, 0) scale(1)" }
+        {transform: `translate(calc(${dx}px + 100%), ${dy}px) scale(0)`},
+        {transform: "translate(0, 0) scale(1)"}
     ];
 
     const timing = {
@@ -358,11 +430,11 @@ async function drawMoveOther(window, document, fromEl, animTime, card, newCount)
     };
     if (typeof flipList.animate === "function") {
         flipList.animate(slide, timing);
-        await delay(animTime/2);
+        await delay(animTime / 2);
     }
 
     fromEl.textContent = newCount;
-    await delay(animTime/2);
+    await delay(animTime / 2);
     const cardToRepaint = list.querySelector(".card");
     repaintCard(card, cardToRepaint);
     flipClone.remove();

@@ -42,7 +42,7 @@ export default {
     drawClosed: 50,
     beforeDeal: 100,
     shufflePause: 300,
-    changeCurrentPause: 50,
+    changeCurrentPause: 300,
     moveAnim: 250,
     moveOtherAnim: 190,
     shuffleOutDelay: 150,

@@ -1,0 +1,124 @@
+<html lang="en" style="--current-color: rgba(85, 85, 255, 0.4);"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <title>Suno</title>
+    <meta name="description" content="Suno">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ffffff">
+    <link href="./main.css" rel="stylesheet"></head>
+    <script src="main.js" type="module"></script>
+
+<body>
+<div class="name-form-cont"></div>
+
+<div class="container" data-background="lime">
+    <div class="places">
+        <span class="big-circle">
+            <div class="direction mirror"></div>
+        </span>
+        <ul class="circle-wrapper">
+            <li class="moving-container"></li>
+            <li class="js-player circle" data-id="1" data-angle="180deg" style="--angle-deg: 180deg;"><ul class="hand"></ul><div class="player-name">bot 1</div><div class="card-count">6</div></li><li class="js-player circle" data-id="2" data-angle="270deg" style="--angle-deg: 270deg;"><ul class="hand"></ul><div class="player-name">bot 2</div><div class="card-count">7</div></li><li class="js-player circle" data-id="3" data-angle="360deg" style="--angle-deg: 360deg;"><ul class="hand"></ul><div class="player-name">bot 3</div><div class="card-count">6</div></li></ul><div class="center-pile"><ul class="hand"><li class="sprite-container card" data-card="106" style="--sprite-x: 600%; --sprite-y: 100%;">
+        <div class="sprite"></div>
+    </li><li class="sprite-container js-draw js-pass">
+        <div class="sprite-back"></div>
+    </li></ul></div><div class="my-hand js-player current-player dealer" data-id="0"><div class="row"><span class="player-name">player1</span></div><ul class="hand"><li class="sprite-container card" data-card="4" style="--sprite-x: 1000%; --sprite-y: 800%;">
+        <div class="sprite"></div>
+    </li><li class="sprite-container card" data-card="35" style="--sprite-x: 700%; --sprite-y: 600%;">
+        <div class="sprite"></div>
+    </li><li class="sprite-container card" data-card="58" style="--sprite-x: 1200%; --sprite-y: 400%;">
+        <div class="sprite"></div>
+    </li><li class="sprite-container card" data-card="100" style="--sprite-x: 1200%; --sprite-y: 100%;">
+        <div class="sprite"></div>
+    </li><li class="sprite-container card" data-card="45" style="--sprite-x: 1100%; --sprite-y: 500%;">
+        <div class="sprite"></div>
+    </li><li class="sprite-container card" data-card="90" style="--sprite-x: 800%; --sprite-y: 200%;">
+        <div class="sprite"></div>
+    </li><li class="sprite-container card" data-card="9" style="--sprite-x: 500%; --sprite-y: 800%;">
+        <div class="sprite"></div>
+    </li></ul></div></div>
+    <div class="color-picker-holder"></div>
+</div>
+
+<div class="log"></div>
+
+<div id="popup1" class="overlay">
+    <div class="popup">
+        <h2>You win</h2>
+        <a class="close" href="http://192.168.0.28:8080/?mode=server#">×</a>
+        <div class="content">
+            Result 0
+        </div>
+    </div>
+</div>
+<footer>
+    <button id="butInstall" class="butInstall install hidden hidden2">Install as app</button>
+</footer>
+
+<template id="card">
+    <li class="sprite-container card">
+        <div class="sprite"></div>
+    </li>
+</template>
+
+<template id="back">
+    <li class="sprite-container">
+        <div class="sprite-back"></div>
+    </li>
+</template>
+
+<template id="flip-card">
+    <li class="flip-class-cont">
+        <ul class="card-flip is-flipped">
+        </ul>
+    </li>
+</template>
+
+<template id="nameform">
+    <form class="nameform">
+        <label for="nameinput">Enter your name:</label>
+        <div class="row">
+            <input class="nameinput" id="nameinput" type="text" name="name">
+            <input class="namesubmit" type="submit" value="Send">
+        </div>
+    </form>
+</template>
+
+<div class="hidden devtools">
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+        <defs>
+            <filter id="goo">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo" />
+                <feBlend in="SourceGraphic" in2="goo" />
+            </filter>
+        </defs>
+    </svg>
+</div>
+<svg height="0" width="0">
+    <mask id="directionMask">
+        <g id="surface1">
+            <path d="M 100 176.921875 C 71.625 176.921875 46.839844 161.5625 33.507812 138.699219 L 24.730469 138.699219 C 38.785156 165.96875 67.214844 184.617188 100 184.617188 C 144.136719 184.617188 180.382812 150.816406 184.269531 107.691406 L 200 107.691406 L 180.769531 84.617188 L 161.539062 107.691406 L 176.546875 107.691406 C 172.683594 146.5625 139.882812 176.921875 100 176.921875 Z M 100 176.921875 "/>
+            <path d="M 100 15.382812 C 58.523438 15.382812 24.015625 45.230469 16.777344 84.617188 L 0 84.617188 L 19.230469 107.691406 L 38.460938 84.617188 L 24.617188 84.617188 C 31.746094 49.507812 62.785156 23.078125 100 23.078125 C 125.125 23.078125 147.429688 35.117188 161.46875 53.746094 L 170.871094 53.746094 C 155.753906 30.644531 129.660156 15.382812 100 15.382812 Z M 100 15.382812 "/>
+        </g>
+    </mask>
+    <mask id="strokeMask">
+        <path
+                d="M20,70 A40,40,0,0,1,100,70 A40,40,0,0,1,180,70 Q180,130,100,190 Q20,130,20,70 Z"
+                fill="none"
+                stroke="white"
+                stroke-width="20" />
+    </mask>
+    <mask id="bothMask">
+        <path
+                d="M20,70 A40,40,0,0,1,100,70 A40,40,0,0,1,180,70 Q180,130,100,190 Q20,130,20,70 Z"
+                fill="green"
+                stroke="white"
+                stroke-width="20" />
+    </mask>
+    <mask id="black">
+        <path
+                d="M20,70 A40,40,0,0,1,100,70 A40,40,0,0,1,180,70 Q180,130,100,190 Q20,130,20,70 Z"
+                fill="black" />
+    </mask>
+</svg>
+</body></html>

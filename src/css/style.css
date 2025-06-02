@@ -13,6 +13,7 @@
   --color-yellow: #FA0;
   --color-blue: #55F;
   --current-color: aliceblue;
+  --active-player: green;
   --inverted-color: white;
 }
 
@@ -116,8 +117,22 @@ ul {
   content: "*";
 }
 
+.blur-container {
+  filter: url("#goo");
+  /*backdrop-filter: url("#goo");*/
+}
+
+.rounded {
+  border-radius: 10px;
+}
+
+.moving-current {
+  background-color: var(--active-player);
+  position:  fixed;
+}
+
 .current-player {
-  background-color: green;
+  background-color: var(--active-player);
   color: var(--inverted-color);
 }
 
