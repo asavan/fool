@@ -354,7 +354,7 @@ async function drawMove(window, document, newCard1, animTime) {
     newCard1.classList.add("transparent");
 
     const slide = [
-        {transform: `translate(calc(${dx}px + 100%)`},
+        {transform: `translate(calc(${dx}px + 100%), ${dy}px)`},
         {transform: "translate(0, 0)"}
     ];
 
