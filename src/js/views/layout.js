@@ -205,10 +205,8 @@ async function drawCurrent(document, engine, myIndex, settings) {
         activeCurrent.classList.add("rounded");
         movingCurrent = document.createElement("div");
         movingCurrent.classList.add("moving-current", "rounded");
-        movingCurrent.style.top = boundingRect.top + "px";
+        movingCurrent.style.top = (boundingRect.top-mcbr.top) + "px";
         movingCurrent.style.left = (boundingRect.left- mcbr.left) + "px";
-        movingCurrent.style.width = boundingRectPrev.width + "px";
-        movingCurrent.style.height = boundingRectPrev.height + "px";
 
         movingContainer.appendChild(movingCurrent);
         const dx = -boundingRect.x + boundingRectPrev.x;
@@ -216,8 +214,8 @@ async function drawCurrent(document, engine, myIndex, settings) {
         mainContainer?.classList.add("blur-container");
 
         const moveAnim = [
-            {transform: `translate(${dx}px, ${dy}px)`},
-            {transform: "translate(0, 0)", width: boundingRect.width + "px", height: boundingRect.height + "px"},
+            {transform: `translate(${dx}px, ${dy}px) scale(${boundingRectPrev.width}, ${boundingRectPrev.height})`},
+            {transform: `translate(0, 0) scale(${boundingRect.width}, ${boundingRect.height})`},
         ];
 
         const timingFunc = {
@@ -356,7 +354,7 @@ async function drawMove(window, document, newCard1, animTime) {
     newCard1.classList.add("transparent");
 
     const slide = [
-        {transform: `translate(calc(${dx}px + 100%), ${dy}px)`},
+        {transform: `translate(calc(${dx}px + 100%)`},
         {transform: "translate(0, 0)"}
     ];
 

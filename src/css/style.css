@@ -122,12 +122,15 @@ ul {
 }
 
 .rounded {
-  border-radius: 10px;
+  border-radius: 5%;
 }
 
 .moving-current {
-  background-color: var(--active-player);
-  position:  fixed;
+  background-color: var(--active-player);;
+  position:  absolute;
+  transform-origin: top left;
+  width: 1px;
+  height: 1px;
 }
 
 .current-player {
