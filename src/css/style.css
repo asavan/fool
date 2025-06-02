@@ -119,7 +119,6 @@ ul {
 
 .blur-container {
   filter: url("#goo");
-  /*backdrop-filter: url("#goo");*/
 }
 
 .rounded {
