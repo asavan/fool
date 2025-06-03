@@ -1,4 +1,4 @@
-import * as QRCodeSVG1 from "./qrcode_bundled.js";
+import "./qrcode_bundled.js";
 
 function defaultSh() {
     return "192.168.0.1";

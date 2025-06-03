@@ -104,7 +104,6 @@ function updateQrContentForWifi() {
   // Only proceed if both values are present
   if (ssid !== undefined && password !== undefined) {
     qrContent = `WIFI:S:${ssid};T:WPA;P:${password};;`;
-    const exclude = "`";
     generateQRCode();
   }
 }
@@ -137,7 +136,7 @@ const generateQRCode = () => {
   svgElement.setAttribute("xmlns", svgNS);
 
   // Generate QR code
-  const qrcode = new QRCode({
+  const qrcode = new window.QRCode({
     content: qrContent,
     padding: 0,
     width: width,
@@ -215,6 +214,7 @@ const generateQRCode = () => {
   document.getElementById(
     "qrcode"
   ).innerHTML = new XMLSerializer().serializeToString(parsedSvgElement);
+  const qrActions = document.getElementById("qrActions");
   qrActions.classList.remove("d-none");
 };
 
@@ -302,6 +302,7 @@ const generateQRCodeIfNeeded = () => {
       clearQRCode();
       generateQRCode();
     }
+    const qrActions = document.getElementById("qrActions");
     qrActions.classList.remove("d-none");
   }
 };

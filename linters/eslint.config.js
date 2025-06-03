@@ -5,8 +5,8 @@ import stylistic from '@stylistic/eslint-plugin';
 export default [
     {
         ...js.configs.recommended,
-        files: ["src/**/*.js", "test/**/*.js"],
-        ignores: ["src/js/lib/*", "tests/manual/supabase/docs/*"],
+        files: ["src/**/*.js", "tests/**/*.js"],
+        ignores: ["src/js/lib/*", "tests/manual/docs/*"],
         languageOptions: {
             ecmaVersion: 2022,
             sourceType: "module",

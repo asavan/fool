@@ -42,17 +42,18 @@ function fakeEngine(extSize) {
         getDirection,
         getCurrentPlayer,
         getCurrentColor,
+        reverse,
         getDealer
     }
 }
-
 
 const fieldElem = document.querySelector(".container");
 const engine = fakeEngine(4);
 const myIndex = 0;
 const settings = {...settingsOriginal};
 let canClick = true;
-fieldElem.addEventListener("click", async (event) => {
+fieldElem.addEventListener("click", async (e) => {
+    e.preventDefault();
     if (!canClick) {
         return;
     }

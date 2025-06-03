@@ -1,4 +1,4 @@
-function main(event) {
+function main() {
   const counterWidth = document.getElementById('counter__width');
   const counterHeight = document.getElementById('counter__height');
   const ariaText = document.getElementById('counter__aria-text');
@@ -19,4 +19,3 @@ function main(event) {
   }
 }
 main();
-// document.addEventListener("DOMContentLoaded", );
