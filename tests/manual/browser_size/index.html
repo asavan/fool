@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Window size</title>
+  <meta name="description" content="A simple yet astute way for developers and designers to discover the size of their browser window">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#29303c">
+
+  <!-- CSS -->
+  <link rel="stylesheet" type="text/css" href="./reset.css">
+  <link rel="stylesheet" type="text/css" href="./main.css">
+  <!-- Scripts -->
+  <script type="module" src="./scripts.js"></script>
+  <script type="module" src="./fullscreen.js"></script>
+</head>
+<body>
+<!-- Interior container for floating content -->
+<div id="container">
+  <main id="main" class="container__interior" aria-labelledby="hbimb-logo" tabindex="-1">
+    <!-- Counter -->
+    <section class="counter" aria-label="Current browser window dimensions">
+      <div role="status" id="counter__aria-text" class="sr-only" aria-hidden="false"></div>
+
+      <div class="counter__num" aria-hidden="true"><span id="counter__width"></span></div>
+      <div class="counter__divider" aria-hidden="true">
+        <span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 238.09 237.59" role="img" aria-labelledby="multiple-id">
+  <title id="multiple-id">x</title>
+  <path
+          d="m238.09 200.11-81.57-81.57 81.07-81.06L200.11 0l-81.07 81.07L37.98 0 .5 37.48l81.07 81.06L0 200.11l37.48 37.48 81.56-81.57 81.57 81.57z"
+          fill="#fff" stroke-width="0" />
+</svg>
+        </span>
+      </div>
+      <div class="counter__num" aria-hidden="true"><span id="counter__height"></span></div>
+    </section>
+  </main>
+</div>
+
+<!-- Small size alert -->
+<div id="size-alert" aria-hidden="true">
+  <div>
+    <h2>Display too&nbsp;small</h2>
+    <p>Please enlarge your browser window to&nbsp;continue.</p>
+  </div>
+</div>
+
+<footer>
+</footer>
+
+</body>
+</html>

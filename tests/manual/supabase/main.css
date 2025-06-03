@@ -1,0 +1,550 @@
+* {
+    margin: 0px;
+    padding: 0px;
+}
+
+:root {
+    --main-color: #F0F8FF;
+    --player-color: chartreuse;
+    --field-size: 4;
+    --card-width: 50px;
+    --color-green: #5A5;
+    --color-red: #F55;
+    --color-yellow: #FA0;
+    --color-blue: #55F;
+    --current-color: aliceblue;
+    --active-player: green;
+    --inverted-color: white;
+}
+
+html, body {
+    height: 100%;
+}
+
+input, select, textarea, button {
+    font-family: inherit;
+    font-size: inherit;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 2rem;
+}
+
+ul {
+    list-style-type: none;
+}
+
+.selected {
+    background-color: red;
+}
+
+.circle-wrapper {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.places {
+    width: 100%;
+    height: 100%;
+    display: block;
+    position: relative;
+}
+
+.my-hand {
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    min-height: 135px;
+    box-sizing: border-box;
+    padding: 0px 10px;
+    font-size: 3rem;
+    transition-property: background-color, color;
+    transition-duration: 200ms;
+    transition-timing-function: linear;
+}
+
+.my-hand .card {
+    cursor: pointer;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.card-count {
+    font-size: 3rem;
+}
+
+.circle {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    text-align: center;
+    transform: rotate(var(--angle-deg)) translate(140px) rotate(calc(-1 * var(--angle-deg))) translate(-50%, -50%);
+    max-width: 100px;
+}
+
+.player-hand {
+    min-height: 172px;
+    background-color: var(--current-color);
+}
+
+.direction {
+    -webkit-mask-image: url("#directionMask");
+    mask-image: url("#directionMask");
+    mask-mode: alpha;
+    -webkit-mask-size: cover;
+    /*mask-size: cover;*/
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background-color: var(--current-color);
+    transition: background-color 1s linear, transform 500ms;
+}
+
+.dealer .player-name::after {
+    content: "*";
+}
+
+.blur-container {
+    filter: url("#goo");
+    /*backdrop-filter: url("#goo");*/
+}
+
+.rounded {
+    border-radius: 5%;
+}
+
+.moving-current {
+    background-color: var(--active-player);;
+    position:  absolute;
+    transform-origin: top left;
+    width: 1px;
+    height: 1px;
+}
+
+.current-player {
+    background-color: green;
+    color: var(--inverted-color);
+}
+
+.current-player .direction {
+    background-color: var(--inverted-color);
+}
+
+.sprite-container {
+    width: var(--card-width);
+}
+
+.show-all {
+    --card-width: 30px;
+}
+
+.blank {
+    width: var(--card-width);
+    aspect-ratio: 2 / 3;
+    background-color: var(--current-color);
+}
+
+.big-circle {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: calc(var(--card-width) * -2);
+    box-sizing: border-box;
+    text-align: center;
+    width: calc(var(--card-width) * 4);
+    aspect-ratio: 1 / 1;
+    z-index: -1;
+}
+
+.sprite {
+    width: 100%;
+    height: 0px;
+    padding-bottom: 150%;
+    box-sizing: border-box;
+    background-image: url("deck.svg");
+    background-position: var(--sprite-x) var(--sprite-y);
+    background-size: 1400%;
+    display: block;
+}
+
+.sprite-back {
+    width: 100%;
+    height: 0px;
+    padding-bottom: 150%;
+    background-image: url("uno.svg");
+    background-position: 0px 0px;
+    background-size: 100%;
+    display: block;
+    border-radius: 10%;
+    border: 0.3px solid;
+}
+
+.center-pile .sprite-back {
+    cursor: pointer;
+}
+
+.hand {
+    display: flex;
+    flex-wrap: wrap;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.flat-button {
+    --button-color: var(--current-color);
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100px;
+    height: 100px;
+    margin: -50px;
+    background: var(--button-color);
+    border: none;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 100px;
+}
+
+.start-button {
+    --button-color: var(--color-red);
+}
+
+.bot-button {
+    --button-color: var(--color-green);
+    top: 75%;
+}
+
+.center-pile {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: calc(var(--card-width) * -0.75) calc(var(--card-width) * -1);
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.content {
+    flex: 1 0 auto;
+}
+
+footer {
+    flex: 0 0 auto;
+    width: 100%;
+}
+
+.container {
+    background-color: var(--current-color);
+    transition: background-color 500ms linear;
+    width: 100%;
+    max-width: 392px;
+    height: 100%;
+    display: block;
+    position: relative;
+    /*overflow: hidden;*/
+}
+
+.install {
+    background-color: var(--main-color);
+    text-align: center;
+    font: bold 24px / 100px Tahoma, sans-serif;
+    height: 100px;
+    width: 100%;
+    cursor: pointer;
+    border: 0px;
+    padding: 0px;
+}
+
+.color-grid {
+    position: absolute;
+    z-index: 3;
+    display: grid;
+    height: 100%;
+    width: 100%;
+    top: 0px;
+    left: 0px;
+    grid-template-areas: "r y" "r y" "g b" "g b" "c c";
+    opacity: 0.8;
+    gap: 5px;
+}
+
+.cancel-color {
+    opacity: 0.2;
+    grid-area: c;
+}
+
+.color-grid > li {
+    cursor: pointer;
+}
+
+.green {
+    background-color: var(--color-green);
+    grid-area: g;
+}
+
+.blue {
+    background-color: var(--color-blue);
+    grid-area: b;
+}
+
+.yellow {
+    background-color: var(--color-yellow);
+    grid-area: y;
+}
+
+.red {
+    background-color: var(--color-red);
+    grid-area: r;
+}
+
+.player {
+    background-color: aliceblue;
+}
+
+.qrcode.big {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    max-width: 450px;
+    width: 100%;
+}
+
+.qrcode {
+    width: 300px;
+    margin: auto;
+}
+
+@media (max-width: 450px) {
+    .hidden2 {
+        display: none;
+    }
+}
+
+.hidden {
+    display: none;
+}
+
+.nameinput {
+    padding: 10px 2px;
+    width: 220px;
+}
+
+.namesubmit {
+    background: rgb(13, 110, 253);
+    color: white;
+    padding: 3px 10px;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.mirror {
+    transform: scaleX(-1);
+}
+
+.overlay {
+    position: fixed;
+    inset: 0px;
+    background: rgba(0, 0, 0, 0.7);
+    transition: opacity 700ms;
+    visibility: hidden;
+    opacity: 0;
+}
+
+.overlay.show {
+    visibility: visible;
+    opacity: 1;
+}
+
+.popup {
+    margin: 70px auto;
+    padding: 20px;
+    background: rgb(255, 255, 255);
+    border-radius: 5px;
+    width: 80%;
+    position: relative;
+    transition: 5s ease-in-out;
+}
+
+.popup h2 {
+    margin-top: 0px;
+    color: rgb(51, 51, 51);
+    font-family: Tahoma, Arial, sans-serif;
+}
+
+.popup .close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    transition: 400ms;
+    font-size: 30px;
+    font-weight: bold;
+    text-decoration: none;
+    color: rgb(51, 51, 51);
+}
+
+.popup .close:hover {
+    color: var(--player-color);
+}
+
+.popup .content {
+    max-height: 30%;
+    overflow: auto;
+}
+
+@keyframes move-it {
+    0% {
+        background-position: initial;
+    }
+    100% {
+        background-position: 100px 0px;
+    }
+}
+
+.loading {
+    background: repeating-linear-gradient(45deg, rgb(96, 109, 188), rgb(96, 109, 188) 5%, rgb(70, 82, 152) 5%, rgb(70, 82, 152) 10%) 0% 0% / 100px 100px;
+    animation: 2s linear 0s infinite normal none running move-it;
+}
+
+.connected {
+    background-color: rgb(170, 0, 0);
+    height: 350px;
+}
+
+.spinner {
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: black;
+    min-height: 100vh;
+}
+
+.spinner::after {
+    animation: 0.8s linear 0s infinite normal none running change-content;
+    display: block;
+    content: "⠋";
+    font-size: 80px;
+}
+
+@keyframes change-content {
+    10% {
+        content: "⠙";
+    }
+    20% {
+        content: "⠹";
+    }
+    30% {
+        content: "⠸";
+    }
+    40% {
+        content: "⠼";
+    }
+    50% {
+        content: "⠴";
+    }
+    60% {
+        content: "⠦";
+    }
+    70% {
+        content: "⠧";
+    }
+    80% {
+        content: "⠇";
+    }
+    90% {
+        content: "⠏";
+    }
+}
+
+.flying-cards {
+    padding-bottom: 150%;
+    box-sizing: border-box;
+    height: 0px;
+    background-image: url("377dcbde62f67ce002a7.svg");
+    background-size: 1400%;
+    display: block;
+    animation: 3s steps(8) 0s infinite normal none running flying-cards-animation;
+}
+
+@keyframes flying-cards-animation {
+    0% {
+        background-position: 300% 800%;
+    }
+    100% {
+        background-position: 300% 0%;
+    }
+}
+
+.card-flip {
+    width: var(--card-width);
+    height: calc(var(--card-width) * 1.5);
+    transition: transform 800ms;
+    transform-style: preserve-3d;
+    transform-origin: 100% 0%;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+}
+
+.transparent {
+    opacity: 0;
+}
+
+.card-flip.is-flipped {
+    transform: rotateY(180deg);
+}
+
+.card-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.absolute {
+    position: absolute;
+}
+
+.above {
+    z-index: 1;
+    transform: translateZ(10px);
+}
+
+.card-face-back {
+    transform: rotateY(180deg);
+    backface-visibility: hidden;
+}
+
+.flip-class-cont {
+    position: absolute;
+}
+
+.slide {
+    transform: translate(calc((1px) * var(--dx)), calc((1px) * var(--dy)));
+}
+
+.long-animation {
+    transition: transform 400ms;
+}
+
+.highlight-good {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.highlight-bad {
+    opacity: 0.5;
+    transform: scale(0.9);
+}

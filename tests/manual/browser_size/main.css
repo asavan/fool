@@ -1,0 +1,368 @@
+:root {
+  --counter-font: -apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --base-font:  -apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --thingee-logo-width: calc(123 / 16 * 1rem);
+  --bg-color-1: #febc00;
+  --bg-color-2: #fed74c;
+  --ruler-grad-color: #fff;
+  --ruler-text-color: #fff;
+  --ruler-outline: #9b7000;
+  --ruler-outline-2: var(--ruler-outline);
+  --footer-text: rgb(29 34 43 / 0.7);
+  --logo-shadow: rgb(155 112 0 / 0.6);
+  --text-shadow: 0px 0px calc(24 / 16 * 1rem) var(--logo-shadow);
+  --counter-border-color: #fff;
+  --blue-gray: #29303c;
+  --darker-blue-gray: #1d222b;
+  --divider-line-color: var(--darker-blue-gray);
+  --thingee-logo-color: #c28d00;
+  --thingee-logo-hover-color: #fffbfb;
+  --resize-text-color: #555;
+  --resize-bg-color: #f2f2f2; }
+
+
+html,
+body {
+  height: 100%;
+  width: 100%; }
+
+body {
+  background-color: var(--bg-color-1);
+  background: radial-gradient(var(--bg-color-2), var(--bg-color-1) 75%);
+  color: #fff;
+  font-family: var(--base-font), sans-serif;
+  text-size-adjust: none;
+  -webkit-text-size-adjust: none; }
+
+body::backdrop {
+  background-color: var(--bg-color-1);
+}
+
+/* ==========================================================================
+   Container / Logo
+   ========================================================================== */
+#container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%; }
+
+main {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(24 / 16 * 1rem); }
+
+/* ==========================================================================
+   Logo
+   ========================================================================== */
+#hbimb-logo {
+  height: calc(69 / 16 * 1rem);
+  width: calc(340 / 16 * 1rem); }
+
+#hbimb-logo svg {
+  filter: drop-shadow(0px 0px calc(20 / 16 * 1rem) var(--logo-shadow)); }
+
+/* ==========================================================================
+   About
+   ========================================================================== */
+.about {
+  width: 36rem;
+  color: #fff;
+  text-shadow: var(--text-shadow);
+  line-height: 1.4em; }
+
+.about > h1 {
+  font-size: 1.4rem; }
+
+.about > h1 {
+  font-weight: bold;
+  margin: 1rem auto; }
+
+/* ==========================================================================
+   Ruler
+   ========================================================================== */
+.ruler {
+  font-family: var(--base-font);
+  font-size: calc(14 / 16 * 1rem);
+  font-weight: bold;
+  display: flex;
+  position: fixed;
+  overflow: hidden; }
+
+.ruler__horiz {
+  top: 0;
+  left: 25px;
+  height: 100px;
+  min-width: 100%; }
+
+.ruler__vert {
+  flex-direction: column;
+  left: 0;
+  top: 25px;
+  width: 100px;
+  min-height: 100%; }
+
+.ruler > .grad {
+  position: relative;
+  display: flex;
+  gap: calc(8 / 16 * 1rem); }
+
+.ruler__horiz > .grad {
+  width: 50px;
+  flex-direction: column;
+  align-items: center; }
+
+.ruler__vert > .grad {
+  height: 50px;
+  flex-direction: row;
+  align-items: center; }
+
+.grad__line {
+  box-shadow: 0px 0px 1px var(--ruler-outline-2); }
+
+.grad__text {
+  color: var(--ruler-text-color);
+  text-shadow: 0px 0px 2px var(--ruler-outline); }
+
+.ruler__horiz > .grad > .grad__line {
+  width: 4px;
+  height: 16px;
+  left: calc(50% - 2px);
+  top: 0;
+  background-color: var(--ruler-grad-color);
+  border-bottom-left-radius: calc(4 / 16 * 1rem);
+  border-bottom-right-radius: calc(4 / 16 * 1rem); }
+
+.ruler__vert .grad__line {
+  height: 4px;
+  width: 16px;
+  top: calc(50% - 2px);
+  left: 0;
+  background-color: var(--ruler-grad-color);
+  border-top-right-radius: calc(4 / 16 * 1rem);
+  border-bottom-right-radius: calc(4 / 16 * 1rem); }
+
+.ruler__horiz > .grad--hundreths > .grad__line {
+  height: 32px; }
+
+.ruler__vert > .grad--hundreths > .grad__line {
+  width: 32px; }
+
+/* ==========================================================================
+   Counter
+   ========================================================================== */
+.counter {
+  display: flex;
+  justify-content: space-evenly;
+  box-sizing: border-box;
+  background-color: var(--blue-gray);
+  border: calc(15 / 16 * 1rem) solid var(--counter-border-color);
+  font-family: var(--counter-font);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  font-size: calc(90 / 16 * 1rem); }
+
+.counter__num {
+  padding: 0 calc(50 / 16 * 1rem); }
+
+.counter__num,
+.counter__divider {
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(170 / 16 * 1rem); }
+
+.counter__divider {
+  position: relative;
+  line-height: 0; }
+
+.sr-only:not(:focus):not(:active) {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+  top: 0;
+  left: 0; }
+
+.counter__divider span {
+  display: flex;
+  position: relative;
+  z-index: 1;
+  background-color: var(--darker-blue-gray);
+  box-sizing: border-box;
+  height: 2rem;
+  width: 2rem;
+  padding: 0.6rem;
+  border-radius: 2rem; }
+
+.counter__divider:after {
+  position: absolute;
+  content: "";
+  left: 50%;
+  width: calc(1 / 16 * 1rem);
+  height: 100%;
+  background-color: var(--divider-line-color); }
+
+
+/* ==========================================================================
+   Resize Icon
+   ========================================================================== */
+#resize {
+  --width: calc(200  / 16 * 1rem);
+  --height: calc(56 / 16 * 1rem);
+  position: fixed;
+  right: calc( var(--width) / -2);
+  bottom: 0;
+  transform: rotate(-45deg);
+  transform-origin: bottom center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  font-family: sans-serif;
+  color: var(--resize-text-color);
+  background-color: var(--resize-bg-color);
+  padding: calc(8 / 16 * 1rem) 0 calc(14 / 16 * 1rem) 0;
+  width: var(--width);
+  height: var(--height); }
+  #resize .resize__text {
+    font-size: 0.7rem;
+    letter-spacing: 0.03rem;
+    font-weight: 600;
+    margin-bottom: calc(10 / 16 * 1rem); }
+  #resize .resize__arrow {
+    line-height: 0;
+    width: .58rem; }
+  #resize .resize__arrow > svg path {
+    fill: var(--resize-text-color); }
+
+/* ==========================================================================
+   Small size alert
+   ========================================================================== */
+#size-alert {
+  display: none;
+  box-sizing: border-box;
+  padding: 10vmin;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  align-items: center;
+  justify-content: center;
+  font-size: 8vmin;
+  text-align: center;
+  line-height: 1.25; }
+
+#size-alert h2 {
+  font-weight: bold;
+  font-size: 10vmin;
+  margin-bottom: 0.25em; }
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+footer {
+  box-sizing: border-box;
+  position: fixed;
+  width: 100%;
+  text-align: center;
+  bottom: 0px;
+  padding: 1rem;
+  font-size: 0.75rem;
+  color: var(--footer-text);
+  line-height: 1.25; }
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+/* make counter font size smaller as it get's narrower */
+@media (max-width: calc(790 / 16 * 1rem)) {
+  .counter__num {
+    font-size: calc(60 / 16 * 1rem);
+    min-width: calc(200 / 16 * 1rem); } }
+
+@media (max-width: calc(660 / 16 * 1rem)) {
+  /* Make logo smaller */
+  #hbimb-logo {
+    width: calc(250 / 16 * 1rem);
+    height: calc(51 / 16 * 1rem); }
+  /* Smaller counter and switch to vertical orientation */
+  .counter {
+    flex-direction: column;
+    align-items: stretch;
+    min-width: calc(250 / 16 * 1rem);
+    min-height: 20rem;
+    font-size: calc(60 / 16 * 1rem); }
+  .counter__num,
+  .counter__divider {
+    align-items: center;
+    min-height: unset; }
+  .counter__divider {
+    min-height: unset;
+    min-width: calc(170 / 16 * 1rem); }
+  .counter__divider:after {
+    left: 0;
+    top: 50%;
+    height: calc(1 / 16 * 1rem);
+    width: 100%; } }
+
+/* ==========================================================================
+   Error page
+   ========================================================================== */
+main#error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%; }
+
+main#error h1 {
+  text-align: center;
+  margin: 1rem auto;
+  text-shadow: var(--text-shadow); }
+
+main#error h1 {
+  font-weight: bold;
+  font-size: 3rem;
+  line-height: 1.4; }
+
+/* Hide Thingee logo when size is too narrow or too short */
+@media (max-height: calc(640 / 16 * 1rem)) and (max-width: calc(1000 / 16 * 1rem)) {
+  #thingee {
+    display: none; } }
+
+/* Hide resize when width is too narrow and center Thingee logo */
+@media (max-width: calc(660 / 16 * 1rem)) {
+  #resize {
+    display: none; }
+  #thingee {
+    right: calc(50% - var(--thingee-logo-width) / 2); } }
+
+/* Hide rulers when size is too narrow or too short */
+@media (max-width: calc(430 / 16 * 1rem)), (max-height: calc(520 / 16 * 1rem)) {
+  .ruler {
+    display: none; } }
+
+@media (max-width: calc(520 / 16 * 1rem)) {
+  #thingee {
+    right: calc(50% - var(--thingee-logo-width) / 2); }
+  main#error h1 {
+    font-size: 7vmin; } }
+
+/* Show notice when window is small */
+@media (max-height: calc(440 / 16 * 1rem)), (max-width: calc(300 / 16 * 1rem)) {
+  main {
+    display: none; }
+  #size-alert {
+    display: flex; } }
