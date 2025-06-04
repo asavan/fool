@@ -1,7 +1,34 @@
-import { QRCodeSVG } from "@akamfoad/qrcode";
+import {QRCodeSVG} from "@akamfoad/qrcode";
 
 export function bigPicture(elem) {
     elem.addEventListener("click", () => elem.classList.toggle("big"));
+}
+
+async function writeClipboardText(text) {
+    try {
+        if (navigator.clipboard) {
+            await navigator.clipboard.writeText(text);
+        }
+    } catch (error) {
+        console.error(error.message);
+    }
+}
+
+function shareAndCopy(elem, url) {
+    const shareData = {
+        title: "Suno game",
+        url: url,
+    };
+    elem.addEventListener("dblclick", async () => {
+        await writeClipboardText(url);
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    });
 }
 
 function chomp(string, c) {
@@ -24,8 +51,6 @@ function renderQRCodeSVG(text, divElement) {
         },
     });
     divElement.innerHTML = qrSVG.toString();
-    bigPicture(divElement);
-    return divElement;
 }
 
 export function removeElem(el) {
@@ -34,16 +59,25 @@ export function removeElem(el) {
     }
 }
 
-export function makeQrPlain(staticHost, document, selector) {
+export function makeQrString(window, settings) {
+    const staticHost = settings.sh || (window.location.origin + window.location.pathname);
     const url = new URL(staticHost);
+    if (settings.seed) {
+        url.searchParams.set("seed", settings.seed);
+    }
     const urlStr = chomp(url.toString(), "/");
+    return urlStr
+}
+
+export function makeQrPlain(urlStr, document, selector) {
     console.log("enemy url", urlStr);
-    return renderQRCodeSVG(urlStr, document.querySelector(selector));
+    const el = document.querySelector(selector);
+    renderQRCodeSVG(urlStr, el);
+    // bigPicture(el);
+    shareAndCopy(el, urlStr);
+    return el;
 }
 
 export function makeQr(window, document, settings) {
-    const staticHost = settings.sh || window.location.origin;
-    const url = new URL(staticHost);
-    url.searchParams.set("seed", settings.seed);
-    return makeQrPlain(url.toString(), document, ".qrcode");
+    return makeQrPlain(makeQrString(window, settings), document, ".qrcode");
 }

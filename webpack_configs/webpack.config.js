@@ -59,7 +59,7 @@ const devConfig = () => {
             port: 8080,
             hot: true,
             open: true,
-            host: 'local-ip'
+            host: addr
         }
     };
 };
