@@ -72,6 +72,10 @@ export function makeQrString(window, settings) {
 export function makeQrPlain(urlStr, document, selector) {
     console.log("enemy url", urlStr);
     const el = document.querySelector(selector);
+    if (!el) {
+        console.log("No qr");
+        return el;
+    }
     renderQRCodeSVG(urlStr, el);
     // bigPicture(el);
     shareAndCopy(el, urlStr);

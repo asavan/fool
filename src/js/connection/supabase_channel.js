@@ -32,10 +32,15 @@ function createSignalingChannel(id, socketUrl, logger, settings) {
             }
         );
 
-    const readyPromise = new Promise((resolve) => {
-        myChannel.subscribe(() => {
+    const readyPromise = new Promise((resolve, reject) => {
+        myChannel.subscribe((status) => {
+            if (status !== "SUBSCRIBED") {
+                handlers.call("error", id);
+                reject(status);
+                return;
+            }
             handlers.call("open", id);
-            resolve();
+            resolve(status);
         });
     });
 
