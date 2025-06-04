@@ -4,7 +4,17 @@ function stub() {
     // do nothing.
 }
 
-export default function createSignalingChannel(id, socketUrl, logger) {
+function getConnectionUrl(settings, location) {
+    if (settings.wh) {
+        return settings.wh;
+    }
+    if (location.protocol === "https:") {
+        throw new Error("Invalid protocol");
+    }
+    return "ws://" + location.hostname + ":" + settings.wsPort;
+}
+
+function createSignalingChannel(id, socketUrl, logger) {
     const handlers = handlersFunc(["error", "open", "message", "beforeclose", "close"]);
     const ws = new WebSocket(socketUrl);
 
@@ -60,3 +70,8 @@ export default function createSignalingChannel(id, socketUrl, logger) {
     };
     return {on, send, close, ready};
 }
+
+export default {
+    getConnectionUrl,
+    createSignalingChannel
+};

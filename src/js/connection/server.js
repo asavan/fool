@@ -72,10 +72,8 @@ const connectionFunc = function (id, logger, isServer, settings) {
     // inspired by
     // http://udn.realityripple.com/docs/Web/API/WebRTC_API/Perfect_negotiation#Implementing_perfect_negotiation
     // and https://w3c.github.io/webrtc-pc/#perfect-negotiation-example
-    async function connect(socketUrl) {
-        const createSignalingChannel = await channelChooser(settings);
-        console.log("server1");
-        const signaling = createSignalingChannel(id, socketUrl, logger, settings);
+    async function connect(socketUrl, channelChooser) {
+        const signaling = channelChooser.createSignalingChannel(id, socketUrl, logger, settings);
 
         signaling.on("close", (data) => handlers.call("socket_close", data));
 

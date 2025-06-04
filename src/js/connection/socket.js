@@ -40,9 +40,8 @@ export default function connectionFunc(id, logger, isServer, settings) {
     }
 
     async function connect(socketUrl) {
-        const createSignalingChannel = await channelChooser(settings);
         return new Promise((resolve, reject) => {
-            const signaling = createSignalingChannel(id, socketUrl, logger, settings);
+            const signaling = cch.createSignalingChannel(id, socketUrl, logger, settings);
             dataChannel = signaling;
             signaling.on("error", (id) => {
                 logger.log("Connection to ws error " + id);

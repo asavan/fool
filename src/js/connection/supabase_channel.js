@@ -2,7 +2,11 @@ import { createClient } from "@supabase/supabase-js";
 import supabase_settings from "./supabase_settings.js";
 import handlersFunc from "../utils/handlers.js";
 
-export default function createSignalingChannel(id, socketUrl, logger, settings) {
+function getConnectionUrl(settings) {
+    return "suno" + settings.seed;
+}
+
+function createSignalingChannel(id, socketUrl, logger, settings) {
     const handlers = handlersFunc(["error", "open", "message", "beforeclose", "close"]);
     const supabase = createClient(supabase_settings.SUPABASE_URL,
         supabase_settings.SUPA_API_ANON_KEY);
@@ -47,3 +51,8 @@ export default function createSignalingChannel(id, socketUrl, logger, settings) 
     const on = (name, f) => handlers.on(name, f);
     return {on, send, close, ready};
 }
+
+export default {
+    getConnectionUrl,
+    createSignalingChannel
+};

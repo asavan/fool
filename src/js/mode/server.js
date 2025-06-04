@@ -1,12 +1,12 @@
 import loggerFunc from "../views/logger.js";
 import actionsFuncUno from "../actions/actions_uno_server.js";
 import actionsToSend from "../actions/actions_uno_client.js";
-import {getWebSocketUrl} from "../connection/common.js";
 import connectionChooser from "../connection/connection_chooser.js";
 import PromiseQueue from "../utils/async-queue.js";
 import { makeQr, removeElem } from "../views/qr_helper.js";
 import {assert} from "../utils/assert.js";
 import {safe_query} from "../views/safe_query.js";
+import channelChooser from "../connection/channel_chooser.js";
 
 function setupGameToNetwork(game, connection, logger) {
     const keys = Object.keys(actionsToSend({}, null));
@@ -31,16 +31,12 @@ export default async function server(window, document, settings, gameFunction) {
     clients[myId] = {index};
 
     const connectionFunc = await connectionChooser(settings);
+    const cch = await channelChooser(settings);
     return new Promise((resolve, reject) => {
         const el = safe_query(document, settings.sNAnchor);
         const logger = loggerFunc(2, el, settings);
         const connection = connectionFunc(myId, logger, true, settings);
-        const socketUrl = getWebSocketUrl(settings, window.location);
-        if (!socketUrl) {
-            logger.error("Can't determine ws address", socketUrl);
-            reject(socketUrl);
-            return;
-        }
+        const socketUrl = cch.getConnectionUrl(settings, window.location);
         let qrCodeEl;
         connection.on("error", (e) => {
             logger.error(e);
@@ -109,7 +105,7 @@ export default async function server(window, document, settings, gameFunction) {
         });
 
         game.onConnect();
-        connection.connect(socketUrl).catch(e => reject(e));
+        connection.connect(socketUrl, cch).catch(e => reject(e));
         resolve(game);
     });
 }

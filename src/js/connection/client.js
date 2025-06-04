@@ -1,5 +1,4 @@
 import handlersFunc from "../utils/handlers.js";
-import channelChooser from "./channel_chooser.js";
 
 const connectionFunc = function (id, logger, isServer, settings) {
     const user = id;
@@ -28,9 +27,8 @@ const connectionFunc = function (id, logger, isServer, settings) {
     // inspired by
     // http://udn.realityripple.com/docs/Web/API/WebRTC_API/Perfect_negotiation#Implementing_perfect_negotiation
     // and https://w3c.github.io/webrtc-pc/#perfect-negotiation-example
-    async function connect(socketUrl) {
-        const createSignalingChannel = await channelChooser(settings);
-        const signaling = createSignalingChannel(id, socketUrl, logger, settings);
+    async function connect(socketUrl, channelChooser) {
+        const signaling = channelChooser.createSignalingChannel(id, socketUrl, logger, settings);
         signaling.on("close", (data) => handlers.call("socket_close", data));
 
         signaling.on("open", () => {

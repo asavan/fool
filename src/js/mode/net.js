@@ -1,4 +1,4 @@
-import {getWebSocketUrl, getMyId} from "../connection/common.js";
+import {getMyId} from "../connection/common.js";
 import connectionChooser from "../connection/connection_chooser.js";
 import actionsFuncUno from "../actions/actions_uno_client.js";
 import actionsToSend from "../actions/actions_uno_server.js";
@@ -6,6 +6,7 @@ import loggerFunc from "../views/logger.js";
 import PromiseQueue from "../utils/async-queue.js";
 import { assert } from "../utils/assert.js";
 import {safe_query} from "../views/safe_query.js";
+import channelChooser from "../connection/channel_chooser.js";
 
 function onConnectionAnimation(document, connection, logger) {
     connection.on("socket_open", () => {
@@ -41,6 +42,7 @@ function setupGameToNetwork(game, connection, logger, myId) {
 
 export default async function netMode(window, document, settings, gameFunction) {
     const connectionFunc = await connectionChooser(settings);
+    const cch = await channelChooser(settings);
     return new Promise((resolve, reject) => {
         // enterName(window, document, settings);
         const myId = getMyId(window, settings, Math.random);
@@ -48,12 +50,7 @@ export default async function netMode(window, document, settings, gameFunction) 
         const logger = loggerFunc(2,
             safe_query(document, settings.clNAnchor), settings);
         const connection = connectionFunc(myId, logger, false, settings);
-        const socketUrl = getWebSocketUrl(settings, window.location);
-        if (!socketUrl) {
-            logger.error("Can't determine ws address", socketUrl);
-            reject(socketUrl);
-            return;
-        }
+        const socketUrl = cch.getConnectionUrl(settings, window.location);
         connection.on("error", (e) => {
             logger.error(e);
             reject(e);
@@ -78,7 +75,7 @@ export default async function netMode(window, document, settings, gameFunction) 
             resolve(game);
         });
 
-        connection.connect(socketUrl).catch(e => {
+        connection.connect(socketUrl, cch).catch(e => {
             logger.error(e);
             reject(e);
         });
