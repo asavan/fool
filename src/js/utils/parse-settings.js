@@ -29,7 +29,7 @@ function adjustBots(changed, settings) {
 }
 
 export function adjustMode(changed, settings, protocol) {
-    const keepModes = ["mode", "wh"];
+    const keepModes = ["mode", "wh", "seed"];
     for (const keepMode of keepModes) {
         if (changed.includes(keepMode)) {
             adjustBots(changed, settings);
@@ -38,6 +38,19 @@ export function adjustMode(changed, settings, protocol) {
     }
     if (protocol === "https:") {
         settings.mode = "ai";
+    }
+    adjustBots(changed, settings);
+}
+
+export function adjustNetwork(changed, settings, protocol) {
+    const keepModes = ["channelType"];
+    for (const keepMode of keepModes) {
+        if (changed.includes(keepMode)) {
+            return;
+        }
+    }
+    if (protocol === "https:") {
+        settings.channelType = "supabase";
     }
     adjustBots(changed, settings);
 }

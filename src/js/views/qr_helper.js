@@ -43,5 +43,7 @@ export function makeQrPlain(staticHost, document, selector) {
 
 export function makeQr(window, document, settings) {
     const staticHost = settings.sh || window.location.origin;
-    return makeQrPlain(staticHost, document, ".qrcode");
+    const url = new URL(staticHost);
+    url.searchParams.set("seed", settings.seed);
+    return makeQrPlain(url.toString(), document, ".qrcode");
 }

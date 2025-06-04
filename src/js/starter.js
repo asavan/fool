@@ -1,15 +1,21 @@
 import settingsOriginal from "./settings.js";
 import gameFunction from "./game.js";
-import {parseSettings, adjustMode} from "./utils/parse-settings.js";
+import {parseSettings, adjustMode, adjustNetwork} from "./utils/parse-settings.js";
 import {assert} from "./utils/assert.js";
 import wakeLock from "./utils/wake-lock.js";
 import loggerFunc from "./views/logger.js";
+import rngFunc from "./utils/random.js";
 
 
 export default async function starter(window, document) {
     const settings = {...settingsOriginal};
     const changed = parseSettings(window.location.search, settings);
     adjustMode(changed, settings, window.location.protocol);
+    adjustNetwork(changed, settings, window.location.protocol);
+
+    if (!settings.seed) {
+        settings.seed = rngFunc.makeId(6, Math.random);
+    }
 
     wakeLock(loggerFunc(1, null, settings), document).init();
 

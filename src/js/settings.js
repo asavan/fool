@@ -1,8 +1,10 @@
 export default {
     modes: ["net", "ai", "server", "hotseat"],
     mode: "net",
-    connections: ["webrtc", "websocket"],
+    connections: ["supabase", "webrtc", "websocket"],
     connection: "websocket",
+    channelTypes: ["websocket", "supabase"],
+    channelType: "websocket",
     wsPort : 8088,
     loggerAnchor: ".log",
     clNAnchor: "",

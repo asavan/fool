@@ -34,7 +34,7 @@ export default async function server(window, document, settings, gameFunction) {
     return new Promise((resolve, reject) => {
         const el = safe_query(document, settings.sNAnchor);
         const logger = loggerFunc(2, el, settings);
-        const connection = connectionFunc(myId, logger, true);
+        const connection = connectionFunc(myId, logger, true, settings);
         const socketUrl = getWebSocketUrl(settings, window.location);
         if (!socketUrl) {
             logger.error("Can't determine ws address", socketUrl);

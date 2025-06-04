@@ -1,7 +1,7 @@
 import handlersFunc from "../utils/handlers.js";
-import {createSignalingChannel} from "./common.js";
+import channelChooser from "./channel_chooser.js";
 
-export default function connectionFunc(id, logger, isServer) {
+export default function connectionFunc(id, logger, isServer, settings) {
     const handlers = handlersFunc([
         "close",
         "disconnect",
@@ -39,9 +39,12 @@ export default function connectionFunc(id, logger, isServer) {
         queue.add(() => callback(data.data, data.from));
     }
 
-    function connect(socketUrl) {
+    async function connect(socketUrl) {
+        const createSignalingChannel = await channelChooser(settings);
+        console.log(createSignalingChannel);
         return new Promise((resolve, reject) => {
-            const signaling = createSignalingChannel(id, socketUrl, logger);
+            const signaling = createSignalingChannel(id, socketUrl, logger, settings);
+            console.log(signaling);
             dataChannel = signaling;
             signaling.on("error", (id) => {
                 logger.log("Connection to ws error " + id);

@@ -20,7 +20,7 @@ function getLocalExternalIP(defaultAddr) {
 }
 
 const devConfig = () => {
-    const addr = getLocalExternalIP("0.0.0.0");
+    const addr = "0.0.0.0" || getLocalExternalIP("0.0.0.0");
     console.log(addr);
     return {
         entry: {main: ["./src/index.js", "./src/css/style.css"]},
@@ -59,7 +59,7 @@ const devConfig = () => {
             port: 8080,
             hot: true,
             open: true,
-            host: addr
+            host: 'local-ip'
         }
     };
 };

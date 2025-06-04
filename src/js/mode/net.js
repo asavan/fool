@@ -47,7 +47,7 @@ export default async function netMode(window, document, settings, gameFunction) 
         assert(myId, "No net id");
         const logger = loggerFunc(2,
             safe_query(document, settings.clNAnchor), settings);
-        const connection = connectionFunc(myId, logger, false);
+        const connection = connectionFunc(myId, logger, false, settings);
         const socketUrl = getWebSocketUrl(settings, window.location);
         if (!socketUrl) {
             logger.error("Can't determine ws address", socketUrl);

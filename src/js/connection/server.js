@@ -1,7 +1,8 @@
 import handlersFunc from "../utils/handlers.js";
-import {createSignalingChannel} from "./common.js";
+import channelChooser from "./channel_chooser.js";
 
-const connectionFunc = function (id, logger) {
+const connectionFunc = function (id, logger, isServer, settings) {
+    console.log("server3");
     const handlers = handlersFunc(["recv", "open", "error", "close", "socket_open", "socket_close", "disconnect"]);
     function on(name, f) {
         return handlers.on(name, f);
@@ -71,8 +72,10 @@ const connectionFunc = function (id, logger) {
     // inspired by
     // http://udn.realityripple.com/docs/Web/API/WebRTC_API/Perfect_negotiation#Implementing_perfect_negotiation
     // and https://w3c.github.io/webrtc-pc/#perfect-negotiation-example
-    function connect(socketUrl) {
-        const signaling = createSignalingChannel(id, socketUrl, logger);
+    async function connect(socketUrl) {
+        const createSignalingChannel = await channelChooser(settings);
+        console.log("server1");
+        const signaling = createSignalingChannel(id, socketUrl, logger, settings);
 
         signaling.on("close", (data) => handlers.call("socket_close", data));
 
@@ -115,7 +118,8 @@ const connectionFunc = function (id, logger) {
                 console.error("Unknown type " + json.action);
             }
         });
-        return Promise.resolve(signaling);
+        console.log("server2");
+        return signaling;
     }
 
     const sendRawAll = (action, data, ignore) => {

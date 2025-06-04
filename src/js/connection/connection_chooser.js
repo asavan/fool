@@ -2,7 +2,7 @@ import {assert} from "../utils/assert.js";
 
 export default async function connectionChooser(settings) {
     let mode;
-    if (settings.connection === "websocket") {
+    if (settings.connection === "websocket" || settings.connection === "supabase") {
         mode = await import("./socket.js");
     } else if (settings.connection === "fake") {
         mode = await import("./fake.js");
