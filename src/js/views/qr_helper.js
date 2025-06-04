@@ -66,7 +66,7 @@ export function makeQrString(window, settings) {
         url.searchParams.set("seed", settings.seed);
     }
     const urlStr = chomp(url.toString(), "/");
-    return urlStr
+    return urlStr;
 }
 
 export function makeQrPlain(urlStr, document, selector) {
