@@ -1,5 +1,4 @@
 import handlersFunc from "../utils/handlers.js";
-import channelChooser from "./channel_chooser.js";
 
 export default function connectionFunc(id, logger, isServer, settings) {
     const handlers = handlersFunc([
@@ -39,9 +38,9 @@ export default function connectionFunc(id, logger, isServer, settings) {
         queue.add(() => callback(data.data, data.from));
     }
 
-    async function connect(socketUrl) {
+    function connect(socketUrl, channelChooser) {
         return new Promise((resolve, reject) => {
-            const signaling = cch.createSignalingChannel(id, socketUrl, logger, settings);
+            const signaling = channelChooser.createSignalingChannel(id, socketUrl, logger, settings);
             dataChannel = signaling;
             signaling.on("error", (id) => {
                 logger.log("Connection to ws error " + id);
