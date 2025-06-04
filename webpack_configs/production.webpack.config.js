@@ -78,7 +78,7 @@ const prodConfig = () => {
                         unsafe: true,
                         unsafe_math: true,
                         unsafe_arrows: true,
-                        drop_console: true,
+                        // drop_console: true,
                         pure_new: true,
                         passes: 2,
                         keep_fargs: false,
