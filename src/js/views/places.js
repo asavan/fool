@@ -53,7 +53,7 @@ export default function choosePlace(document, {onSeatsFinished, onSwap, onAddBot
         elem.dataset.id = i;
         elem.dataset.angle = angleDeg + "deg";
         elem.style.setProperty("--angle-deg", angleDeg + "deg");
-        elem.classList.add("circle", "clickable");
+        elem.classList.add("circle", "clickable", "player-name");
         angleDeg += increaseDeg;
         places.appendChild(elem);
     }

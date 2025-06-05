@@ -190,7 +190,7 @@ export default function initCore({settings, rngFunc, applyEffects, delay},
             return false;
         }
 
-        if (cardTaken == 0) {
+        if (cardTaken === 0) {
             logger.error("cannot pass");
             return false;
         }
@@ -308,7 +308,7 @@ export default function initCore({settings, rngFunc, applyEffects, delay},
     }
 
     async function calcCardEffect(card, playerIndex) {
-        localAssert(playerIndex === currentPlayer);
+        localAssert(playerIndex === currentPlayer, "Effect for other player");
         const type = core.cardType(card);
         traceLogger.log("calcCardEffect", {playerIndex, card}, core.cardToString(card));
 

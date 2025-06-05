@@ -88,7 +88,7 @@ ul {
   left:50%;
   text-align:center;
   transform: rotate(var(--angle-deg)) translate(140px) rotate(calc(-1 * var(--angle-deg))) translate(-50%, -50%);
-  max-width: 100px;
+  max-width: 120px;
 }
 
 .player-hand {
@@ -113,7 +113,13 @@ ul {
 
 /* stylelint-enable property-no-vendor-prefix */
 
-.dealer .player-name::after{
+.player-name {
+  white-space:nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.dealer .player-name::before{
   content: "*";
 }
 

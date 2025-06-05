@@ -53,5 +53,5 @@ export default {
     shuffleSmallDelay: 10,
     shuffleTimes: 2,
     shuffleMaxCardsShow: 20,
-    maxNameLen: 15
+    maxNameLen: 10
 };
