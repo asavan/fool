@@ -16,6 +16,16 @@ test("qrcode", async () => {
     makeQr(dom.window, document, settings);
 });
 
+test("qrcode_local_no_slash", async () => {
+    const dom = await JSDOM.fromFile("src/index.html", {
+        url: "http://localhost:8080/?mode=server&playerIsBot=false",
+    });
+    const settings = {...settingsOriginal};
+    assert.equal(settings.seed, "");
+    const shareUrl = makeQrString(dom.window, settings);
+    assert.equal(shareUrl, "http://localhost:8080");
+});
+
 test("qrcode_local", async () => {
     const dom = await JSDOM.fromFile("src/index.html", {
         url: "http://localhost:8080/?mode=server&playerIsBot=false&seed=xyz",
