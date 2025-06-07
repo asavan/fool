@@ -81,6 +81,27 @@ ul {
   font-size: 3rem;
 }
 
+.card-count[data-count="1"] {
+  visibility: hidden;
+  font-size:0
+}
+
+.card-count[data-count="0"] {
+  visibility: hidden;
+}
+
+.card-count::after {
+  content: "🂠";
+}
+
+.card-count[data-count="1"]::after {
+  content: "UNO";
+  visibility: visible;
+  content-visibility: visible;
+  font-size: 2.5rem;
+  color: red;
+}
+
 .circle {
   display:block;
   position:absolute;
@@ -577,6 +598,15 @@ footer {
 .highlight-good {
   opacity: 1;
   transform: scale(1.1);
+  transition: transform 200ms;
+}
+
+.highlight-good.js-draw {
+  transform: scale(1.5);
+}
+
+.highlight-good.js-pass {
+  transform: scale(1.5);
 }
 
 .highlight-bad {

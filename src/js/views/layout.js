@@ -126,6 +126,7 @@ function drawLayout({document, engine, myIndex, settings, playersExternal}) {
             const pileElem = document.createElement("div");
 
             pileElem.textContent = pl.pile().length;
+            pileElem.dataset.count = pl.pile().length;
             pileElem.classList.add("card-count");
             elem.appendChild(pileElem);
         }
@@ -325,6 +326,7 @@ async function drawDealOther(window, document, card, animTime, target, newCount)
         await delay(animTime / 2);
     }
     target.textContent = newCount;
+    target.dataset.count = newCount;
     await delay(animTime / 2);
     flipClone.remove();
 }
@@ -415,6 +417,7 @@ async function drawMoveOther(window, document, fromEl, animTime, card, newCount)
     }
 
     fromEl.textContent = newCount;
+    fromEl.dataset.count = newCount;
     await delay(animTime / 2);
     const cardToRepaint = list.querySelector(".card");
     repaintCard(card, cardToRepaint);
@@ -439,10 +442,12 @@ function drawPlayersDeal(window, {document, engine, myIndex, settings, playersEx
         let elemCardCount = player.querySelector(".card-count");
         const pl = engine.getPlayerByIndex(playerIndex);
         if (!elemCardCount) {
-            elemCardCount = document.createElement("div");
+            elemCardCount = document.createElement("li");
             elemCardCount.textContent = pl.pile().length;
+            elemCardCount.dataset.count = pl.pile().length;
             elemCardCount.classList.add("card-count");
-            player.appendChild(elemCardCount);
+            const hand = player.querySelector(".hand");
+            hand?.appendChild(elemCardCount);
         }
 
         return drawDealOther(window, document, card, settings.moveAnim, elemCardCount, pl.pile().length);

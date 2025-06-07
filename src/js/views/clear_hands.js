@@ -33,6 +33,7 @@ async function clearOther({document, fromEl, animTime, newCount, logger}) {
         await delay(animTime/2);
     }
     fromEl.textContent = newCount;
+    fromEl.dataset.count = newCount;
     await delay(animTime/2);
     backClone.remove();
 }

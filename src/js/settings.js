@@ -30,7 +30,7 @@ export default {
     direction: ["center"],
     seed: "",
     highlight: "aftermove",
-    highlightDelay: 1000,
+    highlightDelay: 800,
     movePause: 150,
     botMovePause: 700,
     botSecondMovePause: 300,
