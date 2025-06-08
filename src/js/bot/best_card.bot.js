@@ -60,7 +60,7 @@ export default function bestCardBot({engine, queue, logger, botIndexes, settings
             await delay(settings.botMovePause);
             const cardAfterTimeout = engine.getCardOnBoard();
             if (cardAfterTimeout !== discardCard) {
-                console.error(engine.toJson());
+                logger.log("best_card_bot already changed", playerIndex);
                 return;
             }
             const moveCount = await calcAction(0)();
