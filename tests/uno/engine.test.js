@@ -97,11 +97,11 @@ test("reverse", async () => {
     const engine = setupEngine(3);
     const player0 = 0;
     const player1 = 1;
-    const deck = [0, 1, 2, 13, 12, 11];
+    const deck = [0, 1, 2, 16, 15, 14, 13, 12, 11];
     await engine.setDeck(deck);
     const currentObj = {currentPlayer: player0, dealer: player0, direction: 1, gameState : core.GameStage.DEALING };
     await engine.setCurrentObj(currentObj);
-    await engine.dealN(1);
+    await engine.dealN(2);
     assert.strictEqual(engine.getCurrentPlayer(), player1, "player changed after deal");
     assert.strictEqual(engine.getDirection(), 1, "direction left");
     const res = await engine.moveToDiscard(player1, 11);

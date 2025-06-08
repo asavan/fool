@@ -12,13 +12,13 @@ export default function test(window, document, settings, gameFunction) {
             const name = "client" + i;
             game.join(name, name);
         }
-        game.afterAllJoined();
 
         game.on("gameover", () => {
             const btnAdd = document.querySelector(".butInstall");
             btnAdd.classList.remove("hidden2");
         });
 
+        game.afterAllJoined();
         resolve(game);
     });
 }

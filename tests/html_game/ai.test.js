@@ -51,9 +51,9 @@ async function aiTest(settings, fisrtName) {
     const document = dom.window.document;
     const game = await mode(dom.window, document, settings, gameFunction);
     const gameFinish = new Promise((resolve) => {
+        console.log("GameOver Setup");
         game.on("gameover", () => {
-            const btnAdd = document.querySelector(".butInstall");
-            btnAdd.classList.remove("hidden2");
+            console.log("GameOver");
             resolve();
         });
     });
@@ -72,12 +72,10 @@ async function aiTest(settings, fisrtName) {
     assert.ok(true, "Ended well");
 }
 
-
 test("ai scenario", async () => {
     const localSettings = defaultAiSettings(settings);
     await aiTest(localSettings, "bot 1");
 });
-
 
 test("ai legacyView", async () => {
     const localSettings = defaultAiSettings(settings);

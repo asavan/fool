@@ -301,17 +301,19 @@ export default function initCore({settings, rngFunc, applyEffects, delay},
     }
 
     function skip() {
-        // TODO should we notify others
-        currentPlayer = calcNextFromCurrent(currentPlayer, players.length, direction);
         cardTaken = 0;
         cardDiscarded = 0;
+        if (gameState === core.GameStage.ROUND_OVER) {
+            return;
+        }
+        currentPlayer = calcNextFromCurrent(currentPlayer, players.length, direction);
     }
 
     async function calcCardEffect(card, playerIndex) {
         localAssert(playerIndex === currentPlayer, "Effect for other player");
         const type = core.cardType(card);
         traceLogger.log("calcCardEffect", {playerIndex, card}, core.cardToString(card));
-
+        const dealTo = calcNextFromCurrent(playerIndex, players.length, direction);
         if (type === "Reverse") {
             reverse();
             if (players.length === 2) {
@@ -326,14 +328,14 @@ export default function initCore({settings, rngFunc, applyEffects, delay},
         if (type === "Draw2") {
             skip();
             for (let i = 0; i < 2; ++i) {
-                await dealToPlayer(deck, currentPlayer);
+                await dealToPlayer(deck, dealTo);
             }
         }
 
         if (type === "Draw4") {
             skip();
             for (let i = 0; i < 4; ++i) {
-                await dealToPlayer(deck, currentPlayer);
+                await dealToPlayer(deck, dealTo);
             }
         }
         await next();
@@ -349,15 +351,9 @@ export default function initCore({settings, rngFunc, applyEffects, delay},
                 await dealToPlayer(deck, currentPlayer);
             }
         }
-        // TODO delete this
-        if (currentPlayer !== dealer) {
-            logger.error("dealN", state());
-            currentPlayer = dealer;
-            await report("changeCurrent", state());
-        }
         const card = await dealToDiscard(deck);
-        await calcCardEffect(card, currentPlayer);
         gameState = core.GameStage.ROUND;
+        await calcCardEffect(card, currentPlayer);
     }
 
     function getCurrentPlayerObj() {
@@ -492,9 +488,9 @@ export default function initCore({settings, rngFunc, applyEffects, delay},
         }
         await report("move", {playerIndex, card, currentColor});
         if (applyEffects) {
-            await calcCardEffect(card, currentPlayer);
+            await calcCardEffect(card, playerIndex);
             if (gameState === core.GameStage.ROUND_OVER || gameState === core.GameStage.GAME_OVER) {
-                await onRoundEnd(playerIndex);
+                await onRoundEnd(playerIndex, calcScore());
             }
         }
     }
@@ -509,11 +505,11 @@ export default function initCore({settings, rngFunc, applyEffects, delay},
         return res2;
     }
 
-    async function onRoundEnd(playerIndex) {
+    async function onRoundEnd(playerIndex, diff) {
         const player = players[playerIndex];
         localAssert(player.hasEmptyHand(), "End on not empty hand");
         localAssert(gameState !== core.GameStage.ROUND, "Bad state onRoundEnd");
-        const diff = calcScore();
+        await cleanAllHands();
         player.updateScore(diff);
         const score = player.getScore();
         if (score >= MAX_SCORE) {
@@ -540,14 +536,9 @@ export default function initCore({settings, rngFunc, applyEffects, delay},
             logger.error("Bad score");
             return false;
         }
-        const diff = calcScore();
-        if (diff !== data.diff) {
-            logger.error("Bad diff");
-            return false;
-        }
         // Maybe not needed
         gameState = core.GameStage.ROUND_OVER;
-        return onRoundEnd(data.playerIndex);
+        return onRoundEnd(data.playerIndex, data.diff);
     }
 
     async function onMoveToDiscard(playerIndex, card, nextColor) {
@@ -559,12 +550,16 @@ export default function initCore({settings, rngFunc, applyEffects, delay},
     }
 
     async function next() {
+        if (gameState === core.GameStage.ROUND_OVER) {
+            return false;
+        }
         skip();
         await report("changeCurrent", state());
         return true;
     }
 
     function nextDealer() {
+        localAssert(gameState !== core.GameStage.DEALING, "Second dealer change");
         direction = 1;
         dealer = calcNextFromCurrent(dealer, players.length, direction);
         currentPlayer = dealer;

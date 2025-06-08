@@ -20,10 +20,7 @@ export default function ai(window, document, settings, gameFunction) {
             const btnAdd = document.querySelector(".butInstall");
             btnAdd.classList.remove("hidden2");
         });
-
-
-        game.afterAllJoined().then(() => {
-            resolve(game);
-        });
+        resolve(game);
+        game.afterAllJoined();
     });
 }

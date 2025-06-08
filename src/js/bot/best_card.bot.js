@@ -27,6 +27,7 @@ export default function bestCardBot({engine, queue, logger, botIndexes, settings
         }
         const unoActions = actionsFuncUno(engine, logger);
         const cardOnTop = engine.secretlySeeTopCard();
+        const discardCard = engine.getCardOnBoard();
         const calcAction = (trycount) => {
             const pile = pl.pile();
             const bestCard = simpleBot.findBestGoodCard(pile, engine.getCardOnBoard(), engine.getCurrentColor());
@@ -57,6 +58,11 @@ export default function bestCardBot({engine, queue, logger, botIndexes, settings
 
         const action = async () => {
             await delay(settings.botMovePause);
+            const cardAfterTimeout = engine.getCardOnBoard();
+            if (cardAfterTimeout !== discardCard) {
+                console.error(engine.toJson());
+                return;
+            }
             const moveCount = await calcAction(0)();
             if (moveCount === 0) {
                 await delay(settings.botSecondMovePause);
