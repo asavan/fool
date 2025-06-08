@@ -27,7 +27,7 @@ export default function enterName(window, document, settings, onUsermameExternal
 
     function checkName(name) {
         if (name.length > settings.maxNameLen) {
-            alert("Choose shorter name!");
+            alert(`Choose shorter name! (Less than ${settings.maxNameLen} characters)`);
             return false;
         }
         return true;
@@ -37,8 +37,11 @@ export default function enterName(window, document, settings, onUsermameExternal
         if (!checkName(input.value)) {
             return;
         }
-
-        window.sessionStorage.setItem("username", name);
+        if (name) {
+            window.sessionStorage.setItem("username", name);
+        } else {
+            name = "Player";
+        }
         notifyExt(name);
         form.classList.add("hidden");
         field.classList.remove("hidden");
