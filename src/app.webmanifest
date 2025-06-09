@@ -6,12 +6,18 @@
             "src": "./images/reverse_6cf.svg",
             "sizes": "any",
             "type": "image/svg+xml",
-            "purpose": "any maskable"
+            "purpose": "maskable"
         },
         {
             "src": "./images/icon192.png",
             "sizes": "192x192",
             "type": " image/png"
+        },
+        {
+            "src": "./images/icon512.png",
+            "sizes": "512x512",
+            "type": " image/png",
+            "purpose": "any"
         }
     ],
     "related_applications": [
