@@ -22,6 +22,15 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    packaging {
+        jniLibs {
+            pickFirsts += "META-INF/nanohttpd/*"
+        }
+        resources {
+            pickFirsts += "META-INF/nanohttpd/*"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
