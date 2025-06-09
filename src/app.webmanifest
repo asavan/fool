@@ -26,6 +26,12 @@
             "src": "./screenshots/screen_green.png",
             "sizes": "756x1339",
             "type": "image/png"
+        },
+        {
+            "src": "./screenshots/screen_wide.png",
+            "sizes": "2878x1300",
+            "form_factor": "wide",
+            "type": "image/png"
         }
     ],
     "shortcuts": [
