@@ -6,7 +6,6 @@ import setupSettings from "./utils/setup-settings.js";
 
 export default async function starter(window, document) {
     const settings = setupSettings(window);
-    wakeLock(loggerFunc(1, null, settings), document).init();
 
     let mode;
     if (settings.mode === "net") {
@@ -22,8 +21,10 @@ export default async function starter(window, document) {
     } else {
         assert(false, "Unsupported mode");
     }
-    mode.default(window, document, settings, gameFunction).
-        catch((error) => {
-            console.error(error);
-        });
+    mode.default(window, document, settings, gameFunction).then(() => {
+        wakeLock(loggerFunc(1, null, settings), document).
+            init(document.querySelector(".container"));
+    }).catch((error) => {
+        console.error(error);
+    });
 }

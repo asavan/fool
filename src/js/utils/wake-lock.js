@@ -16,14 +16,18 @@ export default function lokker(logger, document) {
         }
     }
 
-    function init() {
-        lock();
-        document.addEventListener("visibilitychange", async () => {
-            logger.log("visibilitychange", document.visibilityState);
-            if (document.visibilityState === "visible") {
-                await lock();
-            }
-        });
+    function init(elem) {
+        if (elem) {
+            elem.addEventListener("dblclick", ()=>{
+                lock();
+                document.addEventListener("visibilitychange", async () => {
+                    logger.log("visibilitychange", document.visibilityState);
+                    if (document.visibilityState === "visible") {
+                        await lock();
+                    }
+                });
+            });
+        }
     }
 
     function release() {
