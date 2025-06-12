@@ -1,6 +1,7 @@
 import handlersFunc from "../utils/handlers.js";
 
 const connectionFunc = function (id, logger, isServer, settings) {
+    logger.log("Webrtc connection " + id);
     const handlers = handlersFunc(["recv", "open", "error", "close", "socket_open", "socket_close", "disconnect"]);
     function on(name, f) {
         return handlers.on(name, f);
@@ -11,6 +12,7 @@ const connectionFunc = function (id, logger, isServer, settings) {
         // window.pc = peerConnection;
 
         peerConnection.onicecandidate = e => {
+            logger.log("Received icecandidate", id, e);
             if (!e) {
                 console.error("No ice");
             }

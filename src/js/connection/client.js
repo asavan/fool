@@ -43,7 +43,18 @@ const connectionFunc = function (id, logger, isServer, settings) {
         await signaling.ready();
         const peerConnection = new RTCPeerConnection(null);
 
+        const offerSentPromise = Promise.withResolvers();
+        const sendWhenReady = (message) => {
+            offerSentPromise.promise.then(() => {
+                signaling.send("candidate", message, "server");
+            });
+        };
+
         peerConnection.onicecandidate = e => {
+            logger.log("ICE", e);
+            if (!e) {
+                return;
+            }
             const message = {
                 type: "candidate",
                 candidate: null,
@@ -54,11 +65,14 @@ const connectionFunc = function (id, logger, isServer, settings) {
                 message.sdpMLineIndex = e.candidate.sdpMLineIndex;
             }
             logger.log({"candidate": e.candidate});
-            signaling.send("candidate", message, "server");
+            sendWhenReady(message);
+            // signaling.send("candidate", message, "server");
         };
         // window.pc = peerConnection;
 
-        peerConnection.oniceconnectionstatechange = () => {
+
+        peerConnection.oniceconnectionstatechange = (e) => {
+            logger.log("connection statechange", e);
             if (peerConnection.iceConnectionState === "failed") {
                 console.error("failed");
             // peerConnection.restartIce();
@@ -72,8 +86,10 @@ const connectionFunc = function (id, logger, isServer, settings) {
         // const sdpConstraints = {offerToReceiveAudio: false, offerToReceiveVideo: false};
 
         const offer = await peerConnection.createOffer();
+        // await delay(1000);
         await peerConnection.setLocalDescription(offer);
-
+        // await delay(1000);
+        logger.log("AFTER DESCRIPTION SET");
 
         signaling.on("message", async (json) => {
             if (json.from === user) {
@@ -102,7 +118,9 @@ const connectionFunc = function (id, logger, isServer, settings) {
                 }
 
             } else if (json.action === "answer") {
-                peerConnection.setRemoteDescription(json.data);
+                await peerConnection.setRemoteDescription(json.data);
+                // now can send candidates
+                offerSentPromise.resolve();
             } else if (json.action === "connected") {
                 // WHY we need this?
             } else if (json.action === "close") {
