@@ -432,8 +432,7 @@ function drawMoveByCard(window, document, card, animTime) {
 
 function drawPlayersDeal(window, {document, engine, myIndex, settings, playersExternal}, marker, card, playerIndex) {
     if (showCards(engine, settings)) {
-        drawPlayers({document, engine, myIndex, settings, playersExternal}, marker);
-        return;
+        return drawPlayers({document, engine, myIndex, settings, playersExternal}, marker);
     }
 
     if (playerIndex !== myIndex) {
