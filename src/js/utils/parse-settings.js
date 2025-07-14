@@ -11,7 +11,7 @@ export function parseSettings(queryString, settings) {
     const changed = [];
     for (const [key, value] of urlParams) {
         if (typeof settings[key] === "number") {
-            settings[key] = parseInt(value, 10);
+            settings[key] = Number.parseInt(value, 10);
         } else if (typeof settings[key] === "boolean") {
             settings[key] = stringToBoolean(value);
         } else {

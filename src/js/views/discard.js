@@ -24,7 +24,7 @@ export async function drawDiscard({document, engine, myIndex, settings}) {
 }
 
 export async function drawAntiDiscard({document, settings, cardEl, list}) {
-    const card = parseInt(cardEl.dataset.card);
+    const card = Number.parseInt(cardEl.dataset.card, 10);
     const flipItem = document.querySelector("#flip-card");
     const flipClone = flipItem.content.cloneNode(true).firstElementChild;
     const flipList = flipClone.querySelector(".card-flip");

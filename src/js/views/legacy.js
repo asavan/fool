@@ -65,8 +65,8 @@ export default function drawPlayersInner({document, engine, myIndex, settings, p
 
         if (cardEl && cardEl.classList.contains("card")) {
             const playerEl = cardEl.parentElement.parentElement;
-            const card = parseInt(cardEl.dataset.card);
-            const playerId = parseInt(playerEl.dataset.id);
+            const card = Number.parseInt(cardEl.dataset.card, 10);
+            const playerId = Number.parseInt(playerEl.dataset.id, 10);
             await engine.moveToDiscard(playerId, card);
         }
     });

@@ -64,7 +64,7 @@ function drawMyHand({document, engine, myIndex, settings, playersExternal, logge
         e.preventDefault();
         const cardEl = e.target.parentElement;
         if (cardEl && cardEl.classList.contains("card")) {
-            const card = parseInt(cardEl.dataset.card);
+            const card = Number.parseInt(cardEl.dataset.card, 10);
             const res = await engine.moveToDiscard(myIndex, card);
             if (!res && settings.highlight === "aftermove") {
                 highlight({document, engine, hand, myIndex, logger, settings});
@@ -117,7 +117,7 @@ function drawLayout({document, engine, myIndex, settings, playersExternal}) {
                     e.preventDefault();
                     const cardEl = e.target.parentElement;
                     if (cardEl && cardEl.classList.contains("card")) {
-                        const card = parseInt(cardEl.dataset.card);
+                        const card = Number.parseInt(cardEl.dataset.card, 10);
                         return engine.moveToDiscard(plNum, card);
                     }
                 });
@@ -188,7 +188,7 @@ async function drawCurrent(document, engine, myIndex, settings) {
     let activeCurrent = null;
     for (const player of players) {
         player.classList.remove("dealer");
-        const playerId = parseInt(player.dataset.id);
+        const playerId = Number.parseInt(player.dataset.id, 10);
         if (engine.getCurrentPlayer() === playerId) {
             activeCurrent = player;
         }
@@ -336,7 +336,7 @@ async function drawMove(window, document, newCard1, animTime) {
     const centerPile = document.querySelector(".center-pile");
     const list = centerPile.querySelector(".hand");
 
-    const card = parseInt(newCard1.dataset.card, 10);
+    const card = Number.parseInt(newCard1.dataset.card, 10);
 
     const flipItem = document.querySelector("#flip-card");
     const flipClone = flipItem.content.cloneNode(true).firstElementChild;

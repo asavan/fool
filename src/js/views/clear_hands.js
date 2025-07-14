@@ -45,7 +45,7 @@ async function clearHandOther({playerIndex, document, animTime, logger}) {
         logger.log("No element count", playerIndex);
         return;
     }
-    let cardsCount = parseInt(elemCardCount.textContent);
+    let cardsCount = Number.parseInt(elemCardCount.textContent, 10);
     logger.log("clearHandOther", playerIndex, cardsCount);
     for (cardsCount; cardsCount > 0; --cardsCount) {
         logger.log("clear one", cardsCount);
@@ -76,7 +76,7 @@ async function cleanHandMeOne({document, logger, settings, showAll}, cardElem) {
     const centerPile = document.querySelector(".center-pile");
     const list = centerPile.querySelector(".hand");
 
-    const card = parseInt(cardElem.dataset.card);
+    const card = Number.parseInt(cardElem.dataset.card, 10);
 
     const flipItem = document.querySelector("#flip-card");
     const flipClone = flipItem.content.cloneNode(true).firstElementChild;

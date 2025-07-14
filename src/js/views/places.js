@@ -14,7 +14,7 @@ export default function choosePlace(document, {onSeatsFinished, onSwap, onAddBot
             console.log("WRONG TARGET");
             return;
         }
-        onClick(parseInt(e.target.dataset.id));
+        onClick(Number.parseInt(e.target.dataset.id, 10));
 
         if (selected) {
             selected.classList.remove("selected");

@@ -18,7 +18,7 @@ export default async function heightGoodCards({engine, hand, myIndex, logger, se
         }
     }
     for (const cardEl of hand.children) {
-        const card = parseInt(cardEl.dataset.card);
+        const card = Number.parseInt(cardEl.dataset.card, 10);
         if (goodCards.includes(card)) {
             cardEl.classList.add("highlight-good");
         } else {
