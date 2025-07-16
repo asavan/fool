@@ -137,6 +137,9 @@ export default function unoGame({window, document, settings}, {playersExternal, 
 
     engine.on("gameover", async (data) => {
         onGameOver(data);
+        if (settings.mode === "net") {
+            return;
+        }
         await handlers["gameover"](data);
     });
 

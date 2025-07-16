@@ -42,7 +42,7 @@ export default {
     drawShow: 200,
     drawMy: 120,
     drawClosed: 50,
-    beforeDeal: 100,
+    beforeDeal: 250,
     shufflePause: 300,
     changeCurrentPause: 500,
     moveAnim: 250,
