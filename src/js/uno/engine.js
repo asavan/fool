@@ -111,7 +111,11 @@ export default function initCore({settings, rngFunc, applyEffects, delay},
             logger.error("deck is empty, should never happen");
             return;
         }
-        players[playerIndex].addCard(card);
+        const added = players[playerIndex].addCard(card);
+        if (!added) {
+            logger.error("try double card");
+            return;
+        }
         if (!external) {
             await report("draw", {playerIndex, card});
         } else {
@@ -145,7 +149,7 @@ export default function initCore({settings, rngFunc, applyEffects, delay},
             return false;
         }
         const cardFromDeck = await dealToPlayer(deck, playerIndex, true);
-        if (cardFromDeck === undefined) {
+        if (cardFromDeck !== card) {
             logger.error("onDraw bad");
             return false;
         }

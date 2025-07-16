@@ -6,7 +6,13 @@ export default function newPlayer(arr, ind, oldScore) {
     let score = oldScore || 0;
 
     const getIndex = () => i;
-    const addCard = (card) => deck.push(card);
+    const addCard = (card) => {
+        if (deck.includes(card)) {
+            return false;
+        }
+        deck.push(card);
+        return true;
+    };
     const pile = () => [...deck];
     const cleanHand = () => {
         deck.length = 0;
