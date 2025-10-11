@@ -39,11 +39,14 @@ export default function setup() {
     const toCode = defaultHost(defaultSh);
     const toCodeLong = addWhParam(toCode, defaultWh(defaultSh));
     console.log(toCode.length, toCodeLong.length);
-    renderQRCodeSVG(toCode, ".qrcode1", "L");
-    renderQRCodeSVG(toCode.toUpperCase(), ".qrcode2", "L");
-    renderQRCodeSVG(toCode, ".qrcode3", "M");
-    renderQRCodeSVG(toCode, ".qrcode4", "Q");
-    renderQRCodeSVG(toCodeLong, ".qrcode6", "L");
+    renderQRCodeSVG(toCode, ".qrcode0", "L");
+    renderQRCodeSVG(toCode.toUpperCase(), ".qrcode1", "L");
+    renderQRCodeSVG(toCode, ".qrcode2", "M");
+    renderQRCodeSVG(toCode, ".qrcode3", "Q");
+    renderQRCodeSVG(toCodeLong, ".qrcode4", "L");
+    renderQRCodeSVG(toCodeLong, ".qrcode5", "M");
+    renderQRCodeSVG(toCodeLong, ".qrcode6", "Q");
+    renderQRCodeSVG(toCodeLong, ".qrcode7", "H");
 }
 
 setup();

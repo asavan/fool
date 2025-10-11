@@ -6,6 +6,8 @@ export default async function channelChooser(settings) {
         mode = await import("./websocket_channel.js");
     } else if (settings.channelType === "supabase") {
         mode = await import("./supabase_channel.js");
+    } else if (settings.channelType === "fake") {
+        mode = await import("./fake_channel.js");
     } else {
         assert(false, "Unsupported mode");
     }

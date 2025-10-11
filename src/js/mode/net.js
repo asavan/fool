@@ -47,9 +47,10 @@ export default async function netMode(window, document, settings, gameFunction) 
         // enterName(window, document, settings);
         const myId = getMyId(window, settings, Math.random);
         assert(myId, "No net id");
-        const logger = loggerFunc(2,
-            safe_query(document, settings.clNAnchor), settings);
-        const connection = connectionFunc(myId, logger, false, settings);
+        const el = safe_query(document, settings.clNAnchor);
+        const logger = loggerFunc(2, el, settings);
+        const connectionLogger = loggerFunc(1, el, settings);
+        const connection = connectionFunc(myId, connectionLogger, false, settings);
         const socketUrl = cch.getConnectionUrl(settings, window.location);
         connection.on("error", (e) => {
             logger.error(e);
@@ -63,8 +64,9 @@ export default async function netMode(window, document, settings, gameFunction) 
             const game = gameFunction({window, document, settings, myId});
             setupGameToNetwork(game, connection, logger, myId);
             const actions = {"start": (data) => {
+                logger.log("Before start", id, myId);
                 const unoGame = game.onStart(data);
-                const loggerActions = loggerFunc(6, null, settings);
+                const loggerActions = loggerFunc(2, null, settings);
                 const engine = unoGame.getEngine();
                 const unoActions = actionsFuncUno(engine, loggerActions);
                 connection.registerHandler(unoActions, queue);

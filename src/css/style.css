@@ -335,7 +335,7 @@ footer {
     'g b'
     'c c';
   opacity: 0.8;
-  grid-gap: 5px;
+  gap: 5px;
 }
 
 .cancel-color {

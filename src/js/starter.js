@@ -21,10 +21,8 @@ export default async function starter(window, document) {
     } else {
         assert(false, "Unsupported mode");
     }
-    mode.default(window, document, settings, gameFunction).then(() => {
-        wakeLock(loggerFunc(1, null, settings), document).
-            init(document.querySelector(".container"));
-    }).catch((error) => {
-        console.error(error);
-    });
+    const gameStarted = await mode.default(window, document, settings, gameFunction);
+    const locker = wakeLock(loggerFunc(1, null, settings), document);
+    locker.init(document.querySelector(".container"));
+    return gameStarted;
 }

@@ -7,4 +7,6 @@ if (__USE_SERVICE_WORKERS__) {
         install(window, document);
     }
 }
-starter(window, document);
+starter(window, document).catch((error) => {
+    console.error(error);
+});

@@ -175,7 +175,6 @@ const connectionFunc = function (id, logger, isServer, settings) {
 
     function registerHandler(actions, queue) {
         handlers.setOnce("recv", (data) => {
-            // console.log(data);
             const obj = JSON.parse(data);
             const res = obj.data;
             const callback = actions[obj.action];
