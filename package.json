@@ -25,6 +25,11 @@
     "updates": "npx ncu",
     "updates:fix": "npx ncu -u && npm install && npm audit fix"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asavan/fool.git"
+  },
+  "homepage": "https://asavan.github.io/fool/",
   "devDependencies": {
     "dependency-cruiser": "^16.10.4",
     "http-server": "^14.1.1",

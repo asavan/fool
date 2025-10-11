@@ -7,7 +7,7 @@ import settingsOriginal from "../../src/js/settings.js";
 
 
 async function testMode(mode) {
-    const baseUrl = "http://localhost/?botCount=2";
+    const baseUrl = "http://localhost/?botCount=2&channelType=fake";
     const urlToTest = baseUrl + "&mode=" + mode;
     const dom = await JSDOM.fromFile("src/index.html", {
         url: urlToTest,
@@ -17,8 +17,7 @@ async function testMode(mode) {
 }
 
 test("test modes", async () => {    
-    const settings = {...settingsOriginal};
-    for (const mode of settings.modes) {
+    for (const mode of settingsOriginal.modes) {
         await testMode(mode);
     }
     assert.ok(true, "Ended well");
