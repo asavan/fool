@@ -19,6 +19,7 @@ export default async function ai(window, document, settings, gameFunction) {
         const btnAdd = document.querySelector(".butInstall");
         btnAdd.classList.remove("hidden2");
     });
-    await game.afterAllJoined();
+    // no await
+    game.afterAllJoined();
     return game;
 }

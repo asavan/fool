@@ -25,10 +25,7 @@ function setupGameToNetwork(game, connection, logger) {
 }
 
 export default async function server(window, document, settings, gameFunction) {
-    const clients = {};
-    let index = 0;
     const myId = "server";
-    clients[myId] = {index};
 
     const connectionFunc = await connectionChooser(settings);
     const cch = await channelChooser(settings);
@@ -59,8 +56,6 @@ export default async function server(window, document, settings, gameFunction) {
                 const { name, externalId } = data;
                 assert(name, "No name");
                 assert(externalId, "No externalId");
-                const client = clients[externalId];
-                client.username = name;
                 return game.join(name, externalId, settings.playerIsBot);
             }
         };
@@ -86,16 +81,10 @@ export default async function server(window, document, settings, gameFunction) {
 
         connection.on("disconnect", (id) => {
             const is_disconnected = game.disconnect(id);
-            if (is_disconnected) {
-                --index;
-                delete clients[id];
-            }
-            logger.log({id, index}, "disconnect");
+            logger.log({id, is_disconnected}, "disconnect");
         });
 
         connection.on("open", (con) => {
-            ++index;
-            clients[con.id] = {"index": index};
             logger.log("connected", con);
             if (game.canSeeGame(con.id)) {
                 return connection.sendRawTo("start", game.toJson(), con.id);
