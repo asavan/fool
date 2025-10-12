@@ -4,6 +4,7 @@ import core from "./basic.js";
 
 import handlersFunc from "../utils/handlers.js";
 import chooseDealerInner from "./dealer.js";
+import PromiseQueue from "../utils/async-queue.js";
 
 function assertHelper(logger) {
     /* #__PURE__ */
@@ -37,6 +38,12 @@ export default function initCore({settings, rngFunc, applyEffects, delay},
     const MAX_SCORE = maxScore;
 
     const localAssert = assertHelper(logger);
+    const actionsQueue = PromiseQueue(logger);
+
+    const wrapAsync = (func) => (...args) => {
+        const op = () => func.apply(this, args);
+        return actionsQueue.add(op);
+    };
 
     const commands = [
         "shuffle",
@@ -651,7 +658,7 @@ export default function initCore({settings, rngFunc, applyEffects, delay},
         return pl.pile().filter(c => core.suitable(c, cardOnBoard, currentColor, hasColor));
     };
 
-    const canDraw = () => cardTaken > 0;
+    const canDraw = () => cardTaken === 0;
 
     const toJson = () => ({
         playersRaw: players.map(p => p.toJson()),
@@ -672,8 +679,8 @@ export default function initCore({settings, rngFunc, applyEffects, delay},
         isMyMove,
         canDraw,
         getCurrentSuitable,
-        chooseDealer,
-        deal,
+        chooseDealer : wrapAsync(chooseDealer),
+        deal: wrapAsync(deal),
         getPlayerIterator,
         getPlayerByIndex,
         size,
@@ -681,20 +688,20 @@ export default function initCore({settings, rngFunc, applyEffects, delay},
         getDealer,
         getCurrentPlayer,
         getCardOnBoard,
-        tryMove,
-        moveToDiscard,
-        setDeck,
-        onDraw,
-        onMove,
-        onDiscard,
-        setCurrentObj,
-        cleanHandExternal,
-        nextDealer,
-        onDrawPlayer,
-        pass,
+        tryMove: wrapAsync(tryMove),
+        moveToDiscard: wrapAsync(moveToDiscard),
+        setDeck: wrapAsync(setDeck),
+        onDraw: wrapAsync(onDraw),
+        onMove: wrapAsync(onMove),
+        onDiscard: wrapAsync(onDiscard),
+        setCurrentObj: wrapAsync(setCurrentObj),
+        cleanHandExternal: wrapAsync(cleanHandExternal),
+        nextDealer: wrapAsync(nextDealer),
+        onDrawPlayer: wrapAsync(onDrawPlayer),
+        pass: wrapAsync(pass),
         getCurrentColor,
         getDirection,
-        onEndRound,
+        onEndRound: wrapAsync(onEndRound),
         deckSize,
         secretlySeeTopCard,
         setColorChooser,
