@@ -32,8 +32,7 @@ export default async function server(window, document, settings, gameFunction) {
     return new Promise((resolve, reject) => {
         const el = safe_query(document, settings.sNAnchor);
         const logger = loggerFunc(2, el, settings);
-        const connectionLogger = loggerFunc(1
-            , el, settings);
+        const connectionLogger = loggerFunc(1, el, settings);
         const connection = connectionFunc(myId, connectionLogger, true, settings);
         const socketUrl = cch.getConnectionUrl(settings, window.location);
         let qrCodeEl;
@@ -77,7 +76,7 @@ export default async function server(window, document, settings, gameFunction) {
             removeElem(qrCodeEl);
             qrCodeEl = undefined;
 
-            const loggerActions = loggerFunc(1, null, settings);
+            const loggerActions = loggerFunc(5, null, settings);
             const unoActions = actionsFuncUno(engine, loggerActions);
             connection.registerHandler(unoActions, queue);
         });

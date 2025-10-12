@@ -39,7 +39,7 @@ export default function unoGame({window, document, settings}, {playersExternal, 
     }
 
     function drawScreen(marker) {
-        layout.drawPlayers({document, engine, myIndex, settings, playersExternal}, marker);
+        return layout.drawPlayers({document, engine, myIndex, settings, playersExternal}, marker);
     }
 
     function onDrawTiming(playerIndex, showAllCards) {
@@ -161,16 +161,21 @@ export default function unoGame({window, document, settings}, {playersExternal, 
 
     colorChooser(window, document, engine, gameState);
 
+    const newRound = async () => {
+        await delay(settings.betweenRounds);
+        await engine.nextDealer();
+        await delay(settings.beforeDeal);
+        await engine.deal();
+    }
+
     engine.on("roundover", async (data) => {
         drawScreen("roundover");
         if (settings.mode === "net") {
             return;
         }
         await handlers["roundover"](data);
-        await delay(settings.betweenRounds);
-        await engine.nextDealer();
-        await delay(settings.beforeDeal);
-        await engine.deal();
+        // no await
+        newRound();
     });
 
     async function start() {

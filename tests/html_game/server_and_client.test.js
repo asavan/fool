@@ -38,11 +38,17 @@ function makeMove(dom, hand, card) {
     console.log("after click card", card);
 }
 
+async function makeMoveAndCheck(dom, hand, card) {
+    makeMove(dom, hand, card);
+    await delay(300);
+    checkCardOnTable(dom.window.document, card);
+}
+
 function checkCardOnTable(document, card) {
     const table = document.querySelector(".center-pile");
-    const selector = `.card[data-card="${card}"]`;
-    const cardEl = table.querySelector(selector);
-    assert.ok(cardEl, "No card");
+    const cardEl = table.querySelector(".card");
+    const onTable = Number.parseInt(cardEl.dataset.card, 10);
+    assert.equal(card, onTable, "Wrong card");
 }
 
 test("server_and_client", async () => {
@@ -97,5 +103,63 @@ test("server_and_client_reshuffle", async () => {
     clicker.clickBySelector(domClient, ".js-draw");
     await delay(500);
     hasPile(clientHandFunc(), [46, 79, 52, 19, 44, 95, 30, 77]);
+    assert.ok(true, "Ended well");
+});
+
+async function skipMove(dom) {
+    clicker.clickBySelector(dom, ".js-draw");
+    await delay(100);
+    clicker.clickBySelector(dom, ".js-pass");
+}
+
+async function skipMoveAndCheck(dom) {
+    const hand = myHandEl(dom.window.document);
+    const sizeBefore = hand.querySelectorAll(".card").length;
+    await skipMove(dom);
+    await delay(900);
+    const sizeAfter = hand.querySelectorAll(".card").length;
+    assert.equal(sizeAfter, sizeBefore + 1, "Not skipped");
+}
+
+test("server_and_client_second_round", async () => {
+    const domServer = await JSDOM.fromFile("src/index.html", {
+        url: "http://localhost:8080/?mode=server&channelType=fake&seed=b",
+    });
+    assert.doesNotReject(starterFunc(domServer.window, domServer.window.document));
+
+    const domClient = await JSDOM.fromFile("src/index.html", {
+        url: "http://localhost:8080/?mode=net&channelType=fake&seed=b",
+    });
+    assert.doesNotReject(starterFunc(domClient.window, domClient.window.document));
+    await delay(200);
+    fillName(domServer, "Server1");
+    fillName(domClient, "Client1");
+    await delay(100);
+    clicker.clickBySelector(domServer, ".start-button");
+    await delay(9000);
+    const serverHand = myHandEl(domServer.window.document);
+    hasPile(serverHand, [88, 67, 30, 111, 40, 38, 74]);
+    checkCardOnTable(domServer.window.document, 93);
+    await skipMoveAndCheck(domClient);
+    await makeMoveAndCheck(domServer, serverHand, 40);
+    await delay(800);
+    await makeMoveAndCheck(domServer, serverHand, 38);
+    await delay(800);
+    await makeMoveAndCheck(domServer, serverHand, 30);
+    await skipMoveAndCheck(domClient);
+    await makeMoveAndCheck(domServer, serverHand, 88);
+    await delay(200);
+    await skipMoveAndCheck(domClient);
+    await makeMoveAndCheck(domServer, serverHand, 74);
+    await delay(200);
+    await skipMoveAndCheck(domClient);
+    makeMove(domServer, serverHand, 111);
+    await delay(300);
+    clicker.clickBySelector(domServer, ".color-grid .red");
+    await delay(300);
+    checkCardOnTable(domServer.window.document, 111);
+    await delay(1000);
+    await makeMoveAndCheck(domServer, serverHand, 67);
+    await delay(20000);
     assert.ok(true, "Ended well");
 });

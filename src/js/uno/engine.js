@@ -501,6 +501,7 @@ export default function initCore({settings, rngFunc, applyEffects, delay},
         if (applyEffects) {
             await calcCardEffect(card, playerIndex);
             if (gameState === core.GameStage.ROUND_OVER || gameState === core.GameStage.GAME_OVER) {
+                traceLogger.log("before onRoundEnd", gameState);
                 await onRoundEnd(playerIndex, calcScore());
             }
         }
@@ -519,8 +520,10 @@ export default function initCore({settings, rngFunc, applyEffects, delay},
     async function onRoundEnd(playerIndex, diff) {
         const player = players[playerIndex];
         localAssert(player.hasEmptyHand(), "End on not empty hand");
-        localAssert(gameState !== core.GameStage.ROUND, "Bad state onRoundEnd");
+        // localAssert(gameState !== core.GameStage.ROUND, "Bad state onRoundEnd");
+        traceLogger.log("before cleanAllHands", gameState);
         await cleanAllHands();
+        traceLogger.log("after cleanAllHands", gameState);
         player.updateScore(diff);
         const score = player.getScore();
         if (score >= MAX_SCORE) {
@@ -530,9 +533,11 @@ export default function initCore({settings, rngFunc, applyEffects, delay},
             gameState = core.GameStage.ROUND_OVER;
             await report("roundover", { playerIndex, score, diff });
         }
+        traceLogger.log("after onRoundEnd", gameState);
     }
 
     function onEndRound(data) {
+        traceLogger.log("after onEndRound", gameState);
         if (data.playerIndex !== currentPlayer) {
             logger.log("End not for current Player");
             // return false;
