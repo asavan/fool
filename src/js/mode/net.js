@@ -40,46 +40,46 @@ function setupGameToNetwork(game, connection, logger, myId) {
     }
 }
 
+function startGame(window, document, settings, gameFunction, myId, connection) {
+    const loggerActions = loggerFunc(2, null, settings);
+    const queue = PromiseQueue(console);
+    settings.applyEffects = false;
+    const game = gameFunction({window, document, settings, myId});
+    setupGameToNetwork(game, connection, loggerActions, myId);
+    const actions = {
+        "start": (data) => {
+            const unoGame = game.onStart(data);
+            const engine = unoGame.getEngine();
+            const unoActions = actionsFuncUno(engine, loggerActions);
+            connection.registerHandler(unoActions, queue);
+            return unoGame;
+        }
+    };
+    connection.registerHandler(actions, queue);
+    game.onConnect();
+    return game;
+}
+
 export default async function netMode(window, document, settings, gameFunction) {
     const connectionFunc = await connectionChooser(settings);
     const cch = await channelChooser(settings);
-    return new Promise((resolve, reject) => {
-        // enterName(window, document, settings);
-        const myId = getMyId(window, settings, Math.random);
-        assert(myId, "No net id");
-        const el = safe_query(document, settings.clNAnchor);
-        const logger = loggerFunc(2, el, settings);
-        const connectionLogger = loggerFunc(1, el, settings);
-        const connection = connectionFunc(myId, connectionLogger, false, settings);
-        const socketUrl = cch.getConnectionUrl(settings, window.location);
-        connection.on("error", (e) => {
-            logger.error(e);
-            reject(e);
-        });
-        onConnectionAnimation(document, connection, logger);
-        connection.on("open", (id) => {
-            logger.log("Server id ", id, myId);
-            const queue = PromiseQueue(console);
-            settings.applyEffects = false;
-            const game = gameFunction({window, document, settings, myId});
-            setupGameToNetwork(game, connection, logger, myId);
-            const actions = {"start": (data) => {
-                logger.log("Before start", id, myId);
-                const unoGame = game.onStart(data);
-                const loggerActions = loggerFunc(2, null, settings);
-                const engine = unoGame.getEngine();
-                const unoActions = actionsFuncUno(engine, loggerActions);
-                connection.registerHandler(unoActions, queue);
-                return unoGame;
-            }};
-            connection.registerHandler(actions, queue);
-            game.onConnect();
-            resolve(game);
-        });
-
-        connection.connect(socketUrl, cch).catch(e => {
-            logger.error(e);
-            reject(e);
-        });
+    const myId = getMyId(window, settings, Math.random);
+    assert(myId, "No net id");
+    const el = safe_query(document, settings.clNAnchor);
+    const logger = loggerFunc(2, el, settings);
+    const connectionLogger = loggerFunc(1, el, settings);
+    const connection = connectionFunc(myId, connectionLogger, false, settings);
+    const socketUrl = cch.getConnectionUrl(settings, window.location);
+    onConnectionAnimation(document, connection, logger);
+    const gameInitPromise = Promise.withResolvers();
+    connection.on("open", (id) => {
+        logger.log("Server id ", id, myId);
+        gameInitPromise.resolve(id);
     });
+
+    await connection.connect(socketUrl, cch);
+    connection.sendRawAll("join", {});
+    await gameInitPromise.promise;
+    const game = startGame(window, document, settings, gameFunction, myId, connection);
+    return game;
 }

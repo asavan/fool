@@ -86,7 +86,7 @@ export default async function server(window, document, settings, gameFunction) {
             logger.log({id, is_disconnected}, "disconnect");
         });
 
-        connection.on("open", (con) => {
+        connection.on("join", (con) => {
             logger.log("connected", con);
             if (game.canSeeGame(con.id)) {
                 return connection.sendRawTo("start", game.toJson(), con.id);

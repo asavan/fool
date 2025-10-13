@@ -6,6 +6,7 @@ export default function connectionFunc(id, logger, isServer, settings) {
         "disconnect",
         "error",
         "open",
+        "join",
         "gameinit",
         "reconnect",
         "socket_open",
