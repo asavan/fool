@@ -166,7 +166,7 @@ export default function unoGame({window, document, settings}, {playersExternal, 
         await engine.nextDealer();
         await delay(settings.beforeDeal);
         await engine.deal();
-    }
+    };
 
     engine.on("roundover", async (data) => {
         drawScreen("roundover");

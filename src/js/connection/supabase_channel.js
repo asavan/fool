@@ -6,11 +6,11 @@ function getConnectionUrl(settings) {
     return "suno" + settings.seed;
 }
 
-function createSignalingChannel(id, socketUrl, logger, settings) {
+function createSignalingChannel(id, name, logger) {
     const handlers = handlersFunc(["error", "open", "message", "beforeclose", "close"]);
     const supabase = createClient(supabase_settings.SUPABASE_URL,
         supabase_settings.SUPA_API_ANON_KEY);
-    const myChannel = supabase.channel("suno" + settings.seed);
+    const myChannel = supabase.channel(name);
 
     const send = (type, sdp, to, ignore) => {
         const json = {from: id, to: to, action: type, data: sdp, ignore};

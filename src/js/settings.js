@@ -5,6 +5,7 @@ export default {
     connection: "websocket",
     channelTypes: ["websocket", "supabase", "fake"],
     channelType: "websocket",
+    gameChanPrefix: "suno",
     wsPort : 8088,
     loggerAnchor: ".log",
     clNAnchor: "",
