@@ -16,7 +16,7 @@ function setupGameToNetwork(game, connection, logger) {
         game.on(handlerName, (n) => {
             let ignore;
             if (n && n.externalId) {
-                console.log("Ignore", n.externalId);
+                logger.log("Ignore", n.externalId);
                 ignore = [n.externalId];
             }
             return connection.sendRawAll(handlerName, n, ignore);
