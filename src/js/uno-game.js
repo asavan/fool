@@ -53,22 +53,22 @@ export default function unoGame({window, document, settings}, {playersExternal, 
     }
 
     engine.on("draw", ({playerIndex, card}) => {
-        const drawAnim = layout.drawPlayersDeal(window,
+        layout.drawPlayersDeal(window,
             {document, engine, myIndex, settings, playersExternal},
             "draw", card, playerIndex
         );
         const pause = delay(onDrawTiming(playerIndex, engine.showAllCards()));
         const network = handlers["draw"]({playerIndex, card});
-        const promises = [pause, network, drawAnim];
+        const promises = [pause, network];
         return Promise.all(promises);
     });
 
     engine.on("drawExternal", ({playerIndex, card}) => {
-        const drawAnim = layout.drawPlayersDeal(window,
+        layout.drawPlayersDeal(window,
             {document, engine, myIndex, settings, playersExternal},
             "drawExternal", card, playerIndex
         );
-        const promises = [delay(onDrawTiming(playerIndex, engine.showAllCards())), drawAnim];
+        const promises = [delay(onDrawTiming(playerIndex, engine.showAllCards()))];
         if (settings.mode === "server") {
             promises.push(report("draw", {playerIndex, card}));
         }
