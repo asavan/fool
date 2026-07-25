@@ -16,7 +16,7 @@ async function testMode(mode) {
     assert.doesNotReject(starterFunc(dom.window, document));
 }
 
-test("test modes", async () => {    
+test("test modes", async () => {
     for (const mode of settingsOriginal.modes) {
         await testMode(mode);
     }

@@ -242,7 +242,6 @@ async function drawCurrent(document, engine, myIndex, settings) {
     activeCurrent?.classList.remove("rounded");
     mainContainer?.classList.remove("blur-container");
     movingCurrent?.remove();
-    movingCurrent = null;
 }
 
 async function drawDeal(window, document, card, animTime) {

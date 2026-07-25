@@ -31,15 +31,15 @@
   },
   "homepage": "https://asavan.github.io/fool/",
   "devDependencies": {
-    "dependency-cruiser": "^16.10.4",
+    "dependency-cruiser": "^18.1.0",
     "http-server": "^14.1.1",
     "madge": "^8.0.0",
-    "netdeps": "github:asavan/net-deps#v0.0.3"
+    "netdeps": "github:asavan/net-deps#v0.0.6"
   },
   "dependencies": {
     "@akamfoad/qrcode": "^0.3.2",
-    "@supabase/supabase-js": "^2.51.0",
+    "@supabase/supabase-js": "^2.110.8",
     "esm-seedrandom": "^3.0.5",
-    "netutils": "github:asavan/netutils#v0.0.8"
+    "netutils": "github:asavan/netutils#v0.1.7"
   }
 }

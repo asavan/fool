@@ -40,7 +40,7 @@ function defaultAiSettings(settings) {
     localSettings.maxScore = 3;
 
     localSettings.botCount = 3;
-    
+
     return localSettings;
 }
 

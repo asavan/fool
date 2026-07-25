@@ -7,6 +7,9 @@ import android.util.Log;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.luigivampa92.ndefemulation.NdefEmulation;
+import com.luigivampa92.ndefemulation.ndef.UriNdefData;
+
 
 public class AndroidWebServerActivity extends Activity {
     private static final int STATIC_CONTENT_PORT = 8080;
@@ -18,12 +21,16 @@ public class AndroidWebServerActivity extends Activity {
 
     private BtnUtils btnUtils;
 
+    private NdefEmulation ndefEmulation;
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         btnUtils = new BtnUtils(this, STATIC_CONTENT_PORT, WEB_SOCKET_PORT, secure);
         try {
+            ndefEmulation = new NdefEmulation(this);
             addButtons(IpUtils.getIPAddressSafe());
             Map<String, String> mainParams = new LinkedHashMap<>();
             mainParams.put("mode", "ai");
@@ -63,6 +70,7 @@ public class AndroidWebServerActivity extends Activity {
             btnUtils.addButtonTwa(hostUtils.getStaticHost(IpUtils.LOCALHOST), b, R.id.twa_real_ip, host);
             btnUtils.addButtonTwa(WEB_GAME_URL, b, R.id.newest);
         }
+        ndefEmulation.setCurrentEmulatedNdefData(new UriNdefData(host));
     }
 
     @Override
