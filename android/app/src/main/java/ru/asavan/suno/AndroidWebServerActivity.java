@@ -32,14 +32,6 @@ public class AndroidWebServerActivity extends Activity {
         try {
             ndefEmulation = new NdefEmulation(this);
             addButtons(IpUtils.getIPAddressSafe());
-            Map<String, String> mainParams = new LinkedHashMap<>();
-            mainParams.put("mode", "ai");
-            mainParams.put("playerIsBot", "true");
-            mainParams.put("botCount", "2");
-            mainParams.put("botMovePause", "7000");
-            mainParams.put("showAll", "true");
-            mainParams.put("clickAll", "true");
-            btnUtils.launchWebView(WEB_VIEW_URL, mainParams);
         } catch (Exception e) {
             Log.e(MAIN_LOG_TAG, "main", e);
         }
@@ -71,6 +63,15 @@ public class AndroidWebServerActivity extends Activity {
             btnUtils.addButtonTwa(WEB_GAME_URL, b, R.id.newest);
         }
         ndefEmulation.setCurrentEmulatedNdefData(new UriNdefData(host));
+
+        Map<String, String> mainParams = new LinkedHashMap<>();
+        mainParams.put("mode", "ai");
+        mainParams.put("playerIsBot", "true");
+        mainParams.put("botCount", "2");
+        mainParams.put("botMovePause", "7000");
+        mainParams.put("showAll", "true");
+        mainParams.put("clickAll", "true");
+        btnUtils.launchTwa(hostUtils.getStaticHost(IpUtils.LOCALHOST), mainParams);
     }
 
     @Override

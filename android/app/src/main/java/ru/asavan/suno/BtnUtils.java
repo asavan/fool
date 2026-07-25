@@ -72,7 +72,7 @@ public class BtnUtils {
     }
 
 
-    private void launchTwa(String host, Map<String, String> parameters) {
+    public void launchTwa(String host, Map<String, String> parameters) {
         startServerAndSocket();
         Uri launchUri = Uri.parse(UrlUtils.getLaunchUrl(host, parameters));
         TwaLauncher launcher = new TwaLauncher(activity);
@@ -81,30 +81,34 @@ public class BtnUtils {
 
     private void startServerAndSocket() {
         if (server != null) {
+            Log.i("BTN_UTILS", "already started");
             return;
         }
         try {
             Context applicationContext = activity.getApplicationContext();
+            Log.i("BTN_UTILS", "try start server");
             server = new AndroidStaticAssetsServer(applicationContext, staticContentPort, secure);
             if (webSocketServer == null) {
                 webSocketServer = new ChatServer(webSocketPort);
                 webSocketServer.start();
             }
+            Log.i("BTN_UTILS", "server started");
         } catch (Exception e) {
             Log.e("BTN_UTILS", "main", e);
         }
     }
 
     protected void onDestroy() {
-        if (server != null) {
-            server.stop();
-        }
         if (webSocketServer != null) {
             try {
                 webSocketServer.stop(1000);
             } catch (InterruptedException e) {
                 Log.e("BTN_UTILS", "onStop", e);
             }
+        }
+        if (server != null) {
+            server.stop();
+            server = null;
         }
     }
 }

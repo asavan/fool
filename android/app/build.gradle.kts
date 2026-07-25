@@ -16,8 +16,8 @@ android {
         applicationId = "ru.asavan.suno"
         minSdk = 24
         targetSdk = 37
-        versionCode = 33
-        versionName = "1.6.1"
+        versionCode = 34
+        versionName = "1.6.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
