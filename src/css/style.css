@@ -119,8 +119,8 @@ ul {
 
 /* stylelint-disable property-no-vendor-prefix */
 .direction {
-  -webkit-mask-image: url("../images/reload.svg");
-  mask-image: url("../images/reload.svg");
+  -webkit-mask-image: url("./images/reload.svg");
+  mask-image: url("./images/reload.svg");
   -webkit-mask-size: cover;
   mask-size: cover;
   display: block;
@@ -205,7 +205,7 @@ ul {
   box-sizing: border-box;
 
   /* Set The Sprite as the Background */
-  background-image: url("../images/deck.svg");
+  background-image: url("./images/deck.svg");
 
   /* background-position: 0 0; */
   background-position: var(--sprite-x) var(--sprite-y);
@@ -220,7 +220,7 @@ ul {
   padding-bottom: 150%;
 
   /* Set The Sprite as the Background */
-  background-image: url("../images/uno.svg");
+  background-image: url("./images/uno.svg");
   background-position: 0 0;
   background-size: 100%;
   display:block;
@@ -528,7 +528,7 @@ footer {
   height:0;
 
   /* Set The Sprite as the Background */
-  background-image: url("../images/deck.svg");
+  background-image: url("./images/deck.svg");
   background-size: 1400%;
   display:block;
   animation: flying-cards-animation 3s steps(8, end) infinite;
